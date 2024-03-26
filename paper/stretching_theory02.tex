@@ -1,0 +1,732 @@
+\documentclass[12pt]{article}
+
+\usepackage{float}
+\usepackage[margin=1in,nohead]{geometry}
+\usepackage{xltabular}
+\usepackage[labelfont=bf, font=footnotesize, width=.85\textwidth]{caption}
+\captionsetup[table]{skip=6pt}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\usepackage{adjustbox}
+\usepackage{mathtools}
+\usepackage{mathptmx,amsbsy,latexsym,amsfonts,amsthm,amsmath,amssymb,mathtools}
+\usepackage{setspace,array,accents,dcolumn}
+\usepackage{graphicx}
+\usepackage[mathscr]{eucal}
+
+\usepackage{comment}
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+
+\usepackage{xurl}
+\urlstyle{same}
+
+% Theory notation
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\efficacy}{\phi}
+\newcommand{\side}{s}
+\newcommand{\xh}{\hat{x}}
+\newcommand{\sqdose}{x^{sq}}
+\newcommand{\sqefficacy}{\efficacy^{sq}}
+\newcommand{\sqside}{\side^{sq}}
+\newcommand{\sqnumber}{n^{sq}}
+
+\newcommand{\benefit}{B}
+\newcommand{\MB}{\text{\it MB}}
+\newcommand{\valueconstrained}{\text{\it VC}}
+\newcommand{\valueunconstrained}{\text{\it VU}}
+
+\newcommand{\harm}{H}
+\newcommand{\barharm}{\bar{H}}
+
+\newcommand{\lagrangian}{\mathscr{L}}
+\newcommand{\elasticity}[1]{\eta_{#1}}
+
+\newcommand{\MINC}{\text{MINC}}
+\newcommand{\MINU}{\text{MINU}}
+\newcommand{\doublelim}{\lim_{Q \uparrow \infty, p \downarrow 0}}
+\newcommand\ubar[1]{\underaccent{\bar}{#1}}
+\renewcommand{\qed}{{\it Q.E.D.}}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+
+\newcommand{\Section}[1]{\vspace{-8pt}\section{\hskip -1em.~~#1}\vspace{-3pt}}
+\newcommand{\SubSection}[1]{\vspace{-3pt}\subsection{\hskip -1em.~~#1}\vspace{-3pt}}
+\renewcommand{\theenumi}{\roman{enumi}}
+
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+\makeatletter
+
+\def\topfraction{.9}
+\def\floatpagefraction{.8}
+\allowdisplaybreaks[1]
+
+\usepackage{setspace}
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\begin{document}
+
+\begin{spacing}{1.5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+\singlespace
+
+\begin{center}
+{\bf Optimal Dose Stretching Under a Supply Constraint in a Pandemic}
+\end{center}
+
+\begin{center}
+Amrita  Ahuja, Michael Kremer, Christopher M. Snyder,\\
+Alex Tabarrok, Brandon Joel Tan, Witold Więcek
+\end{center}
+
+\begin{center}
+April 2021
+\end{center}
+
+{\footnotesize \noindent {\bf Abstract:} [COPIED FROM MERGED PAPER. KEEP THEORY PARTS.] Many countries, especially LMICs, are likely to face lengthy vaccine shortages, creating large economic and health losses.  If shortages cannot be alleviated, we estimate large potential benefits from (1) experimenting with smaller doses, (2) lengthening the gap between doses, and (3) conducting testing to prioritise people without naturally acquired immunity. Moreover, using vaccines that are available quickly improves population health relative to waiting for more efficacious vaccines that are available with delays of two months or more. Under mild continuity assumptions, the dose maximizing expected public health is smaller than that which maximizes expected benefits for the individual receiving the shot, while the public-health maximizing lag between doses exceeds the lag maximizing benefits for the individual receiving immunization. With a homogeneous population and the s-shaped expected dose-response function often assumed in pharmacological modelling, public health benefits are maximized by setting dosage at the unit-elastic level, where a 1\% dose reduction reduces efficacy by 1\%. Trials of dosing regimes between this level and the dose which maximizes expected benefits for those receiving the vaccine will be Pareto-improving in expectation relative to using a lottery to allocate doses which maximize the expected benefit to those who are vaccinated.  Greater uncertainty in efficacy as a function of dose increases the option value of dosage trials. Firms and individual nations will not fully capture the benefits of such trials, making them a global public good. Heterogeneity in COVID-19 fatality rates with age implies that optimal doses increase with age to equalize marginal benefits of additional vaccine across age groups. The greater the importance of epidemiological externalities relative to the direct protective effect of vaccination on the individual, the more similar optimal doses across age groups.  Epidemiological simulations over a range of realistic scenarios suggest dose stretching policies could generate substantial public health benefits. Benefits are sensitive to the available vaccine supply and the reproductive rate of the disease, but remain large even if there is considerable loss of efficacy from using a smaller dose or second dose delays.}
+
+\vfill
+
+\noindent {\bf JEL Codes:} I18 (Health: Government Policy, Public Health); O38 (Innovation: Government Policy); C63 (Simulation Modeling) 
+
+\vfill
+
+\noindent {\bf Keywords:} vaccine, pandemic, epidemiology, public health, supply
+
+\vfill
+
+\noindent {\bf Acknowledgments:} The authors are grateful to Nora Szech and seminar participants at Harvard, M.I.T., University of Chicago, and the NBER Entrepreneurship and Innovation Policy and the Economy conference for helpful comments and to Esha Chaudhuri and Alexandre Simoes Gomes for excellent research assistance.
+
+\vfill
+
+\noindent {\bf Contact Information:} Ahuja: Douglas B. Marshall Jr. Family Foundation, e-mail: amrita.b.ahuja@gmail.com. Kremer: Kenneth C. Griffin Department of Economics, University of Chicago, e-mail: kremermr@uchicago.edu. Snyder: Department of Economics, Dartmouth College, e-mail: chris.snyder@dartmouth.edu. Tabarrok: Economics Department, George Mason University, tabarrok@gmu.edu. Tan: Economics Department, Harvard University, e-mail: btan@g.harvard.edu. Więcek: Independent researcher, e-mail: witold.wiecek@gmail.com.
+
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Introduction}
+\label{s:Introduction}
+
+Despite rapid expansion of capacity in COVID-19 vaccine production, in 2021 many countries only expect to obtain full vaccination courses for a fraction of their population. For example, COVAX (the WHO's primary initiative to support vaccine research and manufacturing and distribute vaccines globally) anticipates supplying vaccines for only 27 percent of the population of the 92 eligible low-income countries \cite{world_health_organization_covax_2021}. Quantity constraints on vaccines are likely to be important during any pandemic. Thus, it is important to study policies that allow us to make the best use of limited supply of vaccines by ``stretching'' vaccine doses.
+
+Dose-stretching policies include fractional dosing and delaying second doses. Fractional dosing--at 1/5th the individually optimal dose--was used in Brazil to deal with a yellow fever epidemic in 2018 \cite{paho_brazil_2018}. More recently Great Britain and Canada delayed the second dose of a COVID vaccine course in order to increase the number of first doses. 
+
+We study these types of dose-stretching policies in a mathematical model. Our model is static and compares  individual, country and global optimums. In a companion piece, we model dynamic adjustments using an SIER model (XXXX,XXXX)
+
+We start with a model of optimal vaccine policy from the perspective of an individual, a country planner, and a global social planner. We show that, in normal circumstances, where capacity constraints do not bind, setting the amount of vaccine per course to maximize welfare for individuals receiving vaccines also maximizes public health. However, when vaccine supply is constrained, as is the case in the short run in the current pandemic, the regimen that is optimal for an individual receiving vaccines will not maximize social net benefits. Similarly, the public-health maximizing lag between doses also exceeds the lag maximizing benefits for the individual receiving immunization. Our model suggests that under capacity constraints, dose sparing improves public health as long as the harm to the vaccinated individuals from the reduction in dose is smaller than the health benefit to society of giving the additional dose to the next person. With a homogeneous population and the s-shaped expected dose-response function often assumed in pharmacological modeling, public health benefits are maximized by setting dosage at the unit-elastic level, where a 1\% dose reduction reduces efficacy by 1\%. 
+
+The mortality risk of a disease such as COVID is highly heterogeneous, most notably rising steeply in age. Thus, we also model the planner optimum under harm heterogeneity. We show that fractional dosing can be optimized for harm heterogeneity by assigning, for example, smaller doses to those less at risk and larger dose to those most at risk. 
+
+The country planner's optimal amount of vaccine per course differs from that of a global planner because a country faces an exogenous price per unit of vaccine, while a global social planner internalizes vaccine producer profits and the opportunity cost of using units of vaccine to vaccinate other countries. Reducing the dose until these two quantities are equal maximizes public health.
+
+Finally, we show that the value of experimentation to learn the optimal vaccine policy increases with greater uncertainty. 
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Model}
+\label{s:Model}
+
+Let $x \geq 0$ denote the quantity of vaccine substance in a course. Let $\efficacy(x) \in [0,1]$ denote the efficacy of a course. Assume $\efficacy(0) = 0$ and $\efficacy'(x) > 0$ for all $x \geq 0$. We will initially assume $\efficacy''(x) > 0$ for all $x \geq 0$ though will relax this assumption in certain subsections to examine an s-shape for $\efficacy(x)$ as shown in Figure~\ref{fig:efficacy}. Let $\side(x)$ denote an individual's expected harm from the vaccine course's side effects. Assume $\side(0) = 0$ and, for all $x \geq 0$, $\side'(x) > 0$ and $\side''(x) \geq 0$.
+
+\begin{figure}
+\centering
+\includegraphics[viewport=55 309 472 482, width=.85\textwidth, clip]{figures/efficacy.eps}
+\caption{{\bf Shapes for Efficacy Function}. Panel~A shows the concave shape assumed for $\efficacy(x)$ prior to Section~\ref{ss:non-concave}. Panel~B shows an s-shaped $\efficacy(x)$ assumed in Section~\ref{ss:non-concave}, with a unique, interior inflection point $x^i$ and point of unit elasticity, $x^u$.}
+\label{fig:efficacy}
+\end{figure}
+
+The population consists of a continuum of homogeneous individuals of mass $N$. Letting $n \in [0,N]$ denote the fraction that receive a vaccine course, the number of successfully immunized is $v = n \efficacy(x)$. Let $\benefit(v)$ denote the social benefit from preventing disease harm via successful vaccination, capturing both the direct protective effects and the indirect epidemiological effects of reducing transmission from vaccinated individuals. Assume $\benefit'(0) = 0$, and for all $v \in [0, N]$, $\benefit'(v) > 0$ and $\benefit''(v) < 0$. Let $\MB(v) = \benefit'(v)$. Then, for all $v \in [0,N]$, $\MB(v) > 0$ and $\MB'(v) < 0$.
+
+A social planner chooses the size $x$ of the course and the number of people vaccinated to maximize population health benefits, the social benefit from the vaccine less the harm from side effects, net of expenditures. Abstract 
+from expenditures besides that on the vaccine substance, for which the planner pays an exogenous price $p \geq 0$ per unit. The price may reflect a margin $m \geq 0$ over unit cost $c$, i.e., $m = (p-c)/p$. 
+The planner's objective is thus
+\begin{equation}
+\label{obj}
+\max_{x,n} \left[ \benefit(n\efficacy(x)) - n \side(x) - pnx \right].
+\end{equation}
+
+The planner faces several constraints in addition to non-negativity of the choice variables, $x \geq 0$ and $n \geq 0$. Crucial for the analysis is the constraint on vaccine capacity. In particular, denote the supply of vaccine substance by $Q > 0$. The total quantity of vaccine substance used cannot exceed this supply:
+\begin{equation}
+\label{capacity}
+Q \geq nx.
+\end{equation}
+Further, no more than the total population can be vaccinated:  
+\begin{equation}
+\label{population}
+N \geq n.
+\end{equation}
+
+The analysis will focus on whether the planner maintains the potency of a vaccine course optimal in the absence of a capacity constraint when the capacity constraint starts to bind or whether the planner reduces the potency of the course---stretching the vaccine---so that there can be less rationing. A tightening of the capacity constraint is equivalent to a reduction in $Q$, so the analysis will amount to the comparative-static effect of a reduction in $Q$ on the optimal dosage, $x^*$.  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Planner Optimum}
+\label{s:Planner}
+
+To streamline the characterization of the planner's optimum, introduce notation $\xh(n)$ for the implicit solution to the following equation: 
+\begin{equation}
+\label{xhat}
+\benefit'(n \efficacy(\xh(n))) \efficacy'(\xh(n)) = s'(\xh(n)) + p.
+\end{equation}
+Equation \eqref{xhat} is the first-order condition for the optimal dosage in the absence of a capacity constraint given $n$ people are being vaccinated. The equation sets the marginal social benefit from the increased efficacy associated with a dosage increase on the left-hand side equal to the generalized marginal social cost on the right-hand side, which embodies both the marginal harm from side effects and the unit cost of additional substance. 
+
+The following proposition characterizes the solution to the planner's problem. The proof in Appendix~A derives the solution from the associated Kuhn-Tucker conditions, necessary for a maximum. 
+\begin{proposition}
+\label{p:KT}
+\singlespace
+If
+\begin{equation}
+\label{no_corner}
+\benefit'(0) \efficacy'(0) > \side'(0) + p,
+\end{equation}
+then the planner optimally vaccinates the entire population ($n^* = N$) with a course of size $x^* = \min(\xh(N), Q/N)$. 
+If \eqref{no_corner} is violated, then the planner's solution is trivial, involving no substance ($x^* = 0$) and/or no vaccination ($n^* = 0$). 
+\end{proposition}
+
+If \eqref{no_corner} holds, ensuring the planner's optimal policy is non-trivial, the planner vaccinates the entire population with equal-sized courses. A policy in which some consumers are allocated stronger courses than others can be improved without changing the total quantity of vaccine substance used by reallocating substance to those receiving less. This reallocation preserves the capacity constraint and keeps expenditure constant while increasing social surplus because those with less substance generate a higher marginal benefit (because of the concavity of $\benefit$ and $\efficacy$) and lower marginal side-effect cost (because of the convexity of $\side$) compared to those receiving stronger doses. The optimal course sets the marginal social benefit equal to the generalized marginal social cost---as \eqref{xhat} specifies---unless this violates the capacity constraint \eqref{capacity}, in which case each consumer obtains an equal share of available capacity. Panel~A of Figure~\ref{fig:optimum} provides a schematic diagram of the planner's optimum.
+
+\begin{figure}
+\centering
+\includegraphics[viewport=52 131 485 447, width=.8\textwidth, clip]{figures/optimum.eps}
+\caption{{\bf Planner's Optimal Dosage for Various Capacity Levels}. The panels graph the planner's optimal dosage $x^*$ under, respectively, concave and s-shaped $\efficacy(x)$. The text below the curves describes the optimal dosage and number of vaccinations in each partition. Slanted lines are colinear with the 45-degree line, here flattened because axes have different scales. Panel~B illustrates the richer of two possibilities, arising when $n^u > N$.}
+\label{fig:optimum}
+\end{figure}
+
+If condition \eqref{no_corner} is violated, then the marginal social benefit of a small dose on the left-hand side is no greater than its generalized marginal social cost, reflecting side effects and purchase price, on the right-hand side. Larger doses are even worse for the planner because benefits are concave and costs convex. So the planner prefers not vaccinating anyone. To focus on interesting cases, we maintain \eqref{no_corner} throughout the remainder of the paper.
+
+The conditions under which there is dose stretching are immediate from Proposition~\ref{p:KT}. Full doses $\xh(N)$ are optimal if $Q \geq N \xh(N)$, implying that the planner is unconstrained by capacity. Dose stretching is optimal at lower levels of capacity $Q < N \xh(N)$. Rather than administering full doses to some individuals and rationing others, the planner moves some of the substance over for doses for rationed consumers. This improves social surplus because the rationed individuals have a higher marginal efficacy benefit and lower marginal side-effect cost than those receiving the full dose, as explained in the previous subsection.
+
+The model thus has clear, simple implications for dose stretching. With homogeneous consumers having concave benefit and convex harm from an increase in dosage $x$, rationing is never optimal. If capacity is sufficiently tight that a full dose would entail rationing, it is better to reduce the dosage and have consumers share available capacity equally. 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Non-concave Efficacy}
+\label{s:Non-concave}
+
+The model with concave efficacy studied so far has the advantage of making a clear and obvious case for dose stretching. A drawback is that it excludes the possibility of optimal rationing and the possibility that the optimal dosage $x^*$ does not shrink to zero in the limit $Q \downarrow 0$. 
+
+To accommodate these interesting possibilities, this subsection relaxes the concavity of $\efficacy(x)$. In particular, we assume $\efficacy(x)$ is s-shaped as drawn in the second panel of Figure~\ref{fig:efficacy}. S-shaped dose-response curves are often used in pharmacometric modeling of vaccines \cite{rhodes_sophie_j_et_al_dose_2021}. At low dosage levels, efficacy remains low, with increases in dosage having little marginal effect. Marginal gains increase up to inflection point, after which they diminish. Formally, $\efficacy(x)$ derives its s-shape from having a unique, interior inflection point, $x^i$. All the other properties of $\efficacy(x)$ from before are maintained, namely, $\efficacy(x) \in [0,1]$, $\efficacy(0) = 0$, $\efficacy'(x)$, and $\efficacy(x)$ is twice continuously differentiable. As our goal is to document definitive cases of interest rather than to catalog a broad set of possibilities, besides focusing on a particular shape for $\efficacy(x)$, we will take the side-effect function to have a simple linear form, i.e., $\side(x) = \sigma x$ for some constant $\sigma \geq 0$.  
+
+The new shape for $\efficacy(x)$ introduces the possibility that the optimal dosage when supply is increasingly constrained does not simply divide the smaller amount evenly among the whole population but stops at a dosage where $\efficacy(x)$ is unit elastic. This maximizes successful vaccinations $v = n \efficacy$ under a constraint on the supply of vaccine substance. When the elasticity of efficacy is greater than 1, taking doses from 1\% of the population and adding it to the dosage of the other consumers raises efficacy for them by more than 1\%, thus increasing $v$. If $\side(x)$ were strictly convex, concentrating doses would magnify harm from side effects, but that danger is avoided here since $\side(x)$ is assumed to be linear.\footnote{In the more general case in which $\side(x)$ is weakly convex, the elasticity of efficacy needs to be balanced against the elasticity of side-effect harm.} When the elasticty of efficacy is less than 1, reducing the dosage and spreading vaccine to more people increases $v$. 
+
+Formally, letting $\elasticity{f}(x) = x f'(x) / f(x)$ denote the elasticity of an arbitrary function $f$, the unit-elastic dose $x^u$ satisfies $\elasticity{\efficacy}(x^u) = 1$. The next proposition shows that $x^u$ exists for an s-shaped $\efficacy(x)$ and is unique. 
+
+\begin{lemma}
+\label{l:s-shaped}
+\singlespace
+Suppose $\efficacy(x)$ is s-shaped. There exists a unique $x^u > 0$ such that $\elasticity{\efficacy}(x^u) = 1$. For all $x \in (0, x^u)$, $\elasticity{\efficacy}(x) > 1$; for all $x > x^u$, $\elasticity{\efficacy}(x) < 1$. 
+\end{lemma}
+
+The unit-elastic dosage may also be optimal in the absence of a capacity constraint if the generalized marginal cost of vaccinating another individual is higher than the marginal benefit from the last vaccination in a universal campaign. Then an interior number of vaccinations at the unit-elastic dosage is optimal. To accommodate this possibility with convenient notation, let $n^u$ denote that interior number of vaccinations: $n^u$ is such that $\xh(n^u) = x^u$, which upon substituting into \eqref{xhat}, yields
+\begin{equation}
+\label{nu_implicit}
+\benefit'(n^u \efficacy(x^u)) \efficacy'(x^u) = \sigma + p,
+\end{equation}
+or, rearranging,
+\begin{equation}
+\label{nu}
+n^u = \frac{1}{\efficacy(x^u)} \MB^{-1} \left( \frac{\sigma + p}{\efficacy'(x^u)} \right).
+\end{equation}
+\noindent Note the relevant linear form for $\side(x)$ has been inserted in \eqref{nu_implicit}--\eqref{nu}. 
+
+The following proposition characterizes the solution to the planner's problem of maximizing \eqref{obj} subject to non-negativity of the choice variables ($x \geq 0$ and $n \geq 0$) and constraints \eqref{capacity}--\eqref{population}. As did the proof of the previous proposition, the proof of Proposition~\ref{p:KT}, The proof in Appendix~A shows that the solution emerges from the associated Kuhn-Tucker conditions, necessary  for a maximum. 
+\begin{proposition}
+\label{p:s-shaped}
+\singlespace
+Suppose efficacy function $\efficacy(x)$ is s-shaped and condition \eqref{no_corner} holds. The planner's optimal number of vaccinations is $n^* = \min(n^u, N, Q/x^u)$. The optimal dosage is $x^* = \min(\xh(N), Q/N)$ if $n^* = N$ and $x^* = x^u$ if $n^* < N$. 
+\end{proposition}
+
+Panel~B of Figure~\ref{fig:optimum} illustrates the planner's optimal dosage in the case of an s-shaped $\efficacy(x)$. We have chosen to illustrate the richer case arising when $n^u > N$.\footnote{Intuitively, the condition $n^u > N$ implies that it is optimal for the planner to vaccinate all individuals in the absence of a capacity constraint. In the case $n^u \leq N$ not illustrated, the optimal dose is simply a horizontal line with height $x^u$. While the optimal dose $x^u$ in the case not illustrated was construed as dose-stretching in the case illustrated, it cannot be construed as dose-stretching in the case not illustrated because $x^u$ is optimal in the absence of a capacity constraint in that case.} As in the case of concave $\efficacy(x)$, when per-capita capacity $Q/N$ is reduced from a high level below $\xh(N)$, the optimal dose is initially stretched so all individuals can still be vaccinated. When per-capita capacity falls below $x^u$, a new dosing policy emerges with s-shaped $\efficacy(x)$. Instead of continuing to reduce the dosage so all individuals can be vaccinated, it is optimal to maintain the unit-elastic level $x^u$ and ration this dose. Panel~B illustrates the possibility, emerging under severe capacity constraints (perhaps realistic for the present COVID-19 pandemic), the optimal policy can involve stretching and rationing and need not entail vanishingly small doses.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Trials of Alternative Dosing Regimens}
+\label{s:trials}
+
+This section has some results about trials of alternative dosing regimens.
+
+%------------------------------------------------------------------------------
+
+\SubSection{Participation Game Among Subjects}
+\label{ss:participation}
+
+Suppose the dosage tested in initial clinical trials is the optimum $\xh(N)$ in the absence of capacity constraints. If a capacity constraint materializes after trials are complete, the planner may find that dose stretching is called for. Even if the planner has good information about safety and efficacy of various dose levels, facing little uncertainty that stretching will improve surplus, perhaps even having a good idea of the optimal level of stretching $x^*$, the regulatory structure may still require new clinical trials to publicly establish the safety and efficacy of $x^*$. 
+
+Since dose stretching provides a social benefit, and trials are necessary for dose stretching, trial participation is akin to discrete public good provision, formalized as a game and analyzed by Palfrey and Rosenthal (1984). Assuming participation is costly, they show (Proposition~1) that there are multiple pure-strategy Nash equilibria. In one equilibrium, no one participates and the public good is not provided. In the other equilibrium (unique up to exchangability), participation at the threshold level leads the public good to be provided. Here, we will rule out the equilibrium with no participation by showing that participation is not costly: an individual benefits from trial participation even if no other subjects sign up. Our result lends confidence to the feasibility of conducting new trials to test improved dosing policies.
+
+Formally, assume that $\efficacy(x)$ is either concave or s-shaped as in one of the previous subsections. Assume that dose stretching is optimal for the planner, i.e., $x^* = \xh(N)$ would have been the planner's optimum in the absence of a capacity constraint, but given the constraint is present, $x^* = \min(x^u, Q/N) < \xh(N)$.\footnote{For some parameters, namely $N > \min(n^u, Q/x^u)$, the optimal dose in the absence of a capacity constraint is $x^u < \xh(N)$. These parameters are not consistent with dose stretching, however, since $x^*$ does not fall as the capacity constraint is tightened, remaining at $x^* = x^u$. If doses are strictly stretched under a capacity constraint, we can take the full dose to be $\xh(N)$ without loss of generality.} Consider a model of trials in which $\efficacy(x)$ and $\side(x)$ are common knowledge, implying that the outcome of the trials of any dose-stretching policy is common knowledge; but regulations stipulate trials still need to be conducted. (This model abstracts from the important informational role of trials, analyzed separately in the next subsection.) The planner invites the voluntary participation of trial subjects. If a threshold number participates, the trials provide sufficient evidence for dose stretching to be implemented. If too few participate, the planner must stick to the policy of full doses $\xh(N)$, which owing to the capacity constraint must be rationed. Assume rationing is done by lottery. Suppose that the trials are small relative to the population, the threshold number having zero measure, implying that the number of participants in an unsuccessful trial does not change the equilibrium rate of rationing; the probability of winning the vaccine lottery remains $Q / N \xh(N)$ as dictated by the capacity constraint. 
+
+If the individual does not participate in the trial, his or her expected payoff is 
+\begin{equation}
+\label{trial_no}
+\frac{Q}{N \xh(N)} \left[ h D(\hat{v}) \efficacy(\xh(N)) - \side(\xh(N)) \right],
+\end{equation}
+the probability of winning the vaccine lottery $Q / N \xh(N)$ times the private benefit of a full dose of vaccine in square brackets. We have introduced some notation in the square brackets: $h$ is the harm from contracting the disease, $D(v)$ is the probability that an unvaccinated person contracts the disease given $v$ successful vaccinations in the population, and $\hat{v}$ is the number of successful vaccinations under full dosing with rationing.\footnote{One can compute $\hat{v} = \efficacy(\xh(N)) Q / \xh(N)$, the product of the number of people who receive a full dose $Q / \xh(N)$ and  efficacy $\efficacy(\xh(N))$.} 
+
+The individual's expected payoff from participating in the trial is
+\begin{equation}
+\label{trial_yes}
+h D(\hat{v}) \efficacy(x^*) - \side(x^*).
+\end{equation}
+The expression on the left-hand side is similar to \eqref{trial_no} except there is no leading factor for the probability of receiving a vaccine since the participant certainly receives a trial dose. The dose $x^*$ that the trial subject actually receives appears in the arguments of $\efficacy(x)$ and $\side(x)$ instead of the full dose. One factor that does not change across the equations is $D(\hat{v})$. Since the individual is the only trial participant, the threshold is not met for the trials to succeed, so the rest of the population cannot switch to dose stretching but must proceed with the full-dose regime. The number of successful vaccinations thus remains $\hat{v}$ and the probability of contracting the disease in the absence of a vaccine remains $D(\hat{v})$. 
+
+We have the following proposition, proved in Appendix~A. 
+\begin{proposition}
+\label{p:trials}
+\singlespace
+If the planner's optimum involves dose stretching, then \eqref{trial_yes} strictly exceeds \eqref{trial_no}. Thus, an individual obtains a higher expected payoff from participating in a dose-stretching trial even if no others participate, ruling out any equilibria with no trial participation. 
+\end{proposition}
+
+\noindent One might intuit that an individual expecting to receive a full course would hestitate to participate in a test of an inferior course. In an unconstrained setting, this intuition is valid. Under a capacity constraint that prompts dose stretching, however, the full dose must be rationed. The relevant comparision informing the trial-participation decision is not a stretched versus a full dose but the certainty of a stretched dose versus a lottery for a full dose. When dose stretching is optimal, the full dose turns out to be in the inelastic region of efficacy, where a 1\% reduction in dosage reduces efficacy by less than 1\%. The extra substance can be used to increase the number of courses by 1\% and thus the probability that a randomly selected individual under dose stretching receives a dose by 1 percentage point. This would already be enough to induce trial participation, but the potential subject does even better than random, receiving the vaccine not with a probability but with certainty in the trial. Bringing side effects into the discussion, owing to the convexity of $\side(x)$, the lower stretched dosage reduces expected harm from side effects despite increased exposure from being certainly vaccinated. 
+
+%------------------------------------------------------------------------------
+
+\SubSection{Bounding Information Value of Trials}
+\label{ss:information}
+
+The previous subsection analyzed the feasibility of trials run to satisfy regulatory constraints, abstracting from information value of trials. The functions $\efficacy(x)$ and $\side(x)$ were assumed to be common knowledge. This subsection takes the opposite tack, exploring the maximum possible information that can be gleaned from trials under radical uncertainty about the levels of $\efficacy(x)$ and $\side(x)$ for untested dosages $x$. We will show that a severe capacity constraint creates a tremendous opportunity to learn from trials. The planner might learn that a much smaller dose can deliver nearly the same efficacy as the status quo, allowing a dose-stretching policy that could alleviate the capacity constraint with little sacrifice of efficacy. Under a broad range of parameters, the potential value of this information can be shown to outweigh the potential value of information to improve efficacy or lower side effects relative to the status quo when there is no capacity constraint to alleviate.  
+
+Formally, suppose that the clinical trials that led to the vaccine's original approval were for status-quo dose level $\sqdose$ and revealed efficacy $\efficacy(\sqdose) \equiv \sqefficacy$ and side effects $\side(\sqdose) \equiv \sqside$. No assumptions are made on the optimality of $\sqdose$, which may have been chosen to meet some unspecified planner or bureaucratic objective (if not at random). We model the planner's radical uncertainty about $\efficacy(x)$ and $\side(x)$ as implying that the planner knows their values at the originally tested dosage $\sqdose$ but not about their values for any higher or lower $x$. The planner only knows the functions' codomains---$\efficacy(x) \in [0,1]$ and $\side(x) \geq 0$---and that they are weakly increasing. 
+
+Start by bounding the maximum value of information in the absence of a capacity constraint. Without additional testing, the planner administers dosage $\sqdose$ to $\sqnumber = \tilde{n}(\sqefficacy)$ people, where 
+\begin{equation}
+\label{info_unconstrained_max}
+\tilde{n}(\efficacy) \equiv \argmax_{n \in [0,N]} \left[ \benefit(n \efficacy) - n (\sqside + p \sqdose) \right].
+\end{equation}
+The planner's surplus thus is
+\begin{equation}
+\label{info_unconstrained_sq}
+\benefit(\sqnumber \sqefficacy) - \sqnumber (\sqside + p \sqdose).
+\end{equation}
+The best case when testing a higher dose would arise if an infinitesimally larger dose were found yield perfect efficacy without increasing side effects, yielding planner surplus
+\begin{equation}
+\label{info_unconstrained_new}
+\benefit(\tilde{n}(1)) - \tilde{n}(1) (\sqside + p \sqdose).
+\end{equation}
+The maximum value of the trial of a higher dose can be computed by subtracting \eqref{info_unconstrained_sq} from \eqref{info_unconstrained_new}: 
+\begin{align}
+& B(\tilde{n}(1)) - \tilde{n}(1) ( \sqside + p \sqdose) - \left[ \benefit(\sqnumber \sqefficacy) - \sqnumber ( \sqside + p \sqdose) \right] \label{info_unconstrained_diff1} \\
+\leq \; & B(\tilde{n}(1)) - \tilde{n}(1)( \sqside + p \sqdose) - \left[ \benefit(\tilde{n}(1) \sqefficacy) - \tilde{n}(1) ( \sqside + p \sqdose) \right]  \label{info_constrained_diff2} \\
+= \; & \benefit(\tilde{n}(1)) - \benefit(\tilde{n}(1) \sqefficacy)  \label{info_constrained_diff3} \\
+\leq \; & \tilde{n}(1) (1 - \sqefficacy) \benefit'(\tilde{n}(1) \sqefficacy) \label{info_constrained_diff4}. 
+\end{align}
+Condition \eqref{info_constrained_diff2} follows from the fact that $\sqnumber$, not $\tilde{n}(1)$, is the maximizer of \eqref{info_unconstrained_max}, which appears in square brackets. Condition \eqref{info_constrained_diff3} follows from canceling terms and \eqref{info_constrained_diff4} from the concavity of $\benefit$. The next proposition maintains the assumption that marginal social benefit is inelastic, i.e., $\abs{\elasticity{\MB}(v)} < 1$. Under that assumption, one can show (as done in the proof of the proposition) that $n \benefit'(n \efficacy)$ is increasing in $n > 0$ for all $\efficacy > 0$, implying \eqref{info_constrained_diff4} is less than
+\begin{equation}
+\label{info_constrained_diff5}
+N (1 - \sqefficacy) \benefit'(N \sqefficacy).
+\end{equation}
+
+The next step is to bound the maximum value of trial information under a capacity constraint. A stark bound is available in the limit $Q \downarrow 0$. In that limit, the planner's surplus is effectively 0 without testing since the capacity constraint leads to a vanishingly small number of people to be vaccinated with the status-quo dose $\sqdose$. In the best-case scenario, testing of a very small dose---infinitesimal in the limit---turns out to be just as effective as $\sqdose$ but eliminates side effects. An infinitesimal dose could be distributed to the entire population, yielding planner surplus 
+\begin{equation}
+\label{info_constrained_surplus}
+\benefit(N \sqefficacy).
+\end{equation}
+The term for vaccine-substance expenditures does not appear in \eqref{info_constrained_surplus}; it disappears in the limit $Q \downarrow 0$ because vanishingly little substance needs to be purchased. Expression \eqref{info_constrained_surplus} measures not just the level of planner surplus from testing but the gain from testing, having previously shown the planner's surplus vanishes in the status quo without testing as $Q \downarrow 0$. By the concavity of $\benefit$, \eqref{info_constrained_surplus} is less than 
+\begin{equation}
+\label{info_constrained_surplus2}
+N \sqefficacy \benefit'(N \sqefficacy).
+\end{equation}
+
+Comparing \eqref{info_constrained_surplus2} to \eqref{info_constrained_diff5}, we see that the latter is no less if $\sqefficacy \geq 1/2$. We have sketched a proof of the following proposition.
+\begin{proposition}
+\label{p:infobound}
+\singlespace
+Suppose marginal social benefit is inelastic: $\abs{\elasticity{\MB}(v)} < 1$ for $v > 0$. Consider the maximum value of information from new dosage trials. The supremum on the possible value of this information in the limit of a severe capacity constraint, $Q \downarrow 0$, exceeds the supremum in the absence of a capacity constraint if $\sqefficacy \geq 1/2$. 
+\end{proposition}
+
+\noindent The proof in Appendix~A fills in details omitted from the sketch. One is that we only examined a test of a dose increase in the absence of a capacity constraint. The planner might obtain more surplus from reducing the dose, which in the best case could eliminate side-effect harm and much of the vaccine-substance expense. The proof shows that the maximum gain from dose testing a dose reduction in the absence of a capacity constraint is always less than \eqref{info_constrained_surplus}, so our focus on a dose increase was without loss of generality. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Harm Heterogeneity}
+\label{s:Heterogeneity}
+
+TBA
+
+%------------------------------------------------------------------------------
+
+\SubSection{Model of Harm Heterogeneity}
+\label{ss:HetModel}
+
+TBA
+
+%------------------------------------------------------------------------------
+
+\SubSection{Planner Optimum Under Harm Heterogeneity}
+\label{ss:HetOpt}
+
+TBA
+
+%------------------------------------------------------------------------------
+
+\SubSection{Calibration}
+\label{ss:Calibration}
+
+In this section, we present solutions for the model with heterogeneous harm under a subjective choice of dose-response function, at different levels of dose supply constraints. 
+
+First, we assume that the net benefits function takes the form
+$\phi(x) = Ax^\beta + Bx$ for $x \in [0,\infty)$. Our choice of $\phi(x)$ is twice differentiable and concave. We chose a subjective dose-response function as follows: first, assume that vaccine developers set full doses, $x^m=1$, to maximize expected net benefits such that $\phi'(1)=0$. At a full dose, we assumed the vaccine course would yield 95\% of maximum net benefits, $\phi(1)=0.95$, which is level of efficacy that has been reported for Moderna and Pfizer COVID-19 vaccines; at the time of writing both vaccines have also reported no serious adverse events.\footnote{Beyond short-term efficacy and side effects, reducing the dose can also lead to shorter duration of protection. For this subjective example we assume that there is no significant impact on the duration of protection within the range of doses we consider. Moreover, as we mention below, some data suggest that our assumption on loss of efficacy may be conservative, but the lower net benefits at lower doses can also be interpreted as accounting not for loss of efficacy but shorter duration of immunity following a vaccination.}
+Second, at a half dose, $x=0.5$, we assumed some loss of efficacy but to a still high level of 80\% of maximum net benefits, $\phi(0.5)=0.8$. We then assumed that minimal acceptable level of efficacy (according to WHO's target product profile for COVID-19 vaccines) occurs at one-fifth of the dose and set $\phi(0.2) = 0.5$. At $x=0$, we expected the vaccine to yield no net benefits, $\phi(0)=0$.  Together these imply parameters $A=-25.32$, $\beta = 1.04$, and $B=26.27$. Our subjective choice of dose-response is motivated by recent trial data. For the Moderna vaccine, the Phase II clinical trial showed that 50 $\mu$g dose of yields similar levels of immune response as the currently authorised $100 \mu g$ dose \cite{chu_preliminary_2021}. Additional modeling of the same RCT data (personal communication to authors) suggests that 20 $\mu$g dose may produce a good immune response as well. Thus our subjective choice of dose-response curve for this example can be thought of as conservative with regards to loss of efficacy. Moreover, some have suggested that lower doses, at least for some COVID-19 vaccines, may elicit more potent immunological response \cite{sanchez_limiting_2021}.
+
+We consider vaccination of seven age groups indexed by $i$: 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, and 80+. We assume that under-20s do not get vaccinated since vaccines have been approved for adults only. We also assume a discrete distribution of harm such that $f(h_i) = n_i$ where $h_i$ is the infection fatality rate (IFR) for age group $i$ and $n_i$ is the population share of group $i$ in either high- or low-income countries. Older populations have a much higher risk of mortality than the young.
+
+Using (\ref{FOCx2}) and (\ref{const_eq}) we can solve for the optimal policy vector $x^*$ given parameters $\{A, B, \beta, Q, p\}$ and data $\{ n_i,h_i \}$. Figure \ref{fig:dose_sharing_nonepi} presents the results for low-income and high-income countries for comparison (see Appendix \ref{appx:supp} for the tables with exact numbers). We report results for a range of supply constraints $Q$ (proportion of the total population, excluding those under 20), which is the total units of vaccine divided by the population, and $p=0$. 
+
+
+\begin{figure}
+    \centering
+    \includegraphics{./figures/dose_sharing_nonepi.pdf}
+    \caption{Optimal dose sharing strategy for the minimization of harm considering demographics of high and low income countries. $Q$ is the supply constraint, given as a fraction of the population above 20 years old.}
+    \label{fig:dose_sharing_nonepi}
+\end{figure}
+
+The result implies that it is optimal to give partial doses to all groups when the vaccine supply constraint binds ($Q<1$). Higher doses are given to those more at risk, because a small marginal gain in net benefits is more valuable (in averting harm) for the elderly than large gains in net benefits for the young. The optimal doses in HICs are lower than in LICs because the dispersion of harm is larger in HICs.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Conclusion}
+\label{s:Conclusion}
+
+[COPIED FROM MERGED PAPER. REVISE.] We find that the potential health benefits of ``stretching'' vaccine doses are large. First, speeding up vaccination with any given dosing regimen substantially reduces mortality and infections. Second, under a variety of conditions faster is better than more efficacious. Switching from a regime where 0.25\% of the population is vaccinated per day with a vaccine that is  95\% efficacious to an 80\% efficacious option reduces disease burden if the speed gain is as little as 20-40\%. Third, the First Dose First strategy always results in fewer deaths and infections than the status quo, and fewer infections if the efficacy of the first doses is high and the risk of infection is growing. Absolute health benefits are even higher in countries with a large fraction of elderly or other high-risk groups. Finally, we show that the option value of testing such policies is large.
+
+\end{spacing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\setcounter{equation}{0}
+\renewcommand{\theequation}{A\arabic{equation}}
+
+\section*{Appendix: Proofs}
+
+This appendix provides proofs of propositions omitted from the text. Where necessary, additional lemmas are also stated and proved.
+
+%------------------------------------------------------------------------------
+
+\begin{lemma}
+\label{l:elasticities}
+Suppose $f(0) = 0$. If $f''(x) < 0$ for all $x \geq 0$, then $\elasticity{f}(x) < 1$ for all $x > 0$. If $f''(x) \geq 0$ for all $x \geq 0$, then $\elasticity{f}(x) \geq 1$ for all $x > 0$.
+\end{lemma}
+
+\begin{proof}
+Suppose $f(0) = 0$. Suppose further that $f''(x) < 0$ for all $x > 0$. Then 
+\begin{equation}
+\label{a:concave}
+f'(x) < \frac{f(x) - f(x')}{x - x'}
+\end{equation}
+for $x, x' \geq 0$ such that $x' \neq x$. Substituting $x' = 0$ yields $f'(x) < f(x)/x$ for all $x > 0$, implying $\elasticity{f}(x) < 1$ for all $x > 0$. 
+
+The proof of the last statement of the lemma is similar and thus omitted.
+\end{proof}
+
+%------------------------------------------------------------------------------
+
+\paragraph{Proof of Proposition~\ref{p:KT}.}
+
+By the Fundamental Theorem of Calculus, objective \eqref{obj} can be written
+\begin{equation}
+\label{a:ftc}
+\int_0^x \left[ \benefit'(n\efficacy(t))n \efficacy'(t) - n \side'(t) - pn \right] dt \leq n \int_0^x \left[ \benefit'(0) \efficacy'(0) - \side'(0) - p \right] dt,
+\end{equation} 
+where the right-hand side follows from $\benefit''(x) < 0$, $\efficacy''(x) < 0$, and $\side''(x) > 0$. If \eqref{no_corner} is violated, then objective \eqref{obj} is non-positive for all $x \geq 0$ and $n \geq 0$, implying that setting $x^* = 0$ and/or $n^* = 0$ generates a maximum. 
+
+Suppose throughout the remainder of the proof that \eqref{no_corner} holds. Let $\lambda$ and $\gamma$ be the Lagrange multiplier on constraints \eqref{capacity} and \eqref{population}, respectively. The Lagrangian associated with the planner's maximization problem then is
+\begin{equation}
+\label{a:Lagrangian}
+\lagrangian = B(n \efficacy(x)) - n\side(x) - p n x + \lambda(Q - nx) + \gamma(N - n).
+\end{equation}
+The Kuhn-Tucker necessary conditions are
+\begin{align}
+\frac{\partial \lagrangian}{\partial x} & = \benefit'(n^* \efficacy(x^*)) n^* \efficacy'(x^*) - n^* \side'(x^*) - p n^* - \lambda^* n^* \leq 0 \label{a:partial_L_partial_x} \\
+\frac{\partial \lagrangian}{\partial n} & = \benefit'(n^* \efficacy(x^*)) \efficacy(x^*) - \side(x^*) - p x^* - \lambda^* x^* - \gamma^* \leq 0 \label{a:partial_L_partial_n}
+\end{align}
+\begin{align}
+Q & \geq n^* x^*  \label{a:KT_capacity} \\
+N & \geq n^*  \label{a:KT_population}
+\end{align}
+\begin{align}
+x^* & \geq 0 \label{a:pos_x} \\
+n^* & \geq 0 \label{a:pos_n}
+\end{align}
+\begin{align}
+\lambda^* & \geq 0 \label{a:lambda} \\
+\gamma^* & \geq 0 \label{a:gamma}
+\end{align}
+\begin{align}
+x^* \left[ \benefit'(n^* \efficacy(x^*)) n^* \efficacy'(x^*) - n^* \side'(x^*) - p n^* - \lambda^* n^* \right] & = 0 \label{a:cs_x} \\
+n^* \left[ \benefit'(n^* \efficacy(x^*)) \efficacy(x^*) - \side(x^*) - p x^* - \lambda^* x^* - \gamma^* \right] & = 0 \label{a:cs_n}
+\end{align}
+\begin{align}
+\lambda^* (Q - n^* x^*) & = 0 \label{a:cs_capacity} \\
+\gamma^* (N - n^*) & = 0. \label{a:cs_population}
+\end{align}
+
+If $x^* = 0$, then $\lambda^* = 0$ by \eqref{a:cs_capacity} since $Q > 0$. Substituting $x^* = \lambda^* = 0$ into \eqref{a:partial_L_partial_x} yields $\benefit'(0)\efficacy'(0) - \side'(0) - p \leq 0$, contradicting \eqref{no_corner}. Thus, $x^* > 0$. Similar arguments show $n^* > 0$. Hence, the bracketed factors in \eqref{a:cs_x} and \eqref{a:cs_n} equal 0, which upon multiplying by a positive factor and rearranging shows 
+\begin{gather}
+\benefit'(n^* \efficacy(x^*)) \efficacy'(x^*) x^* - \side'(x^*) x^* = (p + \lambda^*) x^* \label{a:foc_x} \\
+\benefit'(n^* \efficacy(x^*)) \efficacy(x^*) - \side(x^*) = (p + \lambda^*) x^* + \gamma^* \label{a:foc_n}
+\end{gather}
+
+Suppose for the sake of contradiction that $n^* < N$. Then $\gamma^* = 0$ by \eqref{a:cs_population}. Then the right-hand sides of \eqref{a:foc_x} and \eqref{a:foc_n} are equal, implying 
+\begin{equation}
+\label{a:two_sides}
+\benefit'(n^* \efficacy(x^*)) \efficacy'(x^*) x^* - \side'(x^*) x^* = \benefit'(n^* \efficacy(x^*)) \efficacy(x^*) - \side(x^*),
+\end{equation}
+or upon rearranging in terms of elasticities,
+\begin{equation}
+\label{a:two_sides}
+\efficacy(x^*) \benefit'(n^* \efficacy(x^*)) \left[ \elasticity{\efficacy}(x^*) - 1 \right] = \side(x^*) \left[ \elasticity{\side}(x^*) - 1 \right].
+\end{equation}
+
+We can show that the left-hand side of \eqref{a:two_sides} is negative. To this end, note $\efficacy(x^*) > 0$ since $\efficacy(0) = 0$, $\efficacy'(x) > 0$ for all $x \geq 0$, and $x^* > 0$. Further, $n^* > 0$, $\efficacy(x^*) > 0$, and $\benefit'(v) > 0$ for $v \geq 0$ imply $\benefit'(n^* \efficacy(x^*)) > 0$. By Lemma~\ref{l:elasticities}, $\elasticity{\efficacy}(x^*) < 1$ since $\efficacy(0) = 0$ and $\efficacy''(x) < 0$ for all $x \geq 0$. We can show that the right-hand side of \eqref{a:two_sides} is non-negative. To this end, note 
+$\side(0) = 0$, $\side'(x) > 0$ for all $x \geq 0$, and $x^* > 0$ implies $\side(x^*) > 0$. Further, $\elasticity{\side}(x^*) \geq 1$ by Lemma~\ref{l:elasticities}. Thus, the left-hand side of \eqref{a:two_sides} is strictly less than the right-hand side, a contradiction establishing $n^* = N$. 
+
+If $x^* < Q/N$, then $\lambda^* = 0$ by \eqref{a:cs_capacity}. Substituting $n^* = N$ and $\lambda^* = 0$ into \eqref{a:foc_x} and rearranging yields $\benefit'(N \efficacy(x^*))\efficacy'(x^*) = \side'(x^*) + p$, which implies $x^* = \hat{x}$ by \eqref{xhat}. Otherwise $x^* = Q/N$. We have thus shown that if \eqref{no_corner} holds, $n^* = N$ and $x^* = \min [\xh(N), Q/N]$. \qed
+
+%------------------------------------------------------------------------------
+
+\paragraph{Proof of Lemma~\ref{l:s-shaped}.}
+
+By the definition in the text, an s-shape for $\efficacy(x)$ means it has a unique, interior inflection point, $x^i > 0$. Hence, 
+$\efficacy''(x) > 0$ for all $x \in [0, x^i) \neq \emptyset$, $\efficacy''(x) < 0$ for all $x > x^i$, and $\efficacy''(x^i) = 0$. 
+
+That $\efficacy''(x) > 0$ for all $x \in [0, x^i)$ implies that, for all $x_1, x_2 \in [0, x^i)$ with $x_1 < x_2$, 
+\begin{equation}
+\label{a:convex_below_xi}
+\efficacy(x_2) + (x_1 - x_2) \efficacy'(x_2) < \efficacy(x_1).
+\end{equation}
+Substituting $x_1 = 0$ and $x_2 = x$ into \eqref{a:convex_below_xi} yields $\efficacy(x) - x \efficacy'(x) < \efficacy(0) = 0$, implying $1 < x \efficacy'(x) / \efficacy(x) = \elasticity{\efficacy}(x)$ for all $x \in (0,x^i)$.  
+
+Let $a(x)$ denote average efficacy per unit of dosage, $a(x) \equiv \efficacy(x) / x$. A sandwiching argument can be used to show $\lim_{x \uparrow \infty} a(x) = 0$. Namely, 
+\begin{equation}
+\label{a:sandwich}
+0 \leq \lim_{x \uparrow \infty} \frac{\efficacy(x)}{x} \leq \lim_{x \uparrow \infty} \frac{1}{x} = 0
+\end{equation}
+where the first inquality follows from $x, \efficacy(x) > 0$ for $x > 0$ and the second inequality from $\efficacy(x) \leq 1$ for all $x > 0$. Hence, $\lim_{x \uparrow \infty} a(x) = \lim_{x \uparrow \infty} [\efficacy(x)/x] = 0$. Now $a(x^i) > 0 = \lim_{x \uparrow \infty} a(x)$ implies that there exists $x > x^i$ such that $a'(x) < 0$. Differentiating,
+\begin{equation}
+\label{a:diff_a}
+a'(x) = \frac{\efficacy(x)x - \efficacy(x)}{x^2} = \frac{\efficacy(x)}{x} [\elasticity{\efficacy}(x) - 1].
+\end{equation}
+That $a'(x) < 0$ for some $x > x^i$ implies $\elasticity{\efficacy}(x) < 1$ for some $x > x^i$. Since $\elasticity{\efficacy}(x) > 1$ for all $x \in (0,x^i)$, by continuity, there must $x > x^i$ such that $\elasticity{\efficacy}(x) = 1$. Let $x^u > x^i$ denote the minimum $x$ for which $\elasticity{\efficacy}(x) = 1$.
+
+Suppose for the sake of contradiction that $\elasticity{\efficacy}(x') \leq 1$ for some $x' \in [0, x^u)$. Then $\elasticity{\efficacy}(x) > 1$ for all $x \in [0, x^i)$ implies the existence of $x'' \in [x^i, x') \subset [x^i, x^u)$ such that $\elasticity{\efficacy}(x'') = 1$ by the continuity of $\elasticity{\efficacy}(x)$. This contradicts the definition of $x^u$ as the minimum of its defining set, proving $\elasticity{\efficacy}(x) > 1$ for all $x \in (0, x^u)$.
+
+We have shown $x^u > x^i$. Since $\efficacy''(x) < 0$ for all $x > x^i$, $\efficacy''(x) < 0$ for all $x \geq x^u$, implying 
+\begin{equation}
+\label{a:concavity_above_xu}
+\efficacy(x) + (x^u - x) \efficacy'(x) > \efficacy(x^u)
+\end{equation}
+for all $x > x^u$. Then
+\begin{align}
+\efficacy(x) \left[ 1 - \elasticity{\efficacy}(x) \right] & = \efficacy(x) - x \efficacy'(x) \label{a:efficacy1} \\
+& \geq \efficacy(x^u) - x^u \efficacy'(x) \label{a:efficacy2} \\
+& > \efficacy(x^u) - x^u \efficacy'(x^u) \label{a:efficacy3} \\
+& = \efficacy(x^u) \left[ 1 - \elasticity{\efficacy}(x^u) \right], \label{a:efficacy4}
+\end{align}
+where \eqref{a:efficacy1} follows from the definition of $\elasticity{\efficacy}(x)$, \eqref{a:efficacy2} from \eqref{a:concavity_above_xu}, \eqref{a:efficacy3} from $\efficacy''(x) > 0$ for $x > x^i$, and \eqref{a:efficacy4} again from the definition of $\elasticity{\efficacy}(x)$. Substituting $\elasticity{\efficacy}(x^u) = 1$ into \eqref{a:efficacy4} implies $\elasticity{\efficacy}(x) < 1$. \qed
+
+%------------------------------------------------------------------------------
+
+\paragraph{Proof of Proposition~\ref{p:s-shaped}.}
+
+Suppose \eqref{no_corner} holds. The Kuhn-Tucker necessary conditions \eqref{a:partial_L_partial_x}--\eqref{a:cs_population}  from the proof of Proposition~\ref{p:KT} for concave $\efficacy(x)$ carry over for s-shaped $\efficacy(x)$ here. Identical arguments used in that proof to show $x^*, n^* > 0$ when \eqref{no_corner} holds can be used to show $x^*, n^* > 0$ here as well. Thus, necessary conditions \eqref{a:foc_x}--\eqref{a:foc_n} can be substituted for \eqref{a:cs_x}--\eqref{a:cs_n}. 
+
+Substituting the linear specification $\side(x) = \sigma x$ into \eqref{a:foc_x}--\eqref{a:foc_n} and rearranging yields
+\begin{gather}
+\benefit'(n^* \efficacy(x^*)) \efficacy'(x^*) x^* = (\sigma + p + \lambda^*) x^* \label{a:foc_x_s} \\
+\benefit'(n^* \efficacy(x^*)) \efficacy(x^*) = (\sigma + p + \lambda^*) x^* + \gamma^*. \label{a:foc_n_s}
+\end{gather}
+Subtracting \eqref{a:foc_n_s} from \eqref{a:foc_x_s} yields
+\begin{equation}
+\label{a:subtract}
+\benefit'(n^* \efficacy(x^*)) \efficacy'(x^*) x^* - \benefit'(n^* \efficacy(x^*)) \efficacy(x^*) = - \gamma^* \leq 0,
+\end{equation}
+implying
+\begin{equation}
+\label{a:unit_elasticity}
+\elasticity{\efficacy}(x^*) \equiv \frac{\efficacy'(x^*) x^*}{\efficacy(x^*)} - 1 \leq 0
+\end{equation}
+Since $x^* > 0$ and $\elasticity{\efficacy}(x^*) \leq 1$, $x^* \geq x^u$ by Lemma~\ref{l:s-shaped}. If $\gamma^* = 0$, then $\elasticity{\efficacy}(x^*) = 1$ by \eqref{a:subtract}, implying $x^* = x^u$ by Lemma~\ref{l:s-shaped}. The inverse inequalities also hold: if $x^* = x^u$, then $\elasticity{\efficacy}(x^*) = 1$ by Lemma~\ref{l:s-shaped}, implying $\gamma^* = 0$ by \eqref{a:subtract}. We thus have the biconditional
+\begin{equation}
+\label{a:biconditional1}
+(\gamma^* = 0) \Leftrightarrow (x^* = x^u).
+\end{equation}
+Since $x^* \geq x^u$ as just shown and $\gamma^* \geq 0$ by \eqref{a:gamma}, \eqref{a:biconditional1} implies
+\begin{equation}
+\label{a:biconditional2}
+(\gamma^* > 0) \Leftrightarrow (x^* > x^u).
+\end{equation}
+
+Suppose $\lambda^* = \gamma^* = 0$. Then $x^* = x^u$ by \eqref{a:biconditional1}. Substituting $\lambda^* = 0$ and $x^* = x^u$ in \eqref{a:foc_x_s} and rearranging yields $n^* = n^u$, where recall $n^u$ is given by \eqref{nu}. The pair $(x^u, n^u)$ is a planner optimum if it satisfies constraint \eqref{capacity}, entailing $n^u x^u \leq Q$, and constraint \eqref{population}, entailing $n^u \leq N$, or, combining the preceding inequalities, 
+\begin{equation}
+\label{a:nu}
+n^u \leq \min(N, Q / x^u). 
+\end{equation}
+We will refer to the case in which \eqref{a:nu} holds as case (i).
+
+The alternative to case (i) is case (ii) in which \eqref{a:nu} is violated:
+\begin{equation}
+\label{a:nu_violated}
+n^u > \min(N, Q / x^u). 
+\end{equation}
+Since $\lambda^* = \gamma^* = 0$ implies \eqref{a:nu}, the negation of \eqref{a:nu}, i.e., \eqref{a:nu_violated}, entails $\lambda^* \neq 0$ or $\gamma^* \neq 0$. Since $\lambda^*, \gamma^* \geq 0$ by \eqref{a:lambda}--\eqref{a:gamma}, we have the disjunction
+\begin{equation}
+\label{a:disjunction}
+(\lambda^* > 0) \vee (\gamma^* > 0). 
+\end{equation}
+
+We will examine two subcases of case (ii) depending on which of the following conditions holds:
+\begin{align}
+N & < \min(n^u, Q / x^u) \label{a:subcase1} \\
+N & \geq \min(n^u, Q / x^u). \label{a:subcase2}
+\end{align}
+Consider case (ii.a) in which \eqref{a:subcase1} holds. Suppose for the sake of contradiction that $\gamma^* = 0$. Then $x^* = x^u$ by \eqref{a:biconditional1} and $\lambda^* > 0$ by \eqref{a:disjunction}. But $\lambda^* > 0$ implies $n^* x^* = Q$ by \eqref{a:cs_capacity}. Hence, $n^* x^u = Q > N x^u$, where the inequality follows from \eqref{a:subcase1}, implying $n^* > N$. This contradiction implies $\gamma^* > 0$, implying $n^* = N$ by \eqref{a:cs_population}. If $\lambda^* = 0$, then substituting this value into \eqref{a:foc_x_s} implies $x^*$ satisfies \eqref{xhat}, implying $x^* = \xh(N)$. This solution is valid if it does not violate \eqref{a:KT_capacity}: $n^* x^* = N \xh(N) \leq Q$, implying $\xh(N) \leq Q/N$. Otherwise, $\lambda^* > 0$, implying $Q = n^* x^* = N x^*$, implying $x^* = Q/N$. Combining the two solutions, we have $x^* = \min[\xh(N), Q/N]$. 
+
+Consider case (ii.b) in which \eqref{a:nu_violated} and \eqref{a:subcase2} hold. These conditions imply $N \geq Q / x^u$, implying
+\begin{equation}
+\label{a:NxuQ}
+N x^u \geq Q.
+\end{equation} 
+Suppose for the sake of contradiction that $\gamma^* > 0$. Then $x^* > x^u$ by \eqref{a:biconditional2}, and $n^* = N$ by \eqref{a:cs_population}. Hence, $n^* x^* > N x^u \geq Q$ by \eqref{a:NxuQ}. This contradiction of \eqref{a:KT_capacity} implies $\gamma^* = 0$. By \eqref{a:biconditional1}, $x^* = x^u$. By \eqref{a:disjunction}, $\lambda^* > 0$, implying $n^* = Q/x^*$ by \eqref{a:cs_population}, implying $n^* = Q/x^u$. 
+
+We are left to synthesize the results to verify the solutions for $n^*$ and $x^*$ stated in the proposition. We will first show 
+\begin{equation}
+\label{a:nstar_min}
+n^* = \min(n^u, N, Q/x^u)
+\end{equation}
+in all cases (i), (ii.a), and (ii.b). Start with case (i). Condition \eqref{a:nu} implies $n^u = \min (n^u, N, Q/x^u)$. We showed $n^* = n^u$, which implies \eqref{a:nstar_min} in this case. Next, consider case (ii.a). Condition \eqref{a:subcase1} implies $N = (n^u, N, Q/x^u)$. We showed $n^* = N$, which implies \eqref{a:nstar_min} in this case. Finally, consider case (ii.b). Conditions \eqref{a:nu_violated} and \eqref{a:subcase2} imply $Q/x^u = \min(n^u, N, Q/x^u)$. We showed $x^* = Q/x^u$, which implies \eqref{a:nstar_min} in this and all cases.  
+
+To derive the expression for $x^*$ in the statement of the proposition, suppose $n^* < N$. This precludes case (ii.a) since $n^* = N$ in that case. In all other cases, $x^* = x^u$. Hence $n^* < N$ implies $x^* = x^u$ as stated in the proposition. 
+
+Suppose instead $n^* = N$. This equality together with \eqref{a:nstar_min} implies 
+\begin{equation}
+\label{a:Nmin}
+N \leq \min(n^u, Q/x^u).
+\end{equation}
+We need to verify that the solution for $x^*$ stated in the proposition when $n^* = N$, 
+\begin{equation}
+\label{a:xstar_min}
+x^* = \min[\xh(N), Q/N],
+\end{equation}
+holds in all cases (i), (ii.a), and (ii.b). 
+Consider case (i). 
+Condition \eqref{a:nu} and \eqref{a:Nmin} imply $N = n^u$. Substituting $N$ for $n^u$ in \eqref{a:nu} and rearranging implies that $x^u$ satisfies \eqref{xhat} and thus that $x^u = \xh(N)$. We showed $x^* = x^u$ in case (i). Thus, $x^* = \xh(N)$. By \eqref{a:Nmin}, $N \leq Q / x^u = Q / \xh(N)$, implying $\xh(N) \leq Q/N$, implying $x^* = \xh(N) = \min[\xh(N), Q/N]$, verifying \eqref{a:xstar_min}. Consider case (ii.a). We directly showed that $x^*$ satisfies \eqref{a:xstar_min} in this case. Finally, consider case (ii.b). Combining the relevant conditions \eqref{a:nu_violated} and \eqref{a:subcase2} with \eqref{a:Nmin} yields 
+\begin{equation}
+\label{a:NQu}
+N = Q/x^u < n^u.
+\end{equation}
+In case (ii.b), we showed $x^* = x^u$, implying $x^* = Q/N$ by \eqref{a:NQu}. To verify that \eqref{a:xstar_min} holds in this case, we need to show $\xh(N) \geq Q/N$. Applying the Implicit Function Theorem to \eqref{xhat},
+\begin{equation}
+\label{a:implicit}
+\xh'(n) = - \frac{\benefit''(n \xh(n)) \efficacy'(\xh(n)) \efficacy(\xh(n))}{\benefit''(n \xh(n)) n \efficacy'(\xh(n))^2 + \benefit'(n \xh(n)) \efficacy''(\xh(n))},
+\end{equation}
+implying $\xh'(n) < 0$ by the concavity of $\benefit$ and $\efficacy$. Notice $x^u = \xh(n^u)$ by \eqref{a:nu}. Since $n^u > N$, we have $x^u = \xh(n^u) < \xh(N)$, implying $Q/N = x^* = x^u < \xh(N)$, implying $x^* = Q/N = \min[\xh(N), Q/N]$, verifying \eqref{a:xstar_min}. \qed
+
+%------------------------------------------------------------------------------
+
+\paragraph{Proof of Proposition~\ref{p:trials}.}
+
+By l'H\^{o}pital's Rule, since $\efficacy(0) = 0$, 
+\begin{equation}
+\label{a:lH}
+\lim_{x \downarrow 0} \frac{\efficacy(x)}{x} = \efficacy'(0).
+\end{equation}
+We have 
+\begin{align}
+\frac{\efficacy(x^*)}{x^*} - \efficacy'(0) & = \int_0^{x^*} \frac{d}{dx} \left( \frac{\efficacy(x)}{x} \right) dx \label{a:FTC1} \\
+& = \int_0^{x^*} \frac{\efficacy(x)}{x^2} \left[ \elasticity{\efficacy}(x) - 1 \right] dx \label{a:FTC2} \\ 
+& >  \int_0^{x^*} \frac{\efficacy(x)}{x^2} \left[ \elasticity{\efficacy}(x) - 1 \right] dx + \int_{x^*}^{\xh(N)} \frac{\efficacy(x)}{x^2} \left[ \elasticity{\efficacy}(x) - 1 \right] dx \label{a:FTC3} \\ 
+& = \frac{\efficacy(\xh(N))}{\xh(N)} - \efficacy'(0). \label{a:FTC4} 
+\end{align}
+Equation \eqref{a:FTC1} follows from \eqref{a:lH} and the Fundamental Theorem of Calculus, \eqref{a:FTC2} from direct differentiation and the definition of $\elasticity{\efficacy}(x)$, \eqref{a:FTC3} from the fact that the second integral is negative, and \eqref{a:FTC4} from reversing the arguments in \eqref{a:FTC1} and \eqref{a:FTC2}.
+
+To verify that the second integral in \eqref{a:FTC3} is negative, note that the maintained assumption that the planner's optimum involves a strict reduction in dose size implies $x^* < \xh(N)$. There are then two cases to consider. If $\efficacy(x)$ is concave, then $\elasticity{\efficacy}(x) < 1$ for all $x > 0$ including $x \in (x^*, \xh(n))$. If $\efficacy(x)$ is s-shaped, then by \eqref{a:biconditional1} and \eqref{a:biconditional2} in the preceding proof, $x^* \geq x^u$, implying $\elasticity{\efficacy}(x) < 1$ for all  $x \in (x^*, \xh(N))$. In either case, the second integral in \eqref{a:FTC3} is negative.  
+ 
+Together, \eqref{a:FTC1}--\eqref{a:FTC4} imply 
+\begin{equation}
+\label{a:efficacy_trial}
+\frac{\efficacy(x^*)}{x^*} > \frac{\efficacy(\xh(N))}{\xh(N)}.
+\end{equation}
+Similar arguments can be used to show 
+\begin{equation}
+\label{a:side_trial}
+\frac{\side(x^*)}{x^*} < \frac{\side(\xh(N))}{\xh(N)}.
+\end{equation}
+The inequality is reversed from \eqref{a:efficacy_trial} because $\side(x)$ is convex, implying $\elasticity{\side}(x) > 1$. We have
+\begin{align}
+h D(\hat{v}) \efficacy(x^*) - \side(x^*) & \geq \frac{Q}{N x^*} \left[ h D(\hat{v}) \efficacy(x^*) - \side(x^*) \right] \label{a:trial_1} \\
+& > \frac{Q}{N \xh(N)} \left[ h D(\hat{v}) \efficacy(\xh(N)) - \side(\xh(N)) \right]. \label{a:trial_2}
+\end{align}
+To see \eqref{a:trial_1}, note $n^* x^* = Q$ because the capacity constraint is assumed to bind and $n^* \leq N$ by \eqref{population}. Hence, $Q/N x^* \leq 1$. Condition \eqref{a:trial_2} follows from substituting from \eqref{a:efficacy_trial} and \eqref{a:side_trial}. \qed
+
+%------------------------------------------------------------------------------
+
+\paragraph{Proof of Proposition~\ref{p:infobound}.}
+
+We need to fill in two details omitted from the sketch of the proof in the text. The first detail is the sign of the derivative 
+\begin{align}
+\frac{\partial}{\partial n} [n \benefit'(n \efficacy)] & = \benefit'(n \efficacy) + n \efficacy \benefit''(n \efficacy) \label{a:elasticity_MB1} \\
+& = \benefit'(n \efficacy) \left[ 1 + \elasticity{\MB}(n \efficacy) \right]. \label{a:elasticity_MB2}
+\end{align}
+This is positive if $\abs{\elasticity{\MB}(v)} < 1$ for all $v > 0$, implying $\elasticity{\MB}(v) > -1 $ for all $v > 0$. Hence, $n \benefit'(n \efficacy)$ is increasing in $n > 0$ for all $\efficacy > 0$ under that elasticity assumption.
+
+The second detail is to check that the maximum gain from testing a lower dose in the absence of a capacity constraint is less than \eqref{info_constrained_surplus}. The best case would arise if an infinitesimal dose were no less effective than $\sqdose$ but allowed the planner to eliminate side effects and expenditures on vaccine substance. The planner would administer the dose to the whole population, yielding surplus $\benefit(N \sqefficacy)$. Subtracting the planner's surplus in the status quo without testing \eqref{info_unconstrained_sq} yields
+\begin{equation}
+\label{a:info_unconstrained_diff}
+\benefit(N \sqefficacy) - \left[ \benefit(\sqnumber \sqefficacy) - \sqnumber (\sqside + p \sqdose) \right],
+\end{equation}
+This is less than \eqref{info_constrained_surplus} if the 
+
+
+\qed
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\section*{References}
+
+\begin{description}
+
+\frenchspacing
+
+\item Palfrey, Thomas R. and Howard Rosenthal. (1984) ``Participation and the Provision fo Discrete Public Goods: A Strategic Analysis,'' {\em Journal of Public Economic} 24: 171--193. 
+
+\end{description}
+
+\end{document}
