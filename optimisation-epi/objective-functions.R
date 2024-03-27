@@ -37,18 +37,24 @@ model_fd_dynamic <- function(scenario,
                              ret = 0,
                              objective = "D",
                              homogen = FALSE,
+                             immunity_length = 365,
                              rep = c(0.8, 0.2, 0.5, 1)) {
   
   rep <- unroll_vaccine_hesitancy(rep[1], rep[2], rep[3], rep[4])
   
-  if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-  } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
+  if (phi_x == "covid_default")
+    phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
+  else if (phi_x == "flu_default")
+    phi_x <- function(x) 0
+  
   
   e1 <- phi_x(fd)
   
   if (pdeath == "ifr_hic") {pdeath <- ifr_hic} else {pdeath <- ifr_lic}
   
-  pars <- apap_2v(grab_2v_parms(scenario), fractional_dose = fd, len = length_campaign)
+  pars <- apap_2v(grab_2v_parms(scenario), 
+                  fractional_dose = fd, 
+                  len = length_campaign)
   pars <- list_modify(pars, e1 = e1, pdeath = pdeath)
   if(homogen){
     pars$contacts <- t(replicate(Ngroups, pop))
@@ -57,6 +63,10 @@ model_fd_dynamic <- function(scenario,
   if (length(rep) == 1) {
     y <- sr(pars, "2v_v2")
   } else if (length(rep) > 1) {
+    pars <- list_modify(pars, 
+                        kappa1 = rep(1/immunity_length, 9),
+                        phi = rep(1/immunity_length, 9))
+    # !!!this model will only make sense if kappa = phi!!!
     y <- multi_year_run(pars, "2v_v2", rep)
   }
   if(rm) return(y)
@@ -64,7 +74,7 @@ model_fd_dynamic <- function(scenario,
     return(main_metrics(y, pop, t = nrow(y)))
   if(ret == 1)
     y <- rescale_rcs(y, pop, TRUE)
-    return(y[360 * length(rep),objective,1])
+  return(y[360 * length(rep),objective,1])
 }
 # ------------------------------------------------------------------------------
 
@@ -95,7 +105,7 @@ model_fd_static <- function(scenario,
                             rep = c(0.8, 0.2, 0.5, 1)) {
   
   rep <- unroll_vaccine_hesitancy(rep[1], rep[2], rep[3], rep[4])
-
+  
   if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
   } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
   
@@ -121,10 +131,11 @@ model_fd_static <- function(scenario,
   } else if (length(rep) > 1) {
     y <- multi_year_run(pars, "2v_v2", rep)
   }
+  
   if(ret == 0)
     return(main_metrics(y, pop, t = nrow(y))[1:2])
-  if(ret == 1)
+  if(ret == 1){
     y <- rescale_rcs(y, pop, TRUE)
     return(y[360 * length(rep),objective,1])
-  
+  }
 }
