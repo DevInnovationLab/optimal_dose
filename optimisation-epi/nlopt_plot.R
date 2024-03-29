@@ -23,6 +23,7 @@ plot_frac_age <-
            fix_2_name, fix_2_value,
            fix_3_name, fix_3_value,
            fix_4_name, fix_4_value,
+           fix_5_name, fix_5_value,
            vary_1_name, vary_2_name,
            show_frac_uni = F) {
     
@@ -30,7 +31,8 @@ plot_frac_age <-
       filter(!!sym(fix_1_name) == fix_1_value, 
              !!sym(fix_2_name) == fix_2_value, 
              !!sym(fix_3_name) == fix_3_value, 
-             !!sym(fix_4_name) == fix_4_value) %>% 
+             !!sym(fix_4_name) == fix_4_value,
+             !!sym(fix_5_name) == fix_5_value) %>% 
       mutate(q = as.factor(q))
     
     plot <- results_all_filter %>% 
@@ -73,7 +75,9 @@ plot_frac_age <-
 #                          sep = ""))
 
 radar_plot <- function(results_all_filter) {
-    
+
+  max <- max(results_all_filter$full_dose)
+  
   results_all_filter %>% 
     select(setting, full_dose, frac_uni, frac_age) %>% 
     pivot_longer(cols = c(full_dose, frac_uni, frac_age), 
@@ -88,15 +92,15 @@ radar_plot <- function(results_all_filter) {
             legend.text.size = 5,
             group.line.width = 0.5,
             grid.line.width = 0.1,
-            grid.min = 0, 
-            grid.max = 0.005 / 8,
-            grid.mid = 0.0025 / 8,
-            plot.extent.x.sf = 1.3) + 
+            plot.extent.x.sf = 1.3,
+            grid.mid = max / 2,
+            grid.max = max) + 
     theme_bw(base_size = 5) +
     scale_color_manual(labels = c("Age-specific Fraction", "Uniform Fraction", "Full Dose"),
                        values = c("#E69F00", "#56B4E9", "#009E73")) +
     theme(legend.position = "bottom") +
-    labs(x = "Objective", y = "Objective")
+    labs(x = "Objective relative to No Vaccination", 
+         y = "Objective relative to No Vaccination")
 }
   
 
