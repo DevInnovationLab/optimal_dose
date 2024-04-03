@@ -41,17 +41,11 @@ Visualizations below use the plotting functions defined in **optimisation-epi/nl
 ```{r}
 load("results/results_all.Rdata")
 source("optimisation-epi/nlopt_plot.R")
-```
 
-# 2. Comparisons of Objective Values under Different Settings
-
-In nonrecurring Covid-19 pandemic as in Figure 1-4, optimal age-specific dose fraction does not generally yield sizable improvement in terms of death or infection percent compared to optimal uniform dose fraction. 
-
-It appears that the improvement is greater when population mixing is heterogeneous. 
-```{r}
 results_all <- results_all %>% 
   mutate(recurring = map(recurring, pluck, 4), 
          recurring = ifelse(recurring == 1, "single-season", "multi-season"), 
+         objective = ifelse(objective == "D", "%Death", "%Infection"),
          homogen_mixing = ifelse(homogen_mixing, "homogen-mixing", "hetero-mixing"), 
          pdeath = ifelse(pdeath == "ifr_hic", "high-income", "low-income"), 
          scenario = ifelse(scenario == "pars_le_slow", "slow-growth", "fast-growth"),
@@ -60,14 +54,61 @@ results_all <- results_all %>%
          frac_age = frac_age / no_vac * 100)
 ```
 
+
+# 2. Comparisons of Objective Values under Different Settings
+
+In nonrecurring Covid-19 pandemic as in Figure 1-4, optimal age-specific dose fraction does not generally yield sizable improvement in terms of death or infection percent compared to optimal uniform dose fraction. 
+It appears that the improvement is greater when population mixing is heterogeneous. 
+
 ```{r warning=FALSE, message=FALSE,fig.fullwidth=T, fig.cap="Percent of Deaths in Single-Season Covid Pandemic in High-income Country under Dynamic Optimization", fig.pos="H"}
 results_all %>% 
   filter(static == F, 
+         q %in% c(720, 360),
+         dose_response == "covid_default", 
+         pdeath == "high-income",
+         recurring == "single-season") %>% 
+  arrange(scenario, objective, q, homogen_mixing) %>% 
+  rowwise() %>% 
+  mutate(setting = paste("q =", paste(q, objective, scenario, homogen_mixing, sep = ", "))) %>% 
+  ungroup() %>%
+  radar_plot()
+```
+
+```{r warning=FALSE, message=FALSE,fig.fullwidth=T, fig.cap="Percent of Deaths in Single-Season Covid Pandemic in High-income Country under Dynamic Optimization", fig.pos="H"}
+results_all %>% 
+  filter(static == F, 
+         q %in% c(90, 30),
+         dose_response == "covid_default", 
+         pdeath == "high-income",
+         recurring == "single-season") %>% 
+  arrange(objective, scenario, q, homogen_mixing) %>% 
+  rowwise() %>% 
+  mutate(setting = paste("q =", paste(q, objective, scenario, homogen_mixing, sep = ", "))) %>% 
+  ungroup() %>%
+  radar_plot()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r warning=FALSE, message=FALSE,fig.fullwidth=T, fig.cap="Percent of Deaths in Single-Season Covid Pandemic in High-income Country under Dynamic Optimization", fig.pos="H"}
+results_all %>% 
+  filter(static == F,
          objective == "D", 
          dose_response == "covid_default", 
          pdeath == "high-income",
          recurring == "single-season") %>% 
-  arrange(scenario, homogen_mixing, q) %>% 
+  arrange(q, scenario, homogen_mixing) %>% 
   rowwise() %>% 
   mutate(setting = paste("q =", q, scenario, homogen_mixing, sep = " ")) %>% 
   ungroup() %>%
@@ -118,11 +159,12 @@ results_all %>%
 ```{r warning=FALSE, message=FALSE, fig.full_width=T, fig.cap="Percent of Cumulative Infections in Single-Season Covid Pandemic in High-income Country under Dynamic Optimization", fig.pos="H"}
 results_all %>% 
   filter(static == F, 
-         objective == "cumI", 
+         q %in% c(7)
+         objective == "%Infection", 
          dose_response == "covid_default", 
          pdeath == "high-income",
          recurring == "single-season") %>% 
-  arrange(scenario, homogen_mixing, q) %>% 
+  arrange(q, scenario, homogen_mixing) %>% 
   rowwise() %>% 
   mutate(setting = paste("q =", q, scenario, homogen_mixing, sep = " ")) %>% 
   ungroup() %>%

@@ -53,7 +53,14 @@ cases_static <- expand_grid(q = c(0.1, 0.2, 0.3, 0.5),
                                              c(0.8,0.2,0.5,5)),
                             iterations = 100)
 
-plan(multisession, workers = 4)
+
+cases_dynamic <- cases_dynamic %>% 
+  mutate(initial_value = pull(filter(results_all, static == F), frac_uni_sol))
+
+cases_static <- cases_static %>% 
+  mutate(initial_value = pull(filter(results_all, static == T), frac_uni_sol))
+
+plan(multisession, workers = 8)
 
 # ------------------------------------------------------------------------------
 # 1. Full dose
@@ -76,7 +83,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
         if (q > 0) {
           vac_perc[i] <- (1 - pre_immunity[i]) * phi_x(1)
         } else {
-          vac_perc[i] <- (q + pop[i]) / pop[i] * phi_x(1) 
+          vac_perc[i] <- (q + pop[i]) / pop[i] * phi_x(1)
           break
         }
       }
@@ -164,13 +171,13 @@ results_frac_age_dynamic <- cases_dynamic %>%
   mutate(result = future_pmap(., opt_general)) %>% 
   unnest_wider(result, names_sep = "_")
 
-# save(results_frac_age_dynamic, file = "results/results_frac_age_dynamic.Rdata")
+save(results_frac_age_dynamic, file = "results/results_frac_age_dynamic.Rdata")
 
 results_frac_age_static <- cases_static %>% 
   mutate(result = future_pmap(., opt_general)) %>% 
   unnest_wider(result, names_sep = "_")
 
-# save(results_frac_age_static, file = "results/results_frac_age_static.Rdata")
+save(results_frac_age_static, file = "results/results_frac_age_static.Rdata")
 
 results_frac_age <- results_frac_age_dynamic %>% 
   rbind(results_frac_age_static)
