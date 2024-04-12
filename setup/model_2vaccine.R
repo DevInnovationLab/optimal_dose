@@ -35,8 +35,6 @@ odin_ode_2vaccines_v2 <- odin::odin({
   va1[] <- (1 + 1/(1+exp(1e03*(tmore1[i] - t))))*va1[i]
   va2[] <- (1 + 1/(1+exp(1e03*(tmore2[i] - t))))*va2[i]
   
-  del <- 100
-  
   # va1[] <- va1[i] - (1 + 1/(1+exp(1e03*(tmore1[i] - (t - del))))) * 1/((1 + exp(ta1[i] - (t - del)))*(1 + exp(1e03*cumV[i] - vstop[i]*1e03))*(1 + exp((t - del) - ts1[i])))
   # va2[] <- va2[i] - 1/((1 + exp(ta1[i] - (t - vstop[i])))*(1 + exp(1e03*cumV[i] - vstop[i]*1e03))*(1 + exp(t - vstop[i] - ts1[i])))
   

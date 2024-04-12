@@ -1,28 +1,13 @@
-
-unroll_vaccine_hesitancy <- function(a,b,c, nyears) {
-  
-  lst <- list()
-  lst[[1]] <- rep(a, 9)
-  
-  if (nyears > 1) {
-    for (i in (2:nyears)) {
-      lst[[i]] <- c(0,0,b,b,b,b,b,c,c)
-    }
-  }
-  return(lst)
-}
-
-# ------------------------------------------------------------------------------
 # Define objective functions for the dynamic or static optimization problem
-# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 # Dynamic objective function
 # ------------------------------------------------------------------------------
-# - scenario: model scenario such as "pars_fast", "pars_slow", etc.
+# - scenario: character string such as "pars_le_fast", "pars_le_slow", etc. see grab_2v_parms()
 # - length_campaign: length of the vaccination campaign in days, which regulates the supply constraint
 # - fd: dose fraction
 # - phi_x: dose response function
-# - rm: whether the raw output from single_run will be returned
+# - rm: return model? if TRUE, the raw output from single_run will be returned
 # - ret: whether the output compartment values are scaled by population
 # - objective: which compartment value to be minimized, either "D" (death) or "cumI" (total infection)
 # - homogen: whether the mixing (contacts across groups) is homogenous or heterogenous
@@ -69,16 +54,18 @@ model_fd_dynamic <- function(scenario,
     # !!!this model will only make sense if kappa = phi!!!
     y <- multi_year_run(pars, "2v_v2", rep)
   }
-  if(rm) return(y)
-  if(ret == 0)
-    return(main_metrics(y, pop, t = nrow(y)))
   if(ret == 1)
     y <- rescale_rcs(y, pop, TRUE)
+  if(rm) 
+    return(y)
+  if(ret == 0)
+    return(main_metrics(y, pop, t = nrow(y)))
   return(y[360 * length(rep),objective,1])
 }
+
+
+
 # ------------------------------------------------------------------------------
-
-
 # Static objective function
 # ------------------------------------------------------------------------------
 # - scenario: model scenario such as "pars_le_fast", "pars_le_slow", etc.

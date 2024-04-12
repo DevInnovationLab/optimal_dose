@@ -18,8 +18,10 @@ source("setup/model_2vaccine.R")
 source("optimisation-epi/single_run.R")
 source("setup/parametrisation.R")
 source("setup/plot_rcs.R")
+source("setup/helpers.R")
 
 # Optimization functions
+source("optimisation-epi/optimisation_helpers.R")
 source("optimisation-epi/objective-functions.R")
 source("optimisation-epi/nlopt_general.R")
 
