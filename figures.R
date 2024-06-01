@@ -1,3 +1,7 @@
+source("project_setup.R")
+source("load_results.R")
+source("optimisation-epi/nlopt_plot.R")
+
 # Fig 1 idea
 
 speed_x <- c(10, 33, 100, 365, 1000)
@@ -28,18 +32,6 @@ pop_scaling <- function(x){
   x$solution <- pop[3:9]*(x$solution)
   x
 }
-
-results_base_case <- results_all %>% 
-  filter(
-    # static == F, 
-    # q %in% c(720, 360),
-    # dose_response == "covid_default",
-    pdeath == "high-income",
-    objective == "%Death",
-    homogen_mixing == "hetero-mixing",
-    recurring == "single-season") %>% 
-  mutate(static = ifelse(static, "Static case", "Dynamic case")) %>% 
-  mutate(scenario = paste(scenario, "epidemic"))
 
 results_base_case %>% 
   filter(objective == "%Death", 
