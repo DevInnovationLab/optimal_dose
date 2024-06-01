@@ -372,7 +372,7 @@ results_all %>%
   scale_color_manual(values = c("#D55E00", "#0072B2", "#009E73", "#882E72"))
 ```
 
-```{r warning=FALSE, message=FALSE, fig.fullwidth=T, fig.height = 4, fig.cap="Optimal Age-specific Dose Fraction for Single-season Covid Pandemic under Static Optimization for 30% Vaccine Supply", fig.pos="H"}
+```{r warning=FALSE, message=FALSE, fig.fullwidth=T, fig.height = 4, fig.cap="Optimal Age-specific Dose Fraction for Single-season Covid Pandemic with Homogeneous Mixing under Static Optimization for 30% Vaccine Supply", fig.pos="H"}
 results_all %>% 
   filter(q == 0.3,
          homogen_mixing == "homogen-mixing",
@@ -392,7 +392,7 @@ results_all %>%
   scale_color_manual(values = c("#D55E00", "#0072B2", "#009E73", "#882E72"))
 ```
 
-```{r warning=FALSE, message=FALSE, fig.fullwidth=T, fig.height = 4, fig.cap="Optimal Age-specific Dose Fraction for Multi-season Covid Pandemic under Dynamic Optimization for 30% Vaccine Supply", fig.pos="H"}
+```{r warning=FALSE, message=FALSE, fig.fullwidth=T, fig.height = 4, fig.cap="Optimal Age-specific Dose Fraction for Multi-season Covid Pandemic with Homogeneous Mixing under Dynamic Optimization for 30% Vaccine Supply", fig.pos="H"}
 results_all %>% 
   filter(q == 0.3,
          homogen_mixing == "homogen-mixing",

@@ -6,10 +6,10 @@
 # 2. Optimal universal fractional dose (1-dimensional optimization)
 # 3. Optimal fractional dose for each age group (7-dimensional optimization)
 # in addition to: 
-# 4. No vaccination
+# 4. No vaccination (no optimization needed, as a basic benchmark)
 # 
-# Output: three lists of results for the three categories. 
-# The first 10 columns are different combinations of options, the later 4 are:
+# Output: Combined results under different options for the three categories. 
+# The first 10 columns are combinations of options, the later 4 are:
 #   - result_solution: 
 #       1 & 4. N.A.
 #       2. numeric value of the optimal universal dose fraction 
@@ -24,13 +24,18 @@
 #       2 & 3: message from nloptr about the status of the optimization
 # ------------------------------------------------------------------------------
 
+# For multi-thread performance, set the number of workers to the number of 
+# logical processors
+plan(multisession, workers = 4)
 
-# First, generate all combinations of options. 
-# Note that q is defined differently for dynamic and static problems, so we 
-# run them separately and rbind later. 
+# ------------------------------------------------------------------------------
+# Setup 1: Generate grids of all option combinations
+# ------------------------------------------------------------------------------
 
-cases_dynamic <- expand_grid(q = c(720, 360, 90, 30),
-                             initial_value = 0.01, 
+# Since q is defined differently for dynamic and static problems, so we generate
+# the grids for them separately and rbind later. 
+
+cases_dynamic <- expand_grid(q = c(3, 5, 10, 15, 30, 90, 180, 360, 720, 1440), 
                              objective = c("D", "cumI"), 
                              dose_response = "covid_default",
                              homogen_mixing = c(T, F),
@@ -39,10 +44,13 @@ cases_dynamic <- expand_grid(q = c(720, 360, 90, 30),
                              scenario = c("pars_le_slow", "pars_le_fast"),
                              recurring = list(c(0.8,0.2,0.5,1),
                                               c(0.8,0.2,0.5,5)),
-                             iterations = 100)
-
-cases_static <- expand_grid(q = c(0.1, 0.2, 0.3, 0.5),
-                            initial_value = 0.01, 
+                             iterations = 20000) %>% 
+  # Initial value set as random uniform draw
+  mutate(initial_value = runif(320, 0.1, 0.9)) %>% 
+  relocate(initial_value, .after = q)
+    
+cases_static <- expand_grid(q = c(0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 
+                                  0.4, 0.6, 0.7, 0.8, 0.9, 1),
                             objective = c("D", "cumI"), 
                             dose_response = "covid_default",
                             homogen_mixing = c(T, F),
@@ -51,16 +59,11 @@ cases_static <- expand_grid(q = c(0.1, 0.2, 0.3, 0.5),
                             scenario = c("pars_le_slow", "pars_le_fast"),
                             recurring = list(c(0.8,0.2,0.5,1),
                                              c(0.8,0.2,0.5,5)),
-                            iterations = 100)
+                            iterations = 20000) %>% 
+  # Initial value set as 1/7 of total vaccine sapply
+  mutate(initial_value = q / 7) %>% 
+  relocate(initial_value, .after = q)
 
-
-cases_dynamic <- cases_dynamic %>% 
-  mutate(initial_value = pull(filter(results_all, static == F), frac_uni_sol))
-
-cases_static <- cases_static %>% 
-  mutate(initial_value = pull(filter(results_all, static == T), frac_uni_sol))
-
-plan(multisession, workers = 8)
 
 # ------------------------------------------------------------------------------
 # 1. Full dose
@@ -109,21 +112,40 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
       y <- rescale_rcs(y, pop, TRUE)
       return(y[360 * recurring[4],objective,1])
     } else {
-    model_fd_dynamic(scenario = scenario, 
-                     length_campaign = q, 
-                     fd = rep(1, 9),  # try (00111111)
-                     phi_x = dose_response, 
-                     pdeath = pdeath,
-                     ret = 1, 
-                     objective = objective, 
-                     homogen = homogen_mixing,
-                     rep = recurring)
+      obj <- model_fd_dynamic(scenario = scenario, 
+                               length_campaign = q, 
+                               fd = rep(1, 9),
+                               phi_x = dose_response, 
+                               pdeath = pdeath,
+                               ret = 1, 
+                               objective = objective, 
+                               homogen = homogen_mixing,
+                               rep = recurring)
+      frac_vac <- model_fd_dynamic(scenario = scenario, 
+                                   length_campaign = q, 
+                                   fd = rep(1, 9),
+                                   phi_x = dose_response, 
+                                   pdeath = pdeath,
+                                   ret = 1, 
+                                   objective = objective, 
+                                   homogen = homogen_mixing,
+                                   rep = recurring, 
+                                   calc_frac_vac = T)
+    
+      solution <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
+                                            labels = colnames(pbc_spread)[3:9]), 
+                         solution = 1) %>% 
+        left_join(frac_vac, by = "age_group")
+      
+      list("solution" = solution, 
+           "objective" = obj)
     }
   }
 
 # Apply all combinations of options to the wrapper function.
 results_full_dose_dynamic <- cases_dynamic %>% 
-  mutate(result_objective = future_pmap(., obj_full))
+  mutate(result = pmap(., obj_full)) %>% 
+  unnest_wider(result, names_sep = "_")
 
 results_full_dose_static <- cases_static %>% 
   mutate(result_objective = future_pmap(., obj_full))
@@ -143,15 +165,15 @@ unroll_x <- function(x, sub = 1) {c(sub, sub, rep(x, 7))}
 
 results_frac_uni_dynamic <- cases_dynamic %>% 
   mutate(result = future_pmap(., opt_general)) %>% 
-  unnest_wider(result, names_sep = "_") %>% 
-  mutate(result_solution = map(result_solution, pluck, 2)) %>% 
-  mutate(result_solution = map(result_solution, pluck, 1))
+  unnest_wider(result, names_sep = "_")
+  # mutate(result_solution = map(result_solution, pluck, 2)) %>% 
+  # mutate(result_solution = map(result_solution, pluck, 1))
 
-results_frac_uni_static <- cases_static %>% 
-  mutate(result = future_pmap(., opt_general)) %>% 
-  unnest_wider(result, names_sep = "_") %>% 
-  mutate(result_solution = map(result_solution, pluck, 2)) %>% 
-  mutate(result_solution = map(result_solution, pluck, 1))
+save(results_frac_uni_dynamic, file = "results/results_frac_uni_dynamic.Rdata")
+
+results_frac_uni_static <- cases_static %>%
+  mutate(result = future_pmap(., opt_general)) %>%
+  unnest_wider(result, names_sep = "_")
 
 results_frac_uni <- results_frac_uni_dynamic %>% rbind(results_frac_uni_static)
 
@@ -168,7 +190,7 @@ unroll_x <- function(x, sub = 1) {
 } 
 
 results_frac_age_dynamic <- cases_dynamic %>% 
-  mutate(result = future_pmap(., opt_general)) %>% 
+  mutate(result = pmap(., opt_general)) %>% 
   unnest_wider(result, names_sep = "_")
 
 save(results_frac_age_dynamic, file = "results/results_frac_age_dynamic.Rdata")

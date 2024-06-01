@@ -85,9 +85,9 @@ opt_general <-
       x0 <- rep(initial_value, n_x)
     }
     # Set optimization options.
-    opts <- list( "algorithm"= "NLOPT_LN_COBYLA",#"NLOPT_GN_ISRES"
-                  "xtol_rel"= 0,
-                  "maxeval"= iterations,
+    opts <- list( "algorithm" = "NLOPT_LN_COBYLA",#"NLOPT_GN_ISRES"
+                  "xtol_rel" = 1e-06,
+                  "maxeval" = iterations,
                   #"local_opts" = list( "algorithm" = "NLOPT_LN_NELDERMEAD",
                   #                     "xtol_rel" = 1.0e-4 ),
                   "print_level" = 0 )
@@ -101,10 +101,37 @@ opt_general <-
                   eval_g_ineq = eval_g_ineq,
                   opts = opts)
     
-    list("solution" = tibble(age_group = factor(3:9, levels = paste0(3:9), 
-                                                labels = colnames(pbc_spread)[3:9]), 
-                             solution = res$solution), 
-         "objective" = res$objective, 
+    
+    if (static) {
+      frac_vac <- model_fd_static(scenario = scenario,
+                                  fd = unroll_x(res$solution, sub = 0),
+                                  phi_x = dose_response,
+                                  pdeath = pdeath,
+                                  objective = objective,
+                                  homogen = homogen_mixing,
+                                  ret = 1,
+                                  rep = recurring,
+                                  calc_frac_vac = T)
+    } else {
+      frac_vac <- model_fd_dynamic(scenario = scenario,
+                                   fd = unroll_x(res$solution),
+                                   length_campaign = q,
+                                   phi_x = dose_response,
+                                   pdeath = pdeath,
+                                   objective = objective,
+                                   ret = 1,
+                                   homogen = homogen_mixing,
+                                   rep = recurring,
+                                   calc_frac_vac = T)
+    }
+    
+    solution <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
+                                          labels = colnames(pbc_spread)[3:9]), 
+                       solution = res$solution) %>% 
+      left_join(frac_vac, by = "age_group")
+    
+    list("solution" = solution, 
+         "objective" = res$objective,
          "n_iterations" = res$iterations, 
          "message" = res$message)
   }
