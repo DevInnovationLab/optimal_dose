@@ -103,15 +103,11 @@ opt_general <-
     
     
     if (static) {
-      frac_vac <- model_fd_static(scenario = scenario,
-                                  fd = unroll_x(res$solution, sub = 0),
-                                  phi_x = dose_response,
-                                  pdeath = pdeath,
-                                  objective = objective,
-                                  homogen = homogen_mixing,
-                                  ret = 1,
-                                  rep = recurring,
-                                  calc_frac_vac = T)
+      
+      frac_vac <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
+                                            labels = colnames(pbc_spread)[3:9]),
+                         frac_vac = rep(1, 7), 
+                         max_I_day = 0)
     } else {
       frac_vac <- model_fd_dynamic(scenario = scenario,
                                    fd = unroll_x(res$solution),

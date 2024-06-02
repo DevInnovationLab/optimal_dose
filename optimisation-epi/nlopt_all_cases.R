@@ -25,7 +25,8 @@
 # ------------------------------------------------------------------------------
 
 # For multi-thread performance, set the number of workers to the number of 
-# logical processors
+# logical processors. This does not work if Rtools is used to generate a 
+# temporary optimized copy of the odin package. 
 plan(multisession, workers = 4)
 
 # ------------------------------------------------------------------------------
@@ -73,44 +74,51 @@ cases_static <- expand_grid(q = c(0.01, 0.05, 0.1, 0.2, 0.3, 0.5,
 # The purpose of the wrapper is to fit the data frame structure defined above. 
 obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                      static, pdeath, scenario, recurring, iterations) {
-
-  if (static){
-
-      phi_x <- dose_response
-      if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-      } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
-      
-      vac_perc <- rep(0, 9)
-      for (i in c(9:1)) {
-        q <- q - pop[i]
-        if (q > 0) {
-          vac_perc[i] <- (1 - pre_immunity[i]) * phi_x(1)
-        } else {
-          vac_perc[i] <- (q + pop[i]) / pop[i] * phi_x(1)
-          break
-        }
+  
+  if (static) {
+    frac_vac <- rep(0, 7)
+    # Vaccinate according to fd until the total supply runs out
+    for (i in c(9:3)) {
+      q <- q - pop[i]
+      if (q > 0) {
+        frac_vac[i - 2] <- 1
+      } else {
+        frac_vac[i - 2] <- (q + pop[i]) / pop[i]
+        break
       }
-
-      if (pdeath == "ifr_hic") {pdeath <- ifr_hic
-      } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
-      
-      pars <- list_modify(
-        grab_2v_parms(scenario),
-        y0 = y0_gen(13, Ngroups, pre_immunity = pre_immunity + vac_perc))
-      if(homogen_mixing){
-        pars$contacts <- t(replicate(Ngroups, pop))
-        pars$q <- ev*pars$q
+    }
+    frac_vac <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
+                                          labels = colnames(pbc_spread)[3:9]),
+                       frac_vac = frac_vac,
+                       max_I_day = 0)
+    
+    pre_immunity_plus <- c(0, 0, sapply(frac_vac$frac_vac, 
+                                        function(frac_vac){
+                                          ifelse(test = frac_vac >= 0.8, 
+                                                 yes = 0.8 * phi_x(1), 
+                                                 no = frac_vac * phi_x(1))}))
+    
+    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
+    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
+        
+    pars <- list_modify(
+      grab_2v_parms(scenario),
+      y0 = y0_gen(13, Ngroups, pre_immunity = pre_immunity + pre_immunity_plus))
+    
+    if (homogen_mixing) {
+      pars$contacts <- t(replicate(Ngroups, pop))
+      pars$q <- ev*pars$q
+    }
+    pars <- list_modify(pars, pdeath = pdeath)
+        
+    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
+    if (length(rep) == 1) {
+      y <- sr(pars, "2v_v2")
+    } else if (length(rep) > 1) {
+      y <- multi_year_run(pars, "2v_v2", rep)
       }
-      pars <- list_modify(pars, pdeath = pdeath)
-      
-      rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-      if (length(rep) == 1) {
-        y <- sr(pars, "2v_v2")
-      } else if (length(rep) > 1) {
-        y <- multi_year_run(pars, "2v_v2", rep)
-      }
-      y <- rescale_rcs(y, pop, TRUE)
-      return(y[360 * recurring[4],objective,1])
+    y <- rescale_rcs(y, pop, TRUE)
+    obj <- y[360 * recurring[4],objective,1]
     } else {
       obj <- model_fd_dynamic(scenario = scenario, 
                                length_campaign = q, 
@@ -131,7 +139,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                                    homogen = homogen_mixing,
                                    rep = recurring, 
                                    calc_frac_vac = T)
-    
+    }
       solution <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
                                             labels = colnames(pbc_spread)[3:9]), 
                          solution = 1) %>% 
@@ -139,7 +147,6 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
       
       list("solution" = solution, 
            "objective" = obj)
-    }
   }
 
 # Apply all combinations of options to the wrapper function.
@@ -148,7 +155,8 @@ results_full_dose_dynamic <- cases_dynamic %>%
   unnest_wider(result, names_sep = "_")
 
 results_full_dose_static <- cases_static %>% 
-  mutate(result_objective = future_pmap(., obj_full))
+  mutate(result = pmap(., obj_full)) %>% 
+  unnest_wider(result, names_sep = "_")
 
 results_full_dose <- results_full_dose_dynamic %>% rbind(results_full_dose_static)
 
@@ -172,8 +180,10 @@ results_frac_uni_dynamic <- cases_dynamic %>%
 save(results_frac_uni_dynamic, file = "results/results_frac_uni_dynamic.Rdata")
 
 results_frac_uni_static <- cases_static %>%
-  mutate(result = future_pmap(., opt_general)) %>%
+  mutate(result = pmap(., opt_general)) %>%
   unnest_wider(result, names_sep = "_")
+
+save(results_frac_uni_static, file = "results/results_frac_uni_static.Rdata")
 
 results_frac_uni <- results_frac_uni_dynamic %>% rbind(results_frac_uni_static)
 
@@ -196,7 +206,7 @@ results_frac_age_dynamic <- cases_dynamic %>%
 save(results_frac_age_dynamic, file = "results/results_frac_age_dynamic.Rdata")
 
 results_frac_age_static <- cases_static %>% 
-  mutate(result = future_pmap(., opt_general)) %>% 
+  mutate(result = pmap(., opt_general)) %>% 
   unnest_wider(result, names_sep = "_")
 
 save(results_frac_age_static, file = "results/results_frac_age_static.Rdata")
@@ -243,7 +253,7 @@ obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixin
   } else {
     model_fd_dynamic(scenario = scenario, 
                      length_campaign = q, 
-                     fd = rep(0.000001, 9),  # try (00111111)
+                     fd = rep(0.000001, 9), 
                      phi_x = dose_response, 
                      pdeath = pdeath,
                      ret = 1, 
@@ -281,7 +291,8 @@ results_frac_age <- results_frac_age %>%
 
 results_all <- 
   results_full_dose %>% 
-  rename(full_dose = result_objective) %>% 
+  rename(full_dose = result_objective,
+         full_dose_sol = result_solution) %>% 
   left_join(results_frac_uni, 
             by = c("q", "initial_value", "objective","dose_response", 
                    "homogen_mixing", "static", "pdeath", "scenario", 
@@ -299,7 +310,7 @@ results_all <-
                    "homogen_mixing", "static", "pdeath", "scenario", 
                    "recurring", "iterations")) %>% 
   rename(no_vac = result_objective) %>% 
-  mutate(across(c(full_dose, frac_uni, frac_age, frac_uni_sol, no_vac), ~map_dbl(., 1)))
+  mutate(across(c(full_dose, frac_uni, frac_age, no_vac), ~map_dbl(., 1)))
 
 save(results_all, file = "results/results_all.Rdata")
 
