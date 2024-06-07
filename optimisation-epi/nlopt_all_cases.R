@@ -1,27 +1,29 @@
 # ------------------------------------------------------------------------------
 # Generate the aggregate list of optimization results with different options. 
 # 
-# Three general categories are: 
+# General categories of results are:
 # 1. Full dose (no optimization needed)
 # 2. Optimal universal fractional dose (1-dimensional optimization)
 # 3. Optimal fractional dose for each age group (7-dimensional optimization)
-# in addition to: 
 # 4. No vaccination (no optimization needed, as a basic benchmark)
+# 5. (For static cases only) Pre-vaccination of optimally selected age groups
 # 
-# Output: Combined results under different options for the three categories. 
-# The first 10 columns are combinations of options, the later 4 are:
-#   - result_solution: 
-#       1 & 4. N.A.
-#       2. numeric value of the optimal universal dose fraction 
-#       3. 7 x 2 tibble of age groups and corresponding optimal dose fractions
-#   - result_objective: 
-#       1 & 2 & 3 & 4: objective value evaluated at the solution
-#   - result_n_iterations:
-#       1 & 4: N.A.
-#       2 & 3: the number of iterations in the solving process
-#   - result_message: 
-#       1 & 4: N.A.
-#       2 & 3: message from nloptr about the status of the optimization
+# Output: Combined results under different options, named "results_all"
+#   - The first 9 columns are combinations of options
+#   - Columns "full_dose_sol", "frac_uni_sol", "frac_age_sol", "frac_01_sol" 
+#     contain tibbles as elements, each with columns:
+#      - age_group
+#      - solution: (optimal) dose fraction
+#      - frac_vac: vaccinated fraction in each group, all 1 for static cases, 
+#           and the sum of P and N compartments on the day of maximum infections
+#           for dynamic cases
+#      - max_I_day: the day of maximum infections, 0 for static cases
+#   - Columns "full_dose", "frac_uni", "frac_age", "no_vac" "frac_01" are 
+#     are numeric objective values under the option combination and the solution
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# 0. Setup
 # ------------------------------------------------------------------------------
 
 # For multi-thread performance, set the number of workers to the number of 
@@ -29,13 +31,8 @@
 # temporary optimized copy of the odin package. 
 plan(multisession, workers = 4)
 
-# ------------------------------------------------------------------------------
-# Setup 1: Generate grids of all option combinations
-# ------------------------------------------------------------------------------
-
-# Since q is defined differently for dynamic and static problems, so we generate
-# the grids for them separately and rbind later. 
-
+# Generate all combinations of options. Since q is defined differently for 
+# dynamic and static problems, we generate the grids separately and rbind later. 
 cases_dynamic <- expand_grid(q = c(3, 5, 10, 15, 30, 90, 180, 360, 720, 1440), 
                              objective = c("D", "cumI"), 
                              dose_response = "covid_default",
@@ -65,89 +62,9 @@ cases_static <- expand_grid(q = c(0.01, 0.05, 0.1, 0.2, 0.3, 0.5,
   mutate(initial_value = q / 7) %>% 
   relocate(initial_value, .after = q)
 
-
 # ------------------------------------------------------------------------------
 # 1. Full dose
 # ------------------------------------------------------------------------------
-
-# Define wrapper function for the objective function with constant full dose. 
-# The purpose of the wrapper is to fit the data frame structure defined above. 
-obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
-                     static, pdeath, scenario, recurring, iterations) {
-  
-  if (static) {
-    frac_vac <- rep(0, 7)
-    # Vaccinate according to fd until the total supply runs out
-    for (i in c(9:3)) {
-      q <- q - pop[i]
-      if (q > 0) {
-        frac_vac[i - 2] <- 1
-      } else {
-        frac_vac[i - 2] <- (q + pop[i]) / pop[i]
-        break
-      }
-    }
-    frac_vac <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
-                                          labels = colnames(pbc_spread)[3:9]),
-                       frac_vac = frac_vac,
-                       max_I_day = 0)
-    
-    pre_immunity_plus <- c(0, 0, sapply(frac_vac$frac_vac, 
-                                        function(frac_vac){
-                                          ifelse(test = frac_vac >= 0.8, 
-                                                 yes = 0.8 * phi_x(1), 
-                                                 no = frac_vac * phi_x(1))}))
-    
-    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
-    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
-        
-    pars <- list_modify(
-      grab_2v_parms(scenario),
-      y0 = y0_gen(13, Ngroups, pre_immunity = pre_immunity + pre_immunity_plus))
-    
-    if (homogen_mixing) {
-      pars$contacts <- t(replicate(Ngroups, pop))
-      pars$q <- ev*pars$q
-    }
-    pars <- list_modify(pars, pdeath = pdeath)
-        
-    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    if (length(rep) == 1) {
-      y <- sr(pars, "2v_v2")
-    } else if (length(rep) > 1) {
-      y <- multi_year_run(pars, "2v_v2", rep)
-      }
-    y <- rescale_rcs(y, pop, TRUE)
-    obj <- y[360 * recurring[4],objective,1]
-    } else {
-      obj <- model_fd_dynamic(scenario = scenario, 
-                               length_campaign = q, 
-                               fd = rep(1, 9),
-                               phi_x = dose_response, 
-                               pdeath = pdeath,
-                               ret = 1, 
-                               objective = objective, 
-                               homogen = homogen_mixing,
-                               rep = recurring)
-      frac_vac <- model_fd_dynamic(scenario = scenario, 
-                                   length_campaign = q, 
-                                   fd = rep(1, 9),
-                                   phi_x = dose_response, 
-                                   pdeath = pdeath,
-                                   ret = 1, 
-                                   objective = objective, 
-                                   homogen = homogen_mixing,
-                                   rep = recurring, 
-                                   calc_frac_vac = T)
-    }
-      solution <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
-                                            labels = colnames(pbc_spread)[3:9]), 
-                         solution = 1) %>% 
-        left_join(frac_vac, by = "age_group")
-      
-      list("solution" = solution, 
-           "objective" = obj)
-  }
 
 # Apply all combinations of options to the wrapper function.
 results_full_dose_dynamic <- cases_dynamic %>% 
@@ -220,49 +137,6 @@ save(results_frac_age, file = "results/results_frac_age.Rdata")
 # 4. No vaccination
 # ------------------------------------------------------------------------------
 
-# Similar to 1, but with zero vaccination for any group
-obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixing,
-                     static, pdeath, scenario, recurring, iterations) {
-  
-  if (static){
-    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    
-    phi_x <- dose_response
-    if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-    } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
-    
-    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
-    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
-    
-    pars <- grab_2v_parms(scenario)
-    if(homogen_mixing){
-      pars$contacts <- t(replicate(Ngroups, pop))
-      pars$q <- ev*pars$q
-    }
-    pars <- list_modify(pars, pdeath = pdeath)
-    
-    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    if (length(rep) == 1) {
-      y <- sr(pars, "2v_v2")
-    } else if (length(rep) > 1) {
-      y <- multi_year_run(pars, "2v_v2", rep)
-    }
-    
-    y <- rescale_rcs(y, pop, TRUE)
-    return(y[360 * recurring[4],objective,1])
-  } else {
-    model_fd_dynamic(scenario = scenario, 
-                     length_campaign = q, 
-                     fd = rep(0.000001, 9), 
-                     phi_x = dose_response, 
-                     pdeath = pdeath,
-                     ret = 1, 
-                     objective = objective, 
-                     homogen = homogen_mixing,
-                     rep = recurring)
-  }
-}
-
 # Apply all combinations of options to the wrapper function.
 results_no_vac_dynamic <- cases_dynamic %>% 
   mutate(result_objective = future_pmap(., obj_no_vac))
@@ -275,7 +149,17 @@ results_no_vac <- results_no_vac_dynamic %>% rbind(results_no_vac_static)
 save(results_no_vac, file = "results/results_no_vac.Rdata")
 
 # ------------------------------------------------------------------------------
-# 4. Merge 
+# 5. Vaccination of optimally selected groups (for static cases only)
+# ------------------------------------------------------------------------------
+
+results_frac_01_static <- cases_static %>% 
+  mutate(result = pmap(., opt_01)) %>% 
+  unnest_wider(result, names_sep = "_")
+
+
+
+# ------------------------------------------------------------------------------
+# 6. Merge 
 # ------------------------------------------------------------------------------
 
 load("results/results_no_vac.Rdata")

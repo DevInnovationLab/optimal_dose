@@ -21,8 +21,8 @@ source("setup/plot_rcs.R")
 source("setup/helpers.R")
 
 # Optimization functions
-source("optimisation-epi/optimisation_helpers.R")
-source("optimisation-epi/objective-functions.R")
+source("optimisation-epi/nlopt_helpers.R")
+source("optimisation-epi/nlopt_obj_fun.R")
 source("optimisation-epi/nlopt_general.R")
 
 # Visualization functions
