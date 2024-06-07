@@ -74,7 +74,9 @@ We use non-linear optimisation solver to find optimal doses under a variety of s
 \item heterogeneity in harm: using IFR typical of a high or a low income country
 \end{itemize}
 
-We can summarise the base case results in two ways. Figure \ref{fig:obj_f_solutions} focuses on how the objective function (mortality) changes as we move from (1) full doses to (2) partial doses (uniform with age) or (3) age-specific optimal doses. This is crucial because it directly addresses the central question of whether dose-stretching can save lives. We find that ...
+We can summarise the base case results in two ways. Figure \ref{fig:obj_f_solutions} focuses on how the objective function (mortality) changes as we move from (1) full doses to (2) partial doses (uniform with age) or (3) age-specific optimal doses. Some of the values are given in Table \ref{table:obj_f} This is crucial because it directly addresses the central question of whether dose-stretching can save lives. 
+
+Predictably, we find that vaccination with effective vaccine can avert a large proportion of deaths. We also find that there are large gains from fractionation in presence of supply constraints. This matches results presented in an earlier paper. The further gains from making fractional doses age-specific are limited to the situation where a limited supply is distributed before arrival of the epidemic. They can be considerable, saving an additional 10 percent of deaths when moving to age-specific dosing.
 
 \begin{figure}
 \centering
@@ -83,7 +85,25 @@ We can summarise the base case results in two ways. Figure \ref{fig:obj_f_soluti
 \label{fig:obj_f_solutions}
 \end{figure}
 
-Figure \ref{fig:age_solutions} shows the underlying optimal dose solutions, allowing us to understand how they vary with age. We find that ...
+\begin{tabular}{l|r|r|r|r|r|r}
+\label{table:obj_f}
+\hline
+key & Dynamic case q = 180 & Dynamic case q = 360 & Dynamic case q = 720 & Static case q = 0.05 & Static case q = 0.1 & Static case q = 0.2\\
+\hline
+Age-optimal & 0.89 & 0.76 & 0.60 & 0.51 & 0.71 & 0.90\\
+\hline
+Age-invariant & 0.89 & 0.75 & 0.58 & 0.41 & 0.65 & 0.90\\
+\hline
+No f.d. & 0.83 & 0.67 & 0.46 & 0.28 & 0.54 & 0.79\\
+\hline
+\end{tabular}
+
+Figure \ref{fig:age_solutions} shows the underlying optimal dose solutions, allowing us to understand how they vary with age. 
+For the dynamic problem the optimal dose for higher risk groups is higher. (We do not show optimal dose in groups with less than 10\% coverage before peak of the epidemic.) Because we assumed order of vaccination according to mortality risk, there is little potential for breaking transmission. 
+
+There is no such constraint when vaccinating before epidemic. However, here too the optimal strategy tends to distribute limited supply of vaccine to groups with high mortality risk and ignore the ``transmitting groups''. Apparently small quantities of vaccine are not able to slow the spread. However, unlike in the dynamic case, 
+
+
 The shapes on Figure \ref{fig:age_solutions} can be misleading, because they are not population averaged.
 
 \begin{figure}
@@ -92,6 +112,7 @@ The shapes on Figure \ref{fig:age_solutions} can be misleading, because they are
 \caption{Test}
 \label{fig:age_solutions}
 \end{figure}
+
 
 
 \section{What if risk is homogeneous?}
