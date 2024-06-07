@@ -33,6 +33,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                      static, pdeath, scenario, recurring, iterations) {
   
   if (static) {
+    q <- q * sum(pop[3:9])
     frac_vac <- rep(0, 7)
     # Vaccinate according to fd until the total supply runs out
     for (i in c(9:3)) {
@@ -48,6 +49,10 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                                           labels = colnames(pbc_spread)[3:9]),
                        frac_vac = frac_vac,
                        max_I_day = 0)
+    
+    phi_x <- dose_response
+    if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
+    } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
     
     pre_immunity_plus <- c(0, 0, sapply(frac_vac$frac_vac, 
                                         function(frac_vac){
@@ -164,6 +169,8 @@ opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
 
   if (static == F) {stop("opt_01 is for static cases only")}
   
+  q <- q * sum(pop[3:9]) # Re-scale q as for the entire population
+  
   # Generate all 0-10 combinations of vaccinated fraction
   objectives_01 <- expand.grid(replicate(7, c(0, 1), simplify = FALSE))
   objectives_01 <- objectives_01[-1,] %>% # Delete the all zero case
@@ -175,7 +182,7 @@ opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
       # Compute dose fraction for each group when evenly distributing the total
       # supply to everyone in the groups set to 1
       frac_vac <- c(0, 0, frac_vac)
-      fd <- frac_vac * (q / sum(pop[frac_vac] / sum(pop[3:9])))
+      fd <- frac_vac * (q / sum(pop[frac_vac]))
       # Compute the objective
       model_fd_static(scenario = scenario,
                       fd = fd, 

@@ -67,8 +67,8 @@ cases_static <- expand_grid(q = c(0.01, 0.05, 0.1, 0.2, 0.3, 0.5,
 # ------------------------------------------------------------------------------
 
 # Apply all combinations of options to the wrapper function.
-results_full_dose_dynamic <- cases_dynamic %>% 
-  mutate(result = pmap(., obj_full)) %>% 
+results_full_dose_dynamic <- cases_dynamic %>%
+  mutate(result = pmap(., obj_full)) %>%
   unnest_wider(result, names_sep = "_")
 
 results_full_dose_static <- cases_static %>% 
@@ -88,10 +88,10 @@ save(results_full_dose, file = "results/results_full_dose.Rdata")
 n_x <- 1
 unroll_x <- function(x, sub = 1) {c(sub, sub, rep(x, 7))} 
 
-results_frac_uni_dynamic <- cases_dynamic %>% 
-  mutate(result = future_pmap(., opt_general)) %>% 
+# results_frac_uni_dynamic <- cases_dynamic %>% 
+  mutate(result = future_pmap(., opt_general)) %>%
   unnest_wider(result, names_sep = "_")
-  # mutate(result_solution = map(result_solution, pluck, 2)) %>% 
+  # mutate(result_solution = map(result_solution, pluck, 2)) %>%
   # mutate(result_solution = map(result_solution, pluck, 1))
 
 save(results_frac_uni_dynamic, file = "results/results_frac_uni_dynamic.Rdata")
@@ -116,8 +116,8 @@ unroll_x <- function(x, sub = 1) {
   c(sub, sub, x[1], x[2], x[3], x[4], x[5], x[6], x[7])
 } 
 
-results_frac_age_dynamic <- cases_dynamic %>% 
-  mutate(result = pmap(., opt_general)) %>% 
+results_frac_age_dynamic <- cases_dynamic %>%
+  mutate(result = pmap(., opt_general)) %>%
   unnest_wider(result, names_sep = "_")
 
 save(results_frac_age_dynamic, file = "results/results_frac_age_dynamic.Rdata")
@@ -128,8 +128,7 @@ results_frac_age_static <- cases_static %>%
 
 save(results_frac_age_static, file = "results/results_frac_age_static.Rdata")
 
-results_frac_age <- results_frac_age_dynamic %>% 
-  rbind(results_frac_age_static)
+results_frac_age <- results_frac_age_dynamic %>% rbind(results_frac_age_static)
 
 save(results_frac_age, file = "results/results_frac_age.Rdata")
 
@@ -138,11 +137,11 @@ save(results_frac_age, file = "results/results_frac_age.Rdata")
 # ------------------------------------------------------------------------------
 
 # Apply all combinations of options to the wrapper function.
-results_no_vac_dynamic <- cases_dynamic %>% 
-  mutate(result_objective = future_pmap(., obj_no_vac))
+results_no_vac_dynamic <- cases_dynamic %>%
+  mutate(result_objective = pmap(., obj_no_vac))
 
 results_no_vac_static <- cases_static %>% 
-  mutate(result_objective = future_pmap(., obj_no_vac))
+  mutate(result_objective = pmap(., obj_no_vac))
 
 results_no_vac <- results_no_vac_dynamic %>% rbind(results_no_vac_static)
 
@@ -156,7 +155,7 @@ results_frac_01_static <- cases_static %>%
   mutate(result = pmap(., opt_01)) %>% 
   unnest_wider(result, names_sep = "_")
 
-
+save(results_frac_01_static, file = "results/results_frac_01_static.Rdata")
 
 # ------------------------------------------------------------------------------
 # 6. Merge 
@@ -198,5 +197,12 @@ results_all <-
 
 save(results_all, file = "results/results_all.Rdata")
 
+results_all_static <- results_all %>% filter(static == T) %>% 
+  left_join(results_frac_01_static,
+            by = c("q", "initial_value", "objective","dose_response", 
+                   "homogen_mixing", "static", "pdeath", "scenario", 
+                   "recurring", "iterations")) %>% 
+  rename(frac_01 = result_objective, 
+         frac_01_sol = result_solution)
 
-
+save(results_all_static, file = "results/results_all_static.Rdata")
