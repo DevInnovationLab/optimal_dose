@@ -165,13 +165,16 @@ load("results/results_no_vac.Rdata")
 load("results/results_full_dose.Rdata")
 load("results/results_frac_age.Rdata")
 load("results/results_frac_uni.Rdata")
+load("results/results_frac_01_static.Rdata")
 
+# Remove extra columns for optimization status
 results_frac_uni <- results_frac_uni %>% 
   select(-result_message, -result_n_iterations)
 
 results_frac_age <- results_frac_age %>% 
   select(-result_message, -result_n_iterations)
 
+# Merge without the frac_01_static cases first
 results_all <- 
   results_full_dose %>% 
   rename(full_dose = result_objective,
@@ -195,14 +198,23 @@ results_all <-
   rename(no_vac = result_objective) %>% 
   mutate(across(c(full_dose, frac_uni, frac_age, no_vac), ~map_dbl(., 1)))
 
-save(results_all, file = "results/results_all.Rdata")
+# Extract the dynamic cases and insert empty columns for frac_01_static
+results_all_dynamic <- results_all %>% 
+  filter(static == F) %>% 
+  mutate(frac_01 = NA, frac_01_sol = NA)
 
-results_all_static <- results_all %>% filter(static == T) %>% 
+# Merge with frac_01_static and re-insert the dynamic cases.
+# This detour preserves the tibble structure of frac_01_sol. If left_join was 
+# directly applied as before, then the tibbles will be coerced into lists. 
+results_all <- results_all %>% 
+  filter(static == T) %>% 
   left_join(results_frac_01_static,
             by = c("q", "initial_value", "objective","dose_response", 
                    "homogen_mixing", "static", "pdeath", "scenario", 
                    "recurring", "iterations")) %>% 
   rename(frac_01 = result_objective, 
-         frac_01_sol = result_solution)
+         frac_01_sol = result_solution) %>% 
+  rbind(results_all_dynamic)
 
-save(results_all_static, file = "results/results_all_static.Rdata")
+save(results_all, file = "results/results_all.Rdata")
+
