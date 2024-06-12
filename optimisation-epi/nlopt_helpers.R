@@ -182,7 +182,7 @@ opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
       # Compute dose fraction for each group when evenly distributing the total
       # supply to everyone in the groups set to 1
       frac_vac <- c(0, 0, frac_vac)
-      fd <- frac_vac * (q / sum(pop[frac_vac]))
+      fd <- pmin(frac_vac * (q / sum(pop * frac_vac)), 1)
       # Compute the objective
       model_fd_static(scenario = scenario,
                       fd = fd, 
@@ -196,10 +196,12 @@ opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
     
     # Find and store the combination with minimum objective
     obj_min <- min(as.numeric(objectives_01$objective))
+    frac_vac_min <- objectives_01$frac_vac[[which.min(objectives_01$objective)]]
     
     solution <- tibble(
       age_group = factor(3:9, levels = paste0(3:9), labels = colnames(pbc_spread)[3:9]),
-      solution = objectives_01$frac_vac[[which.min(objectives_01$objective)]]
+      solution = frac_vac_min * (q / sum(pop * c(0, 0, frac_vac_min))),
+      frac_vac = frac_vac_min
       )
     
     list("solution" = solution, "objective" = obj_min)
