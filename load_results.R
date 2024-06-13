@@ -10,7 +10,8 @@ results_all <- results_all %>%
          scenario = ifelse(scenario == "pars_le_slow", "slow-growth", "fast-growth"),
          full_dose = full_dose / no_vac * 100,
          frac_uni = frac_uni / no_vac * 100, 
-         frac_age = frac_age / no_vac * 100)
+         frac_age = frac_age / no_vac * 100, 
+         frac_01 = frac_01 / no_vac * 100)
 
 results_base_case <- results_all %>% 
   filter(
