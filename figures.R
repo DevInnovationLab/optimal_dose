@@ -1,6 +1,7 @@
 source("project_setup.R")
 source("load_results.R")
 source("optimisation-epi/nlopt_plot.R")
+library(patchwork)
 
 # If you want to express as share of total volume distributed to different groups
 pop_scaling <- function(x){ 
@@ -58,7 +59,7 @@ df_optimal_solutions %>%
     # linetype = pdeath,
     group = q,
     color = q
-    )) + 
+  )) + 
   # geom_label_repel(aes(label = label),
   #                  nudge_x = 1,
   #                  na.rm = TRUE) +
@@ -105,33 +106,52 @@ df_obj_f <- results_base_case %>%
   rowwise() %>% 
   # mutate(setting = paste("q =", q)) %>%
   # mutate(setting = as.character(q)) %>%
-  filter(scenario == "fast-growth epidemic") %>% 
+  # filter(scenario == "fast-growth epidemic") %>% 
+  filter(static == "Static case") %>% 
   ungroup() %>% 
   # mutate(setting = factor(setting, levels = paste("q =", sort(unique(q))))) %>% 
   # mutate(setting = factor(q, levels = sort(unique(q)))) %>% 
   mutate(setting = q) %>% 
-  select(setting, static, scenario, full_dose, frac_uni, frac_age, pdeath) %>% 
+  select(setting, static, scenario, 
+         full_dose, frac_uni, frac_age, frac_01,
+         pdeath) %>% 
   gather(key, value, -setting, -static, -scenario, -pdeath) %>% 
   group_by(setting, scenario, static) %>% 
-  # mutate(value = value/max(value)) %>%
+  mutate(value = ifelse(key == "full_dose", max(value), value)) %>% 
+  mutate(value_prop = value/max(value)) %>%
+  # mutate(value_prop = value) %>%
   ungroup %>%
-  mutate(key = factor(key, levels = c("frac_age", "frac_uni", "full_dose"), 
-                      labels = c("Age-optimal", "Age-invariant", "No f.d."))) %>% 
-  mutate(value = 1 - value/100) 
+  mutate(key = factor(key, levels = c("frac_age", "frac_uni", "frac_01", "full_dose"), 
+                      labels = c("Age-optimal", "Age-invariant", "On or off", "No f.d.")))
+  # mutate(value = 1 - value/100)
 
-df_obj_f %>% 
+gg_obj1 <- df_obj_f %>% 
   ggplot(aes(x = setting, 
-             # , linetype = pdeath,
-             # group = interaction(key,pdeath), 
              group = key, 
              color = key, y = value)) + 
   geom_line() +
-  # coord_flip() +
-  scale_color_manual(labels = c("Age-optimal", "Age-invariant", "No f.d."),
-  values = c("#E69F00", "#56B4E9", "#009E73")) +
+  scale_color_manual(labels = c("Age-optimal", "Age-invariant", "On or off", "No f.d."),
+                     values = c("#E69F00", "#56B4E9", "#009E73", "black")) +
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_grid(.~static, scales = "free") +
-labs(x = "Speed/supply constraint", y = "Proportion of deaths averted")
+  facet_grid(.~scenario, scales = "free") +
+  labs(#x = "Speed/supply constraint", 
+    x = "",
+    y = "Proportion of deaths averted")
+
+gg_obj2 <- df_obj_f %>% 
+  ggplot(aes(x = setting, 
+             group = key, 
+             color = key, y = value_prop)) + 
+  geom_line() +
+  scale_color_manual(labels = c("Age-optimal", "Age-invariant", "On or off", "No f.d."),
+                     values = c("#E69F00", "#56B4E9", "#009E73", "black")) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(.~scenario, scales = "free") +
+  labs(x = "Speed/supply constraint", 
+       y = "Improvement relative to full dose")
+
+gg_obj1 / gg_obj2 
+
 ggsave("paper/figures/obj_f_solutions.pdf", width = 14, height = 9, unit = "cm")
 
 library(knitr)
@@ -143,3 +163,13 @@ df_obj_f %>%
   mutate(value = round(value, 2)) %>% 
   select(scenario, key, value) %>% spread(scenario, value)  %>% 
   knitr::kable(format = "latex")
+
+df_obj_f %>% 
+  # filter(key == "Age-optimal") %>% 
+  # filter(key == "Age-optimal") %>% 
+  filter(scenario == "fast-growth epidemic") %>%
+  filter(setting %in% c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)) %>%
+  mutate(scenario = paste("q =", setting)) %>% 
+  mutate(value = round(value, 2)) %>%
+  select(scenario, key, value) %>% spread(scenario, value)
+  # knitr::kable(format = "latex")
