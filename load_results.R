@@ -22,5 +22,6 @@ results_base_case <- results_all %>%
     objective == "%Death",
     homogen_mixing == "hetero-mixing",
     recurring == "single-season") %>% 
+  mutate(vacc_daily = ifelse(static, NA, as.pct(1/q))) %>% 
   mutate(static = ifelse(static, "Static case", "Dynamic case")) %>% 
-  mutate(scenario = paste(scenario, "epidemic"))
+  mutate(scenario = paste(scenario, "epidemic")) 

@@ -50,7 +50,7 @@ multi_year_run <- function(par, f = "2v_v2", takeup = list(rep(0.8, 9))) {
   if(nperiods == 1)
     return(y)
   
-  for(i in 1:(nperiods-1)){
+  for(i in 2:nperiods){
     # each new period just takes the last day of last period as starting condition
     last_state <- cy[par$Ndays,,]
     # reset vaccination indicators to zero ahead of the new season

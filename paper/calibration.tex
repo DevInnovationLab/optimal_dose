@@ -37,7 +37,18 @@ In static cases, where vaccinations occur before the epidemic, we consider sever
 
 This is done by changing the starting condition of the ODE system so that appropriate fraction of individuals are placed in $P$ and $N$ compartments. We discuss the potential loss of (natural and vaccine-induced) immunity later, but ignore it in the initial examples.
 
-To keep these cases illustrative, we vary the quantity of vaccine available every day (dynamic cases) or total supply (static cases) through a wide range of values. This covers the heterogeneity in country-level supplies which occured during the COVID pandemic. For example, Israel was able to vaccinate a large fraction of its population in a manner of weeks, while most countries were only able to secure a very small supply of vaccine, which was then reserved for priority groups. In many cases these supply constraints were not alleviated until 2022. However, we also include the more extreme examples, e.g. to highlight what happens as supply tends to zero
+To keep these cases illustrative, we vary the quantity of vaccine available every day (dynamic cases) or total supply (static cases) through a wide range of values. This covers the heterogeneity in country-level supplies which occured during the COVID pandemic. For example, Israel was able to vaccinate a large fraction of its population in a manner of weeks, while most countries were only able to secure a very small supply of vaccine, which was then reserved for priority groups. In many cases these supply constraints were not alleviated until 2022. However, we also include the more extreme examples for illustrative purposes. To give some examples for COVID:
+
+
+
+\begin{itemize}
+
+\item Wealthy countries that were at the front of the queue initially (circa January 2021) had enough doses to vaccinate a few percent of their population
+\item As vaccination campaigns took off, these countries were vaccinating between 0.5\% and 1\% of their population. The UK and US fully vaccinated half of the population in the first half of 2021. Many EU countries started slowly and took several more months to reach that milestone. Typically the coverage of 60\%-80\% (depending on hesitancy) was reached within one year.
+\item In poorer countries that had to rely on COVAX and donations, there was initially no supply; once vaccines were available, the vaccination rates were very slow. India (with large domestic supply) took 13 months to reach 50\% fully vaccinated, but Nigeria vaccinated 2\% in 2021 and then 25\% in 2022. 
+
+\end{itemize}
+
 
 
 \begin{figure}
@@ -46,6 +57,7 @@ To keep these cases illustrative, we vary the quantity of vaccine available ever
 \caption{Test}
 \label{fig:example_model}
 \end{figure}
+
 
 
 \subsection{Dose-response function}
@@ -71,8 +83,8 @@ A demonstration of an evolution of a single dynamic model is given in Figure 1. 
 We use non-linear optimisation solver to find optimal doses under a variety of scenarios.\footnote{The model dynamics are defined by a system of differential equations, which we solve numerically using the \textit{odin} package in R. While some simple compartmental models admit closed-form solutions, most realistic models, including ours, are too complex to solve analytically, due to multiple compartments, age structure, and time-varying parameters. Therefore, we rely on numerical simulation to study the model's behavior and make quantitative predictions.} In the base case we vary three main variables:
 
 \begin{itemize}
-\item vaccinating before epidemic, during slow-growing epidemic ($\mathcal{R}_0 = 1.1$) and fast-growing epidemic ($\mathcal{R}_0 = 2$),
-\item daily vaccination speed (dynamic cases) or total vaccine quantity (static cases),
+\item daily vaccination speed (if vaccinating during epidemic) or total vaccine quantity (if vaccinating before),
+\item slow-growing epidemic ($\mathcal{R}_0 = 1.1$) and fast-growing epidemic ($\mathcal{R}_0 = 2$),
 \item heterogeneity in harm: using IFR typical of a high or a low income country
 \end{itemize}
 
@@ -96,10 +108,10 @@ Secondly, we also find that there are even larger benefits from fractionation in
 % REMOVE THE INTERMEDIATE APPROACH (ON OR OFF) AND ADD COMMENTARY ON IT AS A FOOTNOTE
 
 \begin{figure}
+\label{fig:obj_f_solutions}
 \centering
 \includegraphics{figures/obj_f_solutions.pdf}
 \caption{Test}
-\label{fig:obj_f_solutions}
 \end{figure}
 
 \begin{tabular}{l|r|r|r|r|r|r}
@@ -117,20 +129,24 @@ No f.d. & 0.83 & 0.67 & 0.46 & 0.28 & 0.54 & 0.79\\
 
 %NEED TO HAVE A LOOK AT THE DYNAMIC CASE NEXT
 
-To see how are the improvements achieved and why they are only meaningful when supply is severly limited, we should look at the age-optimal solutions themselves. These are shown in Figure \ref{fig:age_solutions}.
+To see how the improvements are achieved and why they are only meaningful when supply is severly limited, we should look at the age-optimal solutions themselves. These are shown in Figures \ref{fig:age_solutions_static} and \ref{fig:age_solutions_dynamic}.
 
-For the dynamic problem the optimal dose for higher risk groups is higher. (We do not show optimal dose in groups with less than 10\% coverage before peak of the epidemic.) Because we assumed order of vaccination according to mortality risk, there is little potential for breaking transmission. 
+When vaccinating before the epidemic, the optimal strategy tends to distribute limited supply of vaccine to groups with high mortality risk and ignore the ``transmitting groups'', i.e. most solution vectors rise with age. That is because of steep differences in mortality risk and the fact that small quantities of vaccine are not able to slow the spread, even assuming sterilising immunity.\footnote{For slowly-growing epidemics with very small supply, we find an exception to this, where working-age adults are targetted for vaccination ahead of the elderly. That is because for it's easier to blunt the exponential growth when $\mathcal{R}_0$ is smaller. From the earlier figure we can see that a large majority of deaths can be averted by using lower doses.}
 
-There is no such constraint when vaccinating before epidemic. However, here too the optimal strategy tends to distribute limited supply of vaccine to groups with high mortality risk and ignore the ``transmitting groups''. Apparently small quantities of vaccine are not able to slow the spread. However, unlike in the dynamic case, 
-
-
-The shapes on Figure \ref{fig:age_solutions} can be misleading, because they are not population averaged.
+For the dynamic problem (Figure \ref{fig:age_solutions_dynamic}), the optimal dose rises with age when supply is constrained. (We do not show optimal dose in groups with less than 10\% coverage before the peak of the epidemic.) For particularly fast vaccination campaigns (3-6 months) it assumes an U shape. An intuitive explanation is that this is done to extend protection to youngest adults in order to slow down transmission. However, in general it seems the large differences in dosing (in both static and dynamic cases) occur in the case of severe supply constraints and the optimal strategy is roughly proportional to mortality risk.
 
 \begin{figure}
 \centering
-\includegraphics{figures/age_solutions.pdf}
+\includegraphics{figures/age_solutions_static.pdf}
 \caption{Test}
-\label{fig:age_solutions}
+\label{fig:age_solutions_static}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{figures/age_solutions_dynamic.pdf}
+\caption{Test}
+\label{fig:age_solutions_dynamic}
 \end{figure}
 
 
@@ -148,7 +164,7 @@ In this multi-season model, individuals in the recovered (R) and protected (P) c
 
 % By simulating the epidemic over multiple seasons, we can gain insights into the long-term effectiveness of different vaccination strategies and inform policy decisions about the allocation of resources for ongoing disease control efforts. In the following sections, we will present the results of our multi-season simulations and discuss the implications for optimal dose-stretching policies in the context of waning immunity and re-infections.
 
-It is important to consider this case separately, because of ``epidemiological rebound'': for an endemic disease, preventing infections during a single outbreak means that the pool of susceptible individuals is going to be larger during in the subsequent epidemic. In an extreme hypothetical case (and assuming no time discounting) this rebound can mean that a policy that reduces short-term infections has net zero benefits. We showed elsewhere that this rebound effect has a sizeable impact in multi-year simulations of COVID epidemics (Więcek et al 2023).
+It is important to consider this case separately, because the cases are likely to rebound in subsequent waves: for an endemic disease, preventing infections during a single outbreak means that the pool of susceptible individuals is going to be larger during the next period of exponential growth. In an extreme hypothetical case (and assuming no time discounting) this rebound can mean that benefits of a policy that optimises for reduced short-term infections are net zero. We showed elsewhere that this rebound effect has a sizeable impact in multi-year simulations of COVID epidemics (Więcek et al 2023).
 
 
 

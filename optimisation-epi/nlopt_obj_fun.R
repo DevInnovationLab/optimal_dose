@@ -11,7 +11,7 @@
 # - ret: whether the output compartment values are scaled by population
 # - objective: which compartment value to be minimized, either "D" (death) or "cumI" (total infection)
 # - homogen: whether the mixing (contacts across groups) is homogenous or heterogenous
-# - rep: how many times vaccination recurs (number of years)
+# - rep: vector of four arguments to unroll_vaccine_hesitancy()
 # - calc_frac_vac: whether to compute and return the fraction vaccinated
 
 model_fd_dynamic <- function(scenario, 
