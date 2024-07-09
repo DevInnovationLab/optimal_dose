@@ -7,7 +7,7 @@ results_all <- results_all %>%
          objective = ifelse(objective == "D", "%Death", "%Infection"),
          homogen_mixing = ifelse(homogen_mixing, "homogen-mixing", "hetero-mixing"), 
          pdeath = ifelse(pdeath == "ifr_hic", "high-income", "low-income"), 
-         scenario = ifelse(scenario == "pars_le_slow", "slow-growth", "fast-growth"),
+         scenario = ifelse(scenario == "pars_le_slow", "slow-growth (R0 = 1.1)", "fast-growth (R0 = 2)"),
          full_dose = full_dose / no_vac * 100,
          frac_uni = frac_uni / no_vac * 100, 
          frac_age = frac_age / no_vac * 100, 
@@ -23,5 +23,5 @@ results_base_case <- results_all %>%
     homogen_mixing == "hetero-mixing",
     recurring == "single-season") %>% 
   mutate(vacc_daily = ifelse(static, NA, as.pct(1/q))) %>% 
-  mutate(static = ifelse(static, "Static case", "Dynamic case")) %>% 
-  mutate(scenario = paste(scenario, "epidemic")) 
+  mutate(static = ifelse(static, "Static case", "Dynamic case")) 
+  # mutate(scenario = paste(scenario, "epidemic")) 
