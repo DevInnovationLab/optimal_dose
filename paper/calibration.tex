@@ -1,11 +1,9 @@
 \documentclass[12pt]{article}
 \usepackage{graphicx}
 \usepackage{booktabs}
+%\usepackage{adjustbox}
 
 \begin{document}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this section, we present solutions for the model with heterogeneous harm under a subjective choice of dose-response function, at different levels of dose supply constraints. Our calibration is based on the initial efficacy results of the first effective COVID-19 vaccines and mass vaccination campaigns in late 2020 and throughout 2021, when all countries faced shortage of vaccines. We are interested in comparing three possible approaches to vaccination: giving full doses only, giving optimal partial doses, and varying the optimal dose as a function of harm.
 
@@ -59,7 +57,7 @@ To keep these cases illustrative, we vary the quantity of vaccine available ever
 \begin{figure}
 \centering
 \includegraphics{figures/example_model.pdf}
-\caption{Test}
+\caption{Example of the SEIRD model used in this section. We show how several crucial quantities evolve over time. This is a model with $\mathcal{R}_0 = 2$ and no loss of immunity. Vaccination occurs throughout the epidemic; different colours denote different speeds of vaccination campaign.}
 \label{fig:example_model}
 \end{figure}
 
@@ -107,7 +105,7 @@ We can summarise the base case results in two ways: the magnitude of reductions 
 \begin{itemize}
 
 \item using full doses (e.g., if supply is 10\% that means the top 10\% of the population with highest risk are vaccinated),
-\item age-invariant fractional doses: we find the optimal fractional dose and vaccinate everyone with it
+\item age-invariant fractional doses: we find the optimal fractional dose and vaccinate everyone with it until supply is exhausted
 \item ``on or off`` fractional doses: we set one fractional dose and for each age group we either do not vaccinate, or vaccinate them with that fractional dose
 \item age-specific optimal dose: we find a vector of optimal doses that varies across age groups
 
@@ -119,9 +117,10 @@ Figure \ref{fig:obj_f_solutions} contrasts fast-growth and slow-growth epidemics
 
 Predictably, we find that vaccination with an effective vaccine can avert a large proportion of deaths (Figure \ref{fig:obj_f_solutions}, upper panels, black line); because the full doses are highly effective, at a certain level of coverage herd immunity is reached and there are nearly no deaths. Although that is not shown on the graph, which only uses relative quantities, for a slowly growing epidemic that point is achieved quickly: there is no exponential growth, and the burden quickly becomes negligible. 
 
-Secondly, we also find that there are even larger benefits from fractionation in presence of supply constraints (if there are no constraints, we do not fractionate and the solutions converge to the same value). The relative improvements from more complicated strategies are U-shaped functions of supply (Figure \ref{fig:obj_f_solutions}, lower panels). This matches results presented in our earlier paper, but now with some further observations on age-specific optimal dosing. The further gains from it, compared to the ``uniform'' (age-invariant) fractional dosing are of course always larger (due to optimising over more parameters), but their magnitude depends on supply and type of epidemic. For example, with doses for only 5\% of population and in fast-growing epidemic, the deaths averted under age-optimal dosing are additional 10 percentage points higher than under age-invariant strategy (44\% compared to 34\%, see Table \ref{table:obj_f}) and 17 p.p. higher than under no fractionation (27\%). 
+Secondly, we also find that there are even larger benefits from fractionation in presence of supply constraints (if there are no constraints, we do not fractionate and the solutions converge to the same value). The relative improvements from more complicated strategies are U-shaped functions of supply (Figure \ref{fig:obj_f_solutions}, lower panels). This matches results presented in our earlier paper, but now with some further observations on age-specific optimal dosing. There are always some gains compared to the ``uniform'' (age-invariant) fractional dose (due to optimising over more parameters), but their magnitude depends on supply and type of epidemic. For example, with doses for only 5\% of population and in fast-growing epidemic, the deaths averted under age-optimal dosing are additional 10 percentage points higher than under age-invariant strategy (44\% compared to 34\%, see Table \ref{table:obj_f}) and 17 p.p. higher than under no fractionation (27\%). 
 
-\begin{figure}
+\begin{figure}[p]
+\thispagestyle{empty}
 \label{fig:obj_f_solutions}
 \centering
 \includegraphics{figures/obj_f_solutions.pdf}
@@ -164,14 +163,17 @@ In general it seems the large differences in dosing in heterogeneous population 
 % \label{fig:age_solutions_dynamic}
 % \end{figure}
 
-\begin{figure}
+\clearpage
+
+\begin{figure}[p]
+\thispagestyle{empty}
 \centering
 \includegraphics{figures/age_solutions_both.pdf}
-\caption{Test}
+\caption{Optimal doses as a function of age (coloured lines). For reference, we show IFR in dotted black line.}
 \label{fig:age_solutions_both}
 \end{figure}
 
-
+\clearpage
 
 
 \section{Additonal considerations}
