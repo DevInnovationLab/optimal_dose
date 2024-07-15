@@ -10,9 +10,6 @@ library(nloptr)
 library(odin)
 library(furrr)
 
-# Basic plotting setting
-theme_set(theme_minimal(base_size = 10))
-
 # Parametrization and basic helper functions
 source("setup/model_2vaccine.R")
 source("optimisation-epi/single_run.R")

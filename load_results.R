@@ -7,11 +7,16 @@ results_all <- results_all %>%
          objective = ifelse(objective == "D", "%Death", "%Infection"),
          homogen_mixing = ifelse(homogen_mixing, "homogen-mixing", "hetero-mixing"), 
          pdeath = ifelse(pdeath == "ifr_hic", "high-income", "low-income"), 
-         scenario = ifelse(scenario == "pars_le_slow", "slow-growth (R0 = 1.1)", "fast-growth (R0 = 2)"),
-         full_dose = full_dose / no_vac * 100,
-         frac_uni = frac_uni / no_vac * 100, 
-         frac_age = frac_age / no_vac * 100, 
-         frac_01 = frac_01 / no_vac * 100)
+         scenario = ifelse(scenario == "pars_le_slow", "slow-growth (R0 = 1.1)", "fast-growth (R0 = 2)")
+  ) %>% 
+  # In static cases I use the "binary" permutations of age groups, in dynamic cases
+  # I use optimisation with a single parameter. Hence ifelse(). See .tex for details.
+  mutate(full_dose = full_dose / no_vac * 100,
+         frac_uniform = ifelse(static, frac_01 / no_vac * 100, frac_uni / no_vac * 100),
+         frac_age = frac_age / no_vac * 100) %>% 
+  mutate(frac_uniform_sol = ifelse(static, frac_01_sol, frac_uni_sol)) %>% 
+  select(-frac_uni, -frac_01, -frac_uni_sol, -frac_01_sol) %>% 
+  filter(!(q %in% c(5,15)))
 
 results_base_case <- results_all %>% 
   filter(

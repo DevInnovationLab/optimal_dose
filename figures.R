@@ -1,7 +1,20 @@
+# Script used to prepare figures and tables for the calibration section of the paper
+# Author: WW
+# July 2024
+
+# Prep -------------------------------------------------------------------------
+
 source("project_setup.R")
 source("load_results.R")
 source("optimisation-epi/nlopt_plot.R")
 library(patchwork)
+library(knitr)
+library(kableExtra)
+
+# Basic plotting setting
+theme_set(theme_minimal(base_size = 11))
+
+# Some helper objects ----------------------------------------------------------
 
 # If you want to express as share of total volume distributed to different groups
 pop_scaling <- function(x){ 
@@ -9,7 +22,26 @@ pop_scaling <- function(x){
   x
 }
 
-# Fig 1 idea
+# IFRs data frame
+df_risk_profile <- data.frame(
+  # extract labels:
+  age_group = results_base_case$frac_age_sol %>% 
+    bind_rows %>% 
+    pull(age_group) %>% 
+    unique,
+  pop = pop[3:9],
+  hic = ifr_hic[3:9],
+  lic = ifr_lic[3:9]
+) 
+
+
+
+
+
+
+
+# Figure 1: model demonstration ------------------------------------------------
+
 speed_x <- c(10, 33, 100, 365, 1000)
 y <- lapply(speed_x, function(speed)
   model_fd_dynamic(
@@ -58,12 +90,15 @@ plot_rcs(y,
 
 
 
-# Optimal solutions, main case
+
+
+
+# Optimal solutions, main case -------------------------------------------------
+
 df_optimal_solutions <- results_base_case %>% 
   mutate(q = as.factor(q)) %>% 
   unnest(frac_age_sol)
 
-# library(ggrepel)
 age_solutions_static <- df_optimal_solutions %>% 
   # mutate(label = if_else(age_group == "80+", 
   #                        as.character(q), 
@@ -85,7 +120,7 @@ age_solutions_static <- df_optimal_solutions %>%
   scale_color_discrete(name = "supply \n(fraction of \npopulation)") +
   labs(x = "Age Group", y = "Optimal Dose Fraction") + 
   ylim(0, 1) + 
-  theme_bw(base_size = 10) +
+  # theme_bw(base_size = 10) +
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 45, hjust = 1),
         legend.spacing.y = unit(0, "cm"),
         legend.key.size = unit(0.7, "lines")) +
@@ -93,8 +128,6 @@ age_solutions_static <- df_optimal_solutions %>%
             data = mutate(df_risk_profile, scenario = "fast-growth (R0 = 2)"))+
   ggtitle("Optimal dose: static case") +
   theme(axis.title.x = element_blank())
-
-
 
 age_solutions_dynamic <- df_optimal_solutions %>% 
   filter(static != "Static case") %>% 
@@ -112,7 +145,7 @@ age_solutions_dynamic <- df_optimal_solutions %>%
   scale_color_discrete(name = "length of \n campaign (days)") +
   labs(x = "Age Group", y = "Optimal Dose Fraction") + 
   ylim(0, 1) + 
-  theme_bw(base_size = 10) +
+  # theme_bw(base_size = 10) +
   theme(
     legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -123,12 +156,10 @@ age_solutions_dynamic <- df_optimal_solutions %>%
   ) +
   ggtitle("Optimal dose: dynamic case")
 
-
 # ggsave("paper/figures/age_solutions_static.pdf", 
 # width = 14, height = 10, unit = "cm")
 # ggsave("paper/figures/age_solutions_dynamic.pdf",
 # width = 14, height = 10, unit = "cm")
-
 
 age_solutions_static  / age_solutions_dynamic
 ggsave("paper/figures/age_solutions_both.pdf",
@@ -142,19 +173,21 @@ ggsave("paper/figures/age_solutions_both.pdf",
 
 
 
-# Objective function plot -----
+
+
+# Objective function values, comparison plots ----------------------------------
 
 # Another work in progress one
-optim_names <- c("Age-optimal", "Age-invariant", "Binary choice", "No f.d.")
-optim_values <- c("#E69F00", "#56B4E9", "#009E73", "black")
-optim_lvls <- c("frac_age", "frac_uni", "frac_01", "full_dose")
+optim_names <- c("Age-specific", "Age-invariant", "Full dose")
+optim_values <- c("#E69F00", "#56B4E9", "black")
+optim_lvls <- c("frac_age", "frac_uniform", "full_dose")
 
 df_obj_f <- results_base_case %>% 
   rowwise() %>% 
   ungroup() %>% 
   mutate(setting = q) %>% 
   select(setting, static, scenario, 
-         full_dose, frac_uni, frac_age, frac_01,
+         full_dose, frac_uniform, frac_age, 
          pdeath) %>% 
   gather(key, value, -setting, -static, -scenario, -pdeath) %>% 
   group_by(setting, scenario, static) %>% 
@@ -172,6 +205,7 @@ df_obj_f_dynamic <- df_obj_f %>%
   filter(static == "Dynamic case")
   
 gg_objs1 <- df_obj_f_static %>% 
+  mutate(value=value/100) %>% 
   ggplot(aes(x = setting, 
              group = key, 
              color = key, y = value)) + 
@@ -181,9 +215,10 @@ gg_objs1 <- df_obj_f_static %>%
   theme(legend.position = "none", 
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
-  labs(#x = "Speed/supply constraint", 
+  ylim(0,1)+
+  labs(x = "supply constraint", 
     x = "",
-    y = "Proportion of deaths averted") +
+    y = "deaths vs no vaccine") +
   ggtitle("Mortality reductions relative to no vaccination, static case")
 
 gg_objs2 <- df_obj_f_static %>% 
@@ -196,11 +231,12 @@ gg_objs2 <- df_obj_f_static %>%
   theme(legend.position = "bottom", 
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
-  labs(x = "Speed/supply constraint", 
-       y = "Improvement relative to full dose") +
+  labs(x = "supply constraint", 
+       y = "deaths vs full dose") +
   ggtitle("Mortality reductions relative to full dose, static case")
 
-gg_objd1 <- df_obj_dynamic %>% 
+gg_objd1 <- df_obj_f_dynamic %>% 
+  mutate(value=value/100) %>% 
   ggplot(aes(x = setting, 
              group = key, 
              color = key, y = value)) + 
@@ -210,12 +246,13 @@ gg_objd1 <- df_obj_dynamic %>%
   theme(legend.position = "none", 
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
-  labs(#x = "Speed/supply constraint", 
+  ylim(0, 1) +
+  labs(x = "length of vaccination campaign (days)", 
     x = "",
-    y = "Proportion of deaths averted") +
+    y = "deaths vs no vaccine") +
   ggtitle("Mortality reductions relative to no vaccination, dynamic case")
 
-gg_objd2 <- df_obj_dynamic %>% 
+gg_objd2 <- df_obj_f_dynamic %>% 
   ggplot(aes(x = setting, 
              group = key, 
              color = key, y = value_prop)) + 
@@ -225,8 +262,8 @@ gg_objd2 <- df_obj_dynamic %>%
   theme(legend.position = "none", 
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
-  labs(x = "Speed/supply constraint", 
-       y = "Improvement relative to full dose")
+  labs(x = "length of vaccination campaign (days)", 
+       y = "deaths vs full dose")
 
 
 
@@ -247,11 +284,10 @@ ggsave("paper/figures/obj_f_solutions.pdf", width = 14, height = 21, unit = "cm"
 
 
 
-# Objective function table -----
 
 
-library(knitr)
-library(kableExtra)
+
+# Objective function table -----------------------------------------------------
 
 df_obj_tbl <- df_obj_f %>% 
   # filter(key != "Binary choice") %>% 
@@ -274,13 +310,11 @@ latex_table <- df_obj_tbl %>%
 writeLines(latex_table, "paper/table.tex")
 
 # df_obj_f %>% 
-#   # filter(key == "Age-optimal") %>% 
-#   # filter(key == "Age-optimal") %>% 
+#   # filter(key == "Age-specific") %>% 
+#   # filter(key == "Age-specific") %>% 
 #   filter(scenario == "fast-growth epidemic") %>%
 #   filter(setting %in% c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)) %>%
 #   mutate(scenario = paste("q =", setting)) %>% 
 #   mutate(value = round(value, 2)) %>%
 #   select(scenario, key, value) %>% spread(scenario, value)
 # # knitr::kable(format = "latex")
-
-
