@@ -20,13 +20,11 @@ results_all <- results_all %>%
 
 results_base_case <- results_all %>% 
   filter(
-    # static == F, 
-    # q %in% c(720, 360),
-    # dose_response == "covid_default",
-    pdeath == "high-income",
     objective == "%Death",
     homogen_mixing == "hetero-mixing",
     recurring == "single-season") %>% 
   mutate(vacc_daily = ifelse(static, NA, as.pct(1/q))) %>% 
   mutate(static = ifelse(static, "Static case", "Dynamic case")) 
-  # mutate(scenario = paste(scenario, "epidemic")) 
+
+results_bc_hic <- results_base_case %>% filter(pdeath == "high-income")
+results_bc_lic <- results_base_case %>% filter(pdeath == "high-income")

@@ -14,30 +14,31 @@ library(kableExtra)
 # Basic plotting setting
 theme_set(theme_minimal(base_size = 11))
 
-# Some helper objects ----------------------------------------------------------
-
-# If you want to express as share of total volume distributed to different groups
-pop_scaling <- function(x){ 
-  x$solution <- pop[3:9]*(x$solution)
-  x
-}
+# Helper objects ---------------------------------------------------------------
 
 # IFRs data frame
 df_risk_profile <- data.frame(
   # extract labels:
-  age_group = results_base_case$frac_age_sol %>% 
+  age_group = results_bc_hic$frac_age_sol %>% 
     bind_rows %>% 
     pull(age_group) %>% 
     unique,
-  pop = pop[3:9],
-  hic = ifr_hic[3:9],
-  lic = ifr_lic[3:9]
+  pop_hic = hic_pop[3:9],
+  pop_lic = lic_pop[3:9],
+  ifr_hic = ifr_hic[3:9],
+  ifr_lic = ifr_lic[3:9]
 ) 
 
 
 
 
 
+# Dose-response and heterogeneous risk functions -------------------------------
+
+x <- seq(0, 1, length = 1000)
+phi <- phi_covid(x)
+plot(phi ~ x, type = "l", ylab = "phi(x)", 
+     xlab = "x", main = "Dose-response", ylim = c(0,1))
 
 
 # Figure 1: model demonstration ------------------------------------------------
@@ -57,10 +58,14 @@ y <- lapply(speed_x, function(speed)
     immunity_length = 365)
 ) %>% do.call(abind::abind, .)
 dimnames(y)[[3]] <- paste(speed_x, "days")
+ln2 <- ln
+ln2[["cumV"]] <- "Vaccinated"
 plot_rcs(y, 
+         long_names = ln2,
          compartment = c("S", "I", "cumI", "cumV"), 
          end_date = as.Date("01-06-2021", format="%d-%m-%Y")) +
-  theme(legend.position = "bottom") + xlab("") + ylab("Fraction of total population")
+  theme(legend.position = "bottom") + xlab("") + 
+  ylab("Fraction of total population")
 
 ggsave("paper/figures/example_model.pdf", width = 14, height = 10, unit = "cm")
 
@@ -82,12 +87,17 @@ y <- lapply(speed_x, function(speed)
     immunity_length = 365)
 ) %>% do.call(abind::abind, .)
 dimnames(y)[[3]] <- paste(speed_x, "days")
-plot_rcs(y, 
-         compartment = c("P1", "N1", "D", "I"), 
-         end_date = as.Date("01-06-2027", format="%d-%m-%Y")) +
-  theme(legend.position = "bottom") + xlab("") + ylab("Fraction of total population")
+# explicitly sum susceptible without vaccines and those in whom vaccine didn't work:
+y[, "S", 1] <- y[, "S", 1] + y[, "N1", 1]
+y[, "S", 2] <- y[, "S", 2] + y[, "N1", 2]
+plot_rcs(y, ncol = 3,
+         compartment = c("S", "D", "I"), 
+         end_date = as.Date("01-06-2024", format="%d-%m-%Y")) +
+  theme(legend.position = "bottom",
+        legend.box.spacing = unit(0, "cm")) + 
+  xlab("") + ylab("Fraction of total population")
 
-
+ggsave("paper/figures/example_multiseason.pdf", width = 14, height = 6, unit = "cm")
 
 
 
@@ -95,7 +105,7 @@ plot_rcs(y,
 
 # Optimal solutions, main case -------------------------------------------------
 
-df_optimal_solutions <- results_base_case %>% 
+df_optimal_solutions <- results_bc_hic %>% 
   mutate(q = as.factor(q)) %>% 
   unnest(frac_age_sol)
 
@@ -124,8 +134,10 @@ age_solutions_static <- df_optimal_solutions %>%
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 45, hjust = 1),
         legend.spacing.y = unit(0, "cm"),
         legend.key.size = unit(0.7, "lines")) +
-  geom_line(aes(y = hic, group = scenario), col = "black", linewidth = 1.1, lty = "dotted",
-            data = mutate(df_risk_profile, scenario = "fast-growth (R0 = 2)"))+
+  geom_line(aes(y = ifr_hic, group = scenario), 
+            col = "black", linewidth = 1.1, lty = "dotted",
+            data = mutate(df_risk_profile, 
+                          scenario = "fast-growth (R0 = 2)"))+
   ggtitle("Optimal dose: static case") +
   theme(axis.title.x = element_blank())
 
@@ -182,7 +194,7 @@ optim_names <- c("Age-specific", "Age-invariant", "Full dose")
 optim_values <- c("#E69F00", "#56B4E9", "black")
 optim_lvls <- c("frac_age", "frac_uniform", "full_dose")
 
-df_obj_f <- results_base_case %>% 
+df_obj_f <- results_bc_hic %>% 
   rowwise() %>% 
   ungroup() %>% 
   mutate(setting = q) %>% 
@@ -318,3 +330,51 @@ writeLines(latex_table, "paper/table.tex")
 #   mutate(value = round(value, 2)) %>%
 #   select(scenario, key, value) %>% spread(scenario, value)
 # # knitr::kable(format = "latex")
+
+
+
+# LIC vs HIC comparison --------------------------------------------------------
+
+gg_risk <- df_risk_profile %>% 
+  select(age_group, ifr_hic, ifr_lic) %>% 
+  gather(var, val, -age_group) %>% 
+  mutate(var = factor(var, levels = c("ifr_hic", "ifr_lic"), c("HIC", "LIC"))) %>% 
+  ggplot(aes(x=age_group, y = val, group = var, lty = var)) +
+  geom_line() + geom_point() + ylim(0, .1) + 
+  ylab("IFR (log scale)") + xlab("") +
+  theme_minimal(base_size = 9) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        legend.position = "bottom",
+        legend.title = element_blank()) +
+  scale_y_log10(
+    breaks = c(0.001, 0.01, 0.1),
+    labels = c("0.1%", "1%", "10%")
+  )
+  # scale_y_continuous(labels = scales::percent)
+
+gg_lic_vs_hic <- results_base_case %>% 
+  filter(static == "Static case",
+         scenario == "fast-growth (R0 = 2)") %>% 
+  mutate(q = as.factor(q)) %>% 
+  unnest(frac_age_sol) %>% 
+  ggplot(aes(x = age_group, y = solution)) + 
+  facet_grid(. ~ pdeath) + 
+  geom_point(aes(color = q)) + 
+  geom_line(aes(
+    group = q,
+    color = q
+  )) + 
+  scale_color_discrete(name = "supply \n(fraction of \npopulation)") +
+  labs(x = "Age Group", y = "Optimal Dose Fraction") + 
+  ylim(0, 1) + 
+  theme_minimal(base_size = 9) +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.7, "lines")) +
+  theme(axis.title.x = element_blank())
+
+gg_lic_vs_hic + gg_risk + 
+  plot_layout(widths = c(2.2, 1))
+  
+ggsave("paper/figures/age_solutions_lic_hic.pdf", width = 14, height = 9, unit = "cm")

@@ -51,8 +51,11 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                        max_I_day = 0)
     
     phi_x <- dose_response
-    if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-    } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
+    if (phi_x == "covid_default") {
+      phi_x <- phi_covid
+    } else if (phi_x == "flu_default") {
+      phi_x <- function(x) 0
+    }
     
     pre_immunity_plus <- c(0, 0, sapply(frac_vac$frac_vac, 
                                         function(frac_vac){

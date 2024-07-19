@@ -76,6 +76,11 @@ kappa_default <- 0 # Originally marked as "losing immunity", which conflicts wit
 default_supply_ceiling <- 1
 default_group_seq <- TRUE # Vaccinate from older to younger
 
+# Dose-response used in many examples:
+phi_covid <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
+# see .tex files; this implies 95% efficacy at 1, 80% at half
+
+
 # Mortality risk p
 ifr_hic <- c(0.002, 0.006, 0.03, 0.08, 0.15, 0.60, 2.2, 5.1, 9.3) / 100
 ifr_lic <- ifr_hic * (3.2 / 2) ^ (5 : (-3))
