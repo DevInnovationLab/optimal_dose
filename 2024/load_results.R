@@ -27,4 +27,4 @@ results_base_case <- results_all %>%
   mutate(static = ifelse(static, "Static case", "Dynamic case")) 
 
 results_bc_hic <- results_base_case %>% filter(pdeath == "high-income")
-results_bc_lic <- results_base_case %>% filter(pdeath == "high-income")
+results_bc_lic <- results_base_case %>% filter(pdeath == "low-income")

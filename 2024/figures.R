@@ -259,7 +259,8 @@ gg_objd1 <- df_obj_f_dynamic %>%
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
   ylim(0, 1) +
-  labs(x = "length of vaccination campaign (days)", 
+  labs(
+    # x = "length of vaccination campaign (days)", 
     x = "",
     y = "deaths vs no vaccine") +
   ggtitle("Mortality reductions relative to no vaccination, dynamic case")
@@ -275,7 +276,8 @@ gg_objd2 <- df_obj_f_dynamic %>%
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(.~scenario, scales = "free") +
   labs(x = "length of vaccination campaign (days)", 
-       y = "deaths vs full dose")
+       y = "deaths vs full dose") +
+  ggtitle("Mortality reductions relative to full dose, dynamic case")
 
 
 
@@ -293,8 +295,6 @@ gg_objs1 / gg_objd1 / gg_objs2 +
   theme(legend.title = element_blank())
 
 ggsave("paper/figures/obj_f_solutions.pdf", width = 14, height = 21, unit = "cm")
-
-
 
 
 
