@@ -382,4 +382,3 @@ main_metrics <- function(y, pop, vat = 31, t = dim(sr)[1]) {
     # "harm_v"  = 1-benefit(y, pop),
     "harm_vr" = harm(y))
 }
-# ------------------------------------------------------------------------------

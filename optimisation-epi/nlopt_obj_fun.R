@@ -17,7 +17,7 @@
 model_fd_dynamic <- function(scenario, 
                              length_campaign, 
                              fd, 
-                             phi_x = "covid_default",
+                             phi_x,
                              pdeath = "ifr_hic",
                              rm = FALSE,
                              ret = 0,
@@ -30,11 +30,6 @@ model_fd_dynamic <- function(scenario,
   if (rep[4] == 1) {single_season <- T} else {single_season <- F}
   
   rep <- unroll_vaccine_hesitancy(rep[1], rep[2], rep[3], rep[4])
-  
-  if (phi_x == "covid_default")
-    phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-  else if (phi_x == "flu_default")
-    phi_x <- function(x) 0
   
   e1 <- phi_x(fd)
   
@@ -122,7 +117,7 @@ model_fd_dynamic <- function(scenario,
 
 model_fd_static <- function(scenario, 
                             fd, 
-                            phi_x = "covid_default",
+                            phi_x,
                             pdeath = "ifr_hic",
                             rm = FALSE,
                             ret = 0,
@@ -135,9 +130,6 @@ model_fd_static <- function(scenario,
   if (rep[4] == 1) {single_season <- T} else {single_season <- F}
   
   rep <- unroll_vaccine_hesitancy(rep[1], rep[2], rep[3], rep[4])
-  
-  if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-  } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
   
   e_vector <- phi_x(fd)
   

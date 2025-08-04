@@ -7,6 +7,10 @@
 # 4. opt_01
 # ------------------------------------------------------------------------------
 
+# for adding first two age groups to a vector of parameters
+unroll_1 <- function(x, sub = 1) c(sub, sub, rep(x, 7))
+unroll_7 <- function(x, sub = 1) c(sub, sub, x)
+
 # ------------------------------------------------------------------------------
 # 1. For multi-year runs, willingness to vaccinate will change in subsequent 
 #    years. This function specifies hesitancy in a format that the ODE solver 
@@ -32,6 +36,11 @@ unroll_vaccine_hesitancy <- function(a,b,c, nyears) {
 obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                      static, pdeath, scenario, recurring, iterations) {
   
+  
+  phi_x <- dose_response
+  if (class(phi_x) == "character" && (phi_x == "covid_default"))
+    phi_x <- phi_covid
+  
   if (static) {
     q <- q * sum(pop[3:9])
     frac_vac <- rep(0, 7)
@@ -49,13 +58,6 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                                           labels = colnames(pbc_spread)[3:9]),
                        frac_vac = frac_vac,
                        max_I_day = 0)
-    
-    phi_x <- dose_response
-    if (phi_x == "covid_default") {
-      phi_x <- phi_covid
-    } else if (phi_x == "flu_default") {
-      phi_x <- function(x) 0
-    }
     
     pre_immunity_plus <- c(0, 0, sapply(frac_vac$frac_vac, 
                                         function(frac_vac){
@@ -88,7 +90,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
     obj <- model_fd_dynamic(scenario = scenario, 
                             length_campaign = q, 
                             fd = rep(1, 9),
-                            phi_x = dose_response, 
+                            phi_x = phi_x, 
                             pdeath = pdeath,
                             ret = 1, 
                             objective = objective, 
@@ -97,7 +99,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
     frac_vac <- model_fd_dynamic(scenario = scenario, 
                                  length_campaign = q, 
                                  fd = rep(1, 9),
-                                 phi_x = dose_response, 
+                                 phi_x = phi_x, 
                                  pdeath = pdeath,
                                  ret = 1, 
                                  objective = objective, 
@@ -121,12 +123,12 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
 obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixing,
                        static, pdeath, scenario, recurring, iterations) {
   
+  phi_x <- dose_response
+  if (class(phi_x) == "character" && (phi_x == "covid_default"))
+    phi_x <- phi_covid
+  
   if (static){
     rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    
-    phi_x <- dose_response
-    if (phi_x == "covid_default") {phi_x <- function(x) -25.31701*x^1.037524 + 1.037524*25.31701*x
-    } else if (phi_x == "flu_default") {phi_x <- function(x) 0}
     
     if (pdeath == "ifr_hic") {pdeath <- ifr_hic
     } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
@@ -151,7 +153,7 @@ obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixin
     model_fd_dynamic(scenario = scenario, 
                      length_campaign = q, 
                      fd = rep(0.000001, 9), 
-                     phi_x = dose_response, 
+                     phi_x = phi_x, 
                      pdeath = pdeath,
                      ret = 1, 
                      objective = objective, 
@@ -169,7 +171,7 @@ obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixin
 
 opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
                    static, pdeath, scenario, recurring, iterations) {
-
+  
   if (static == F) {stop("opt_01 is for static cases only")}
   
   q <- q * sum(pop[3:9]) # Re-scale q as for the entire population
@@ -195,20 +197,20 @@ opt_01 <- function(q, initial_value, objective, dose_response, homogen_mixing,
                       homogen = homogen_mixing,
                       ret = 1,
                       rep = recurring)
-      }))
-    
-    # Find and store the combination with minimum objective
-    obj_min <- min(as.numeric(objectives_01$objective))
-    frac_vac_min <- objectives_01$frac_vac[[which.min(objectives_01$objective)]]
-    
-    solution <- tibble(
-      age_group = factor(3:9, levels = paste0(3:9), labels = colnames(pbc_spread)[3:9]),
-      solution = frac_vac_min * (q / sum(pop * c(0, 0, frac_vac_min))),
-      frac_vac = frac_vac_min
-      )
-    
-    list("solution" = solution, "objective" = obj_min)
-  }
+    }))
+  
+  # Find and store the combination with minimum objective
+  obj_min <- min(as.numeric(objectives_01$objective))
+  frac_vac_min <- objectives_01$frac_vac[[which.min(objectives_01$objective)]]
+  
+  solution <- tibble(
+    age_group = factor(3:9, levels = paste0(3:9), labels = colnames(pbc_spread)[3:9]),
+    solution = frac_vac_min * (q / sum(pop * c(0, 0, frac_vac_min))),
+    frac_vac = frac_vac_min
+  )
+  
+  list("solution" = solution, "objective" = obj_min)
+}
 
 
 
