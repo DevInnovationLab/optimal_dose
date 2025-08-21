@@ -382,3 +382,19 @@ main_metrics <- function(y, pop, vat = 31, t = dim(sr)[1]) {
     # "harm_v"  = 1-benefit(y, pop),
     "harm_vr" = harm(y))
 }
+
+
+
+
+
+# Dose-response functions used by the paper ------
+
+dr_foos <- list(
+  "sigmoid" = function(x) {
+    y <- 1 / (1 + exp(-11 * (x - 0.35))) - 0.05
+    y[y<0] <- 0
+    y
+  },
+  "concave" = phi_covid # from earlier in parametersiation.R
+)
+

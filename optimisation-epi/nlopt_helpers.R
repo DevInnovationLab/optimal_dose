@@ -33,8 +33,14 @@ unroll_vaccine_hesitancy <- function(a,b,c, nyears) {
 # 2. Define wrapper function for the objective function with constant full dose,
 #    fitting the data frame structure as defined in nlopt_all_cases.R. 
 # ------------------------------------------------------------------------------
-obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
-                     static, pdeath, scenario, recurring, iterations) {
+obj_full <- function(q = 1, 
+                     objective = "D", 
+                     dose_response = phi_covid, 
+                     homogen_mixing = FALSE,
+                     static = TRUE, 
+                     pdeath = "ifr_hic", 
+                     scenario = "pars_le_fast", 
+                     recurring = c(0.8, 0.2, 0.5, 1)) {
   
   
   phi_x <- dose_response
@@ -45,6 +51,7 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
     q <- q * sum(pop[3:9])
     frac_vac <- rep(0, 7)
     # Vaccinate according to fd until the total supply runs out
+    # i-2 and 3:9 because we ignore under 20 yo's
     for (i in c(9:3)) {
       q <- q - pop[i]
       if (q > 0) {
@@ -65,18 +72,19 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                                                  yes = 0.8 * phi_x(1), 
                                                  no = frac_vac * phi_x(1))}))
     
-    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
-    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
-    
     pars <- list_modify(
       grab_2v_parms(scenario),
       y0 = y0_gen(13, Ngroups, pre_immunity = pre_immunity + pre_immunity_plus))
+    
+    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
+    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
+    pars <- list_modify(pars, pdeath = pdeath)
     
     if (homogen_mixing) {
       pars$contacts <- t(replicate(Ngroups, pop))
       pars$q <- ev*pars$q
     }
-    pars <- list_modify(pars, pdeath = pdeath)
+    
     
     rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
     if (length(rep) == 1) {
@@ -85,20 +93,21 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
       y <- multi_year_run(pars, "2v_v2", rep)
     }
     y <- rescale_rcs(y, pop, TRUE)
-    obj <- y[360 * recurring[4],objective,1]
+    obj_value <- y[360 * recurring[4],objective,1]
+    
   } else {
-    obj <- model_fd_dynamic(scenario = scenario, 
-                            length_campaign = q, 
-                            fd = rep(1, 9),
-                            phi_x = phi_x, 
-                            pdeath = pdeath,
-                            ret = 1, 
-                            objective = objective, 
-                            homogen = homogen_mixing,
-                            rep = recurring)
+    obj_value <- model_fd_dynamic(scenario = scenario, 
+                                  length_campaign = q, 
+                                  fd = rep(1,9),
+                                  phi_x = phi_x, 
+                                  pdeath = pdeath,
+                                  ret = 1, 
+                                  objective = objective, 
+                                  homogen = homogen_mixing,
+                                  rep = recurring)
     frac_vac <- model_fd_dynamic(scenario = scenario, 
                                  length_campaign = q, 
-                                 fd = rep(1, 9),
+                                 fd = rep(1,9),
                                  phi_x = phi_x, 
                                  pdeath = pdeath,
                                  ret = 1, 
@@ -107,60 +116,52 @@ obj_full <- function(q, initial_value, objective, dose_response, homogen_mixing,
                                  rep = recurring, 
                                  calc_frac_vac = T)
   }
-  solution <- tibble(age_group = factor(3:9, levels = paste0(3:9), 
-                                        labels = colnames(pbc_spread)[3:9]), 
-                     solution = 1) %>% 
-    left_join(frac_vac, by = "age_group")
   
-  list("solution" = solution, 
-       "objective" = obj)
+  # Return vaccination fraction and objective function value  
+  list("solution"  = tibble(age_group = factor(3:9, 
+                                               levels = paste0(3:9), 
+                                               labels = colnames(pbc_spread)[3:9]), 
+                            solution = 1) %>% 
+         left_join(frac_vac, by = "age_group"), 
+       "objective" = obj_value)
 }
+
 
 # ------------------------------------------------------------------------------
 # 3. Similar to 2, but with zero vaccination for any group.
 # ------------------------------------------------------------------------------
 
-obj_no_vac <- function(q, initial_value, objective, dose_response, homogen_mixing,
-                       static, pdeath, scenario, recurring, iterations) {
+obj_no_vac_v2 <- function(objective = "D", 
+                          homogen_mixing = FALSE, 
+                          pdeath = "ifr_hic", 
+                          scenario = "pars_le_fast", 
+                          recurring = c(0.8, 0.2, 0.5, 1)) {
   
-  phi_x <- dose_response
-  if (class(phi_x) == "character" && (phi_x == "covid_default"))
-    phi_x <- phi_covid
-  
-  if (static){
-    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    
-    if (pdeath == "ifr_hic") {pdeath <- ifr_hic
-    } else if (pdeath == "ifr_lic") {pdeath <- ifr_lic}
-    
-    pars <- grab_2v_parms(scenario)
-    if(homogen_mixing){
-      pars$contacts <- t(replicate(Ngroups, pop))
-      pars$q <- ev*pars$q
-    }
-    pars <- list_modify(pars, pdeath = pdeath)
-    
-    rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
-    if (length(rep) == 1) {
-      y <- sr(pars, "2v_v2")
-    } else if (length(rep) > 1) {
-      y <- multi_year_run(pars, "2v_v2", rep)
-    }
-    
-    y <- rescale_rcs(y, pop, TRUE)
-    return(y[360 * recurring[4],objective,1])
-  } else {
-    model_fd_dynamic(scenario = scenario, 
-                     length_campaign = q, 
-                     fd = rep(0.000001, 9), 
-                     phi_x = phi_x, 
-                     pdeath = pdeath,
-                     ret = 1, 
-                     objective = objective, 
-                     homogen = homogen_mixing,
-                     rep = recurring)
+  # Set up parameters for the single run of the epidemic
+  rep <- unroll_vaccine_hesitancy(recurring[1], recurring[2], recurring[3], recurring[4])
+  if (pdeath == "ifr_hic") {pdeath <- ifr_hic} else {pdeath <- ifr_lic}
+  pars <- list_modify(grab_2v_parms(scenario), e1 = 0, pdeath = pdeath)
+  if(homogen_mixing){
+    pars$contacts <- t(replicate(Ngroups, pop))
+    pars$q <- 0*pars$q
   }
+  
+  # Calculate burden
+  if (length(rep) == 1) {
+    y <- sr(pars, "2v_v2")
+  } else if (length(rep) > 1) {
+    pars <- list_modify(pars, 
+                        kappa1 = rep(1/immunity_length, 9),
+                        phi = rep(1/immunity_length, 9))
+    y <- multi_year_run(pars, "2v_v2", rep)
+  }
+  
+  # Calculate the objective function value
+  y <- rescale_rcs(y, pop, TRUE)
+  return(y[nrow(y),objective,1])
 }
+
+
 
 # ------------------------------------------------------------------------------
 # 4. For the static cases, we further consider the possibility of pre-vaccinating 

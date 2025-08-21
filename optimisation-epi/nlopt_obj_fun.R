@@ -17,7 +17,7 @@
 model_fd_dynamic <- function(scenario, 
                              length_campaign, 
                              fd, 
-                             phi_x,
+                             phi_x = function(x) x,
                              pdeath = "ifr_hic",
                              rm = FALSE,
                              ret = 0,
@@ -92,7 +92,7 @@ model_fd_dynamic <- function(scenario,
   if(rm) 
     return(y)
   if(ret == 0)
-    return(main_metrics(y, pop, t = nrow(y)))
+    return(y)
   return(y[360 * length(rep),objective,1])
 }
 
@@ -180,7 +180,7 @@ model_fd_static <- function(scenario,
   }
   
   if(ret == 0)
-    return(main_metrics(y, pop, t = nrow(y))[1:2])
+    return(y)
   if(ret == 1){
     y <- rescale_rcs(y, pop, TRUE)
     return(y[360 * length(rep),objective,1])

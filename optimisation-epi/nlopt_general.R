@@ -40,7 +40,7 @@ opt_general <-
            recurring = c(0.8,0.2,0.5,1),
            n_x = 7,
            unroll_x = function(x, sub=1) c(sub,sub,x[1],x[2],x[3],x[4],x[5],x[6],x[7]),
-           iterations = 100) {
+           iterations = 1000) {
     
     if (class(dose_response) == "character" && (dose_response == "covid_default"))
       dose_response <- phi_covid
@@ -57,7 +57,7 @@ opt_general <-
                                             rep = recurring)
     else
       eval_f <- function(x) model_fd_dynamic(scenario = scenario,
-                                             fd = unroll_x(x), 
+                                             fd = unroll_x(x,sub=1), 
                                              length_campaign = q,
                                              phi_x = dose_response,
                                              pdeath = pdeath,
