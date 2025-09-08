@@ -31,9 +31,6 @@ df_obj_tab <- df_results %>%
 
 df_obj_tab
 
-
-
-# concave case
 latex_table <- df_obj_tab %>% 
   ungroup() %>% 
   select(-static, -scenario, -dose_name) %>% 
