@@ -39,17 +39,19 @@ plot_rcs <- function(y, compartment = "R",
     xl <- "Proportion"
   
   if(!is.null(long_names) && !is.null(gg_data$compartment))
-    gg_data$compartment <- factor(gg_data$compartment, levels = names(long_names), labels = long_names)
+    gg_data$compartment <- factor(gg_data$compartment, 
+                                  levels = names(long_names), 
+                                  labels = long_names)
+  else
+    gg_data$compartment=factor(compartment,levels=rev(unique(gg_data$compartment)))
+  
+  gg_data <- gg_data %>%  
+    mutate(group_name=factor(group_name,levels=rev(unique(gg_data$group_name))))
   
   gg <- ggplot() + 
-    # geom_rect(aes(xmin = as.Date(7*shade_weeks[1], origin = start_date), 
-    # xmax = as.Date(7*shade_weeks[2], origin = start_date),
-    # ymin=0, ymax=Inf), fill = "skyblue", alpha = .2) +
-    geom_line(data = gg_data %>% mutate(group_name=factor(group_name,levels=rev(unique(gg_data$group_name))),
-                                        compartment=factor(compartment,levels=rev(unique(gg_data$compartment)))),
+    geom_line(data = gg_data,
               aes(x=time, y=value, group=group_name, color=group_name)) +
     {if(!is.null(start_date)) scale_x_date(limits = c(as.Date(start_date), as.Date(end_date)))} +
-    # {if(length(compartment) == 1) labs(y = paste0(compartment_names_trt[compartment], lab_type))} +
     {if(dim(y)[3] == 1) theme(legend.position = "none")} +
     {if(length(compartment) > 1) facet_wrap( ~ compartment, ncol = ncol,
                                              scales = "free")} +
@@ -57,12 +59,9 @@ plot_rcs <- function(y, compartment = "R",
     ylab(xl)
   
   if(!is.null(overlay_data) && nrow(overlay_data) > 0){
-    # overlay_data$time <- as.Date(overlay_data$time, origin = start_date)
     gg <- gg +
       geom_point(aes(x=time, y=value), data = overlay_data) +
       geom_line(aes(x=time, y=value), data = overlay_data)
   }
   gg
 }
-
-

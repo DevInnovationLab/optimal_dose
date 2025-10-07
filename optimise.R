@@ -4,7 +4,7 @@ dr_df <- tibble::enframe(dr_foos, name = "dose_name", value = "dose_response")
 
 # Generate all combinations of options. Since q is defined differently for 
 # dynamic and static problems, we generate the grids separately and rbind later. 
-cases_dynamic <- expand_grid(q_per_day = c(5, 3, 2, 1.5, 1, 0.75, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01)/100, 
+cases_dynamic <- expand_grid(q_per_day = c(10, 5, 3, 2, 1.5, 1, 0.75, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01)/100, 
                              # q = c(7, 28, 45, 90, 120, 150, 180, 270, 360, 720, 1440), 
                              objective = c("D"), 
                              homogen_mixing = F,
@@ -40,7 +40,9 @@ cases_df <- rbind(cases_dynamic, cases_static)
 # cases_df <- cases_dynamic
 
 
-# Run optimisations (a few mins)
+# Run optimisations (takes a good few mins)
+# Have to break them into cases because the code is minimally different 
+# depending on dynamic vs static, type of optimisation problem
 
 results_novac <- cases_df %>% 
   select(-dose_name) %>% 
@@ -72,6 +74,9 @@ results_frac_age <- cases_df %>%
   unnest_wider(result, names_sep = "_") %>%
   bind_cols(cases_df %>% select(dose_name, q_per_day))
 
+
+
+# Combine all of these cases into a single table
 df_results <- list(
   mutate(results_full_dose,            solution = "full_dose"),
   mutate(results_frac_uniform_static,  solution = "frac_uniform"),

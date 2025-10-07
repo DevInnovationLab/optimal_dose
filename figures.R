@@ -6,124 +6,22 @@ library(kableExtra)
 library(scales)
 library(patchwork)
 
+theme_set(theme_minimal(base_size = 11))
 
 optim_names <- c("Age-specific", "Age-invariant", "Standard dose")
 optim_values <- c("#E69F00", "#56B4E9", "black")
 optim_lvls <- c("frac_age", "frac_uniform", "full_dose")
-theme_set(theme_minimal(base_size = 11))
 
 df_results <- readRDS("results/nlopt_results.rds")
 
 # Optimal doses -----
 
-results_frac_uniform_dynamic %>% unnest(result_solution) %>% 
-  select(q, dose_name, scenario, solution) %>% distinct() %>% 
-  arrange(scenario) %>% 
-  spread(dose_name, solution)
-
-# Visualise an example model ------
-
-# speed_x <- c(10, 33, 100, 365, 1000)
-
-q_per_day <- c(3, 1, 0.5, 0.2)
-speed_x <- 100/q_per_day
-
-y <- lapply(speed_x, function(speed)
-  model_fd_dynamic(
-    "pars_le_fast", 
-    length_campaign = speed, 
-    fd = rep(0.5, Ngroups),
-    phi_x = phi_covid,
-    pdeath = "ifr_hic",
-    rm = T,
-    ret = 1,
-    objective = "D",
-    homogen = FALSE,
-    immunity_length = 365)
-) %>% do.call(abind::abind, .)
-# dimnames(y)[[3]] <- paste(q_per_day, " each day")
-ln2 <- ln; ln2[["cumV"]] <- "Vaccinated"
-plot_example <- plot_rcs(y, 
-         long_names = ln2,
-         compartment = c("S", "I", "cumI", "cumV"), 
-         end_date = as.Date("01-09-2021", format="%d-%m-%Y")) +
-  theme_minimal() +
-  theme(legend.position = "bottom") + xlab("") + 
-  ylab("Fraction of total population")
-
-plot_example + 
-  scale_color_manual(
-    name = "Vaccinated each day (% total population)",
-    values = c("4" = "#E31A1C", "3" = "#FF7F00", "2" = "#1F78B4", "1" = "#33A02C"),
-    labels = c("1" = "3%", "2" = "1%", "3" = "0.5%", "4" = "0.2%")
-  )
-
-ggsave("paper/figures/example_model.pdf", width = 16, height = 11, unit = "cm")
-
-# Long-term simulation ("recurring")
-# speed_x <- c(10, 33, 100, 365, 1000)
-speed_x <- c(10, 1000)
-y <- lapply(speed_x, function(speed)
-  model_fd_dynamic(
-    "pars_le_fast", 
-    length_campaign = speed, 
-    fd = rep(0.5, Ngroups),
-    phi_x = phi_covid,
-    pdeath = "ifr_hic",
-    rm = T,
-    ret = 1,
-    rep = c(0.8, 0.8, 0.8, 5),
-    objective = "D",
-    homogen = FALSE,
-    immunity_length = 365)
-) %>% do.call(abind::abind, .)
-dimnames(y)[[3]] <- paste(speed_x, "days")
-# explicitly sum susceptible without vaccines and those in whom vaccine didn't work:
-y[, "S", 1] <- y[, "S", 1] + y[, "N1", 1]
-y[, "S", 2] <- y[, "S", 2] + y[, "N1", 2]
-plot_rcs(y, ncol = 3,
-         compartment = c("S", "D", "I"), 
-         end_date = as.Date("01-06-2024", format="%d-%m-%Y")) +
-  theme(legend.position = "bottom",
-        legend.box.spacing = unit(0, "cm")) + 
-  xlab("") + ylab("Fraction of total population")
-
-ggsave("paper/figures/example_multiseason.pdf", width = 14, height = 6, unit = "cm")
+# results_frac_uniform_dynamic %>% unnest(result_solution) %>% 
+#   select(q, dose_name, scenario, solution) %>% distinct() %>% 
+#   arrange(scenario) %>% 
+#   spread(dose_name, solution)
 
 
-
-
-# Visualise dose-response -----
-
-df <- tibble(x = seq(0, 1, length.out = 1001)) %>%
-  mutate(
-    sigmoid = dr_foos$sigmoid(x),
-    concave = dr_foos$concave(x)
-  ) %>%
-  pivot_longer(-x, names_to = "curve", values_to = "y")
-
-dr_plot <- ggplot(df, aes(x, y, linetype = curve)) +
-  geom_line(size = 1) +
-  scale_linetype_manual(
-    values = c(concave = "dotted", sigmoid = "solid"),
-    labels = c(concave = "Concave", sigmoid = "Sigmoid")
-  ) +
-  scale_x_continuous(breaks = c(0, 0.5, 1)) +
-  scale_y_continuous(breaks = c(0, 0.5, 0.8, 1), limits = c(0, 1)) +
-  geom_hline(yintercept = c(0.5, 0.8), linetype = "dotted", color = "grey70") +
-  geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey70") +
-  coord_cartesian(clip = "off") +
-  theme_minimal(base_size = 12) +
-  theme(
-    legend.position = "none",
-    panel.grid.minor = element_blank()
-  ) +
-  labs(x = "x", y = "efficacy") +
-  ggtitle("Dose-response")
-
-dr_plot
-
-ggsave("paper/figures/dose_response.pdf", width = 10, height = 8, unit = "cm")
 
 # Visualise optimal dose -----
 
