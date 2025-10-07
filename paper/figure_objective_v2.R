@@ -8,7 +8,7 @@ library(patchwork)
 
 theme_set(theme_minimal(base_size = 11))
 
-df <- readRDS("results/nlopt_results.rds") %>%
+df_obj_plot <- readRDS("results/nlopt_results.rds") %>%
   filter(static == "Dynamic case",
          scenario == "fast-growth (R0 = 2)") %>%
   select(-result_solution) %>%
@@ -16,7 +16,7 @@ df <- readRDS("results/nlopt_results.rds") %>%
   mutate(deaths_vs_full_dose = value / max(value)) %>%
   ungroup()
 
-df %>%
+df_obj_plot %>%
   filter(key != "full_dose") %>%
   ggplot(aes(x = 1 / q,
              y = (1 - deaths_vs_full_dose) * 100,   # percentage-point improvement
