@@ -1,0 +1,1924 @@
+\documentclass[12pt]{article}
+\usepackage{framed}
+\usepackage{float}
+\usepackage[margin=1in,nohead]{geometry}
+\usepackage{xltabular}
+\usepackage[labelfont=bf, font=footnotesize, width=.9\textwidth]{caption}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\usepackage{adjustbox}
+\usepackage{mathtools}
+\usepackage{mathptmx,amsbsy,latexsym,amsfonts,amsthm,amsmath,amssymb,mathtools}
+\usepackage{setspace,array,accents,dcolumn}
+\usepackage{graphicx}
+\usepackage[mathscr]{eucal}
+\usepackage{xcolor,colortbl,soul}
+\usepackage{comment}
+\usepackage{natbib}
+\usepackage{xurl}
+\usepackage{setspace}
+\usepackage{titlesec}
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+
+\urlstyle{same}
+\bibliographystyle{agms}
+\titleformat*{\paragraph}{\itshape}
+\titlespacing*{\paragraph}{0pt}{2ex}{.5em}
+
+\newcommand{\Section}[1]{\vspace{-8pt}\section{\hskip -1em.~~#1}\vspace{-3pt}}
+\newcommand{\SubSection}[1]{\vspace{-3pt}\subsection{\hskip -1em.~~#1}\vspace{-3pt}}
+\renewcommand{\theenumi}{\roman{enumi}}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+
+\newcommand{\email}[1]{\textlangle{#1}\textrangle}
+\renewcommand{\qed}{{\it Q.E.D.}}
+
+\newcommand{\efficacy}{\phi}
+\newcommand{\side}{s}
+\newcommand{\general}{g}
+\newcommand{\average}{a}
+\newcommand{\benefit}{B}
+\newcommand{\ratio}{\rho(N)}
+
+\newcommand{\xfull}{x^{f\!}}
+\newcommand{\xshort}{x^{s}}
+\newcommand{\xunit}{x^{e}}
+\newcommand{\poi}{x^{i}}
+\newcommand{\xun}{x^{u}}
+\newcommand{\nun}{n^{u}}
+\newcommand{\vun}{v^{u}}
+\newcommand{\Qun}{Q^{u}}
+\newcommand{\Qhat}{\hat{Q}}
+
+\newcommand{\sqdose}{x^{sq}}
+\newcommand{\sqefficacy}{\efficacy^{sq}}
+\newcommand{\sqside}{\side^{sq}}
+\newcommand{\sqnumber}{n^{sq}}
+
+\newcommand{\MB}{\text{\it MB}}
+\newcommand{\lagrangian}{\mathscr{L}}
+\newcommand{\Real}{\mathbb{R}_{+}}
+\newcommand{\elasticity}[1]{\eta_{#1}}
+\newcommand{\doublelim}{\lim_{Q \uparrow \infty, p \downarrow 0}}
+\newcommand\ubar[1]{\underaccent{\bar}{#1}}
+\newcommand{\covid}{Covid-19}
+\newcommand{\ex}{\epsilon_x}
+\newcommand{\en}{\epsilon_n}
+\newcommand{\benefitbound}{\bar{\benefit}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+
+\def\topfraction{.9}
+\def\floatpagefraction{.8}
+\allowdisplaybreaks[1]
+\setlength{\parindent}{20pt}
+
+\begin{document}
+
+\begin{spacing}{1.56}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+\singlespace
+
+\begin{center}
+{\large \bf Optimal Fractional Dosing Under Epidemic Supply Constraints}
+\end{center}
+
+\vspace{2ex}
+
+{\flushleft
+Michael Kremer\\
+{\em Kenneth C. Griffin Department of Economics, University of Chicago\\ 
+E-mail: kremermr@uchicago.edu}\\[2ex]
+Christopher M. Snyder\\
+{\em Department of Economics, Dartmouth College\\
+E-mail: chris.snyder@dartmouth.edu}\\[2ex]
+Witold Więcek\\
+{\em Development Innovation Lab, University of Chicago\\
+E-mail: witold.wiecek@gmail.com}}
+
+\vspace{2ex}
+
+\begin{center}
+June 2025
+\end{center}
+
+\vspace{2ex}
+
+\noindent {\bf Abstract:} The urgency to stem an epidemic by
+vaccinating a large population as quickly as possible can lead to
+shortages. We provide a theoretical analysis of the use of fractional
+dosing to alleviate such shortages. We begin by deriving qualitative
+results from a simple, static model. The dosage that is optimal when
+supply is unconstrained is generally not optimal when supplies are
+constrained: the second-order loss in effectiveness from moving to
+fractional dosing is outweighed by the first-order gain in the share
+vaccinated. The model generates insights into fractional-dosing
+trials, whether individuals have an incentive to participate and the
+social value of information the trials generate. The analysis then
+shifts to deriving more quantitative results from a dynamic
+epidemiological model, allowing mortality and disease transmission to
+vary by age, calibrated to \covid\ parameters. The gains from
+fractional dosing are largest when vaccine supplies are constrained
+but not negligible. In that case, the gains can be enormous, as much
+as doubling the number of deaths averted under full dosing. Moving
+from uniform to age-varying fractional doses improves outcomes only
+slightly in our calibrations.
+
+\vfill
+
+\noindent {\bf JEL Codes:} I18 (Health: Government Policy, Public
+Health); O38 (Innovation: Government Policy); C63 (Simulation
+Modeling)
+
+\vfill
+
+\noindent {\bf Keywords:} vaccine, pandemic, epidemiology, public
+health, supply
+
+\vfill
+
+\noindent {\bf Acknowledgments:} The authors are grateful to Rachel
+Glennerster, Nora Szech, and seminar participants at Harvard, M.I.T.,
+University of Chicago, and the NBER Entrepreneurship and Innovation
+Policy and the Economy conference for insightful comments. Andreas Petrou-Zeniou, Alexandre Simoes Gomes, and Leonardo Wang provided excellent research
+assistance. Kremer and Snyder thank their colleagues at the Market
+Shaping Accelerator, where they serve as faculty co-directors, for
+advice and support. Snyder thanks the Institute for Progress and Open
+Philanthropy for funding.
+
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Introduction}
+\label{s:Introduction}
+
+\hl{THE INTRO NEEDS TO BE REWRITTEN WHEN WE COMBINE CS AND WW ANALYSES
+  AND FIGURE OUT WHAT THE PAPER CONTAINS.}
+
+Despite rapid expansion of capacity in \covid\ vaccine production, in
+2021 many countries only expect to obtain full vaccination courses for
+a fraction of their population. For example, COVAX (the WHO's primary
+initiative to support vaccine research and manufacturing and
+distribute vaccines globally) anticipates supplying vaccines for only
+27 percent of the population of the 92 eligible low-income countries
+\citep{WHO2021}. Quantity constraints on vaccines are likely to be
+important during any pandemic. Thus, it is important to study policies
+that allow us to make the best use of limited supply of vaccines by
+``stretching'' vaccine doses.
+
+Dose-stretching policies include fractional dosing and delaying second
+doses. Fractional dosing--at 1/5th the individually optimal dose--was
+used in Brazil to deal with a yellow fever epidemic in 2018
+\citep{PAHO2018}. More recently, Great Britain and Canada delayed the
+second dose of a \covid\ vaccine course in order to increase the
+number of first doses.
+
+We study these types of dose-stretching policies in a mathematical
+model. Our model is static and compares individual, country and global
+optimums. In a companion piece, we model dynamic adjustments using an
+SEIR model (XXXX,XXXX)
+
+We start with a model of optimal vaccine policy from the perspective
+of an individual, a country planner, and a global social planner. We
+show that, in normal circumstances, where capacity constraints do not
+bind, setting the amount of vaccine per course to maximize welfare for
+individuals receiving vaccines also maximizes public health. However,
+when vaccine supply is constrained, as is the case in the short run in
+the current pandemic, the regimen that is optimal for an individual
+receiving vaccines will not maximize social net benefits. Similarly,
+the public-health maximizing lag between doses also exceeds the lag
+maximizing benefits for the individual receiving immunization. Our
+model suggests that under capacity constraints, dose sparing improves
+public health as long as the harm to the vaccinated individuals from
+the reduction in dose is smaller than the health benefit to society of
+giving the additional dose to the next person. With a homogeneous
+population and the sigmoidal (s-shaped) dose-response function often
+assumed in pharmacological modeling, public health benefits are
+maximized by setting dosage at the unit-elastic level, where a 1\%
+dose reduction reduces efficacy by 1\%.
+
+The mortality risk of a disease such as \covid\ is highly
+heterogeneous, most notably rising steeply in age. Thus, we also model
+the planner optimum under harm heterogeneity. We show that fractional
+dosing can be optimized for harm heterogeneity by assigning, for
+example, smaller doses to those less at risk and larger dose to those
+most at risk.
+
+The country planner's optimal amount of vaccine per course differs
+from that of a global planner because a country faces an exogenous
+price per unit of vaccine, while a global social planner internalizes
+vaccine producer profits and the opportunity cost of using units of
+vaccine to vaccinate other countries. Reducing the dose until these
+two quantities are equal maximizes public health.
+
+Finally, we show that the value of experimentation to learn the
+optimal vaccine policy increases with greater uncertainty.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Model}
+\label{s:Model}
+
+We develop a model in this section that is simple along a number of
+dimensions: it is static, involves homogeneous consumers, and uses a
+reduced-form benefit function to embody complex epidemiological
+processes. The model involves three sets of actors. The main decision
+maker in the model, a planner, specifies the formulation of a vaccine
+using an antigen that it purchases from firms. The planner
+distributes the vaccine for free to consumers, as we observed most
+countries do during the \covid\ pandemic, as well as in other
+epidemics.
+
+A key variable in our model is the strength of a vaccine course. There
+are various ways of increasing a vaccine's strength in practice:
+adding more doses, using more antigen in each dose, or changing the gaps between doses. 
+% the amount
+% of antigen consumed by an individual is the product of the
+% antigen in each dose and number of doses received in
+Such distinctions are muddied in our model since we use a static
+setting which can't distinguish how total amount of antigen is distributed across doses. We therefore simplify the exposition by taking a course to be a
+single dose of strength $x \geq 0$, determined by the quantity of
+antigen used in it, but $x$ can be thought of as proxying
+for any of the various ways of increasing the strength of a vaccine
+course that involve using more antigen.
+
+We assume an {\em all-or-nothing} vaccine, where an individual receiving the vaccine either becomes fully immune or the vaccine offers no benefits.\footnote{This assumption is justified for some, but not all vaccines. For example, vaccines for measles, yellow fever and hepatitis B offer all-or-nothing protection. However, vaccines for e.g. COVID-19 and infant tuberculosis give varying levels of protection to different individuals. They also tend to protect against severe disease, but not infection. In contrast to all-or-nothing, we refer to this type of vaccine as {\em leaky}.} Immunization success is a Bernoulli random variable, identically and independently
+distributed in the population; probability of success is referred to as {\em efficacy}, denoted by $\phi(x) \in [0,1]$. Assume
+$\phi$ is a twice-differentiable function. Assume, further, that a
+vaccine with no antigen is useless, i.e., $\efficacy(0) =
+0$, and that stronger doses are more effective, i.e., $\efficacy'(x) >
+0$ for all $x > 0$. Various assumptions will be entertained about the
+shape of $\efficacy$, initially assuming it is strictly concave as in
+the first panel of Figure~\ref{fig:efficacy}, then moving to the
+assumption that it is sigmoidal as in the second panel. Sigmoidal shapes
+are frequently assumed for dose-response curves in modeling of vaccines' immune responses \citep[see, e.g.,][]{Rhodes2022}, although non-monotonic shapes may also be possible in some cases.
+
+\begin{figure}[tp]
+\begin{framed}
+\centering
+\includegraphics[viewport=70 285 470 455, width=.9\textwidth, clip]{efficacy.pdf}
+\vspace{1ex}
+\caption{{\bf Shapes for the Efficacy Function.} The first panel
+  illustrates the strictly concave $\efficacy$ analyzed in
+  Section~\ref{s:Concave}. The second panel illustrates the sigmoidal
+  $\efficacy$ analyzed in Section~\ref{s:Sigmoidal}, with a unique,
+  interior inflection point $\poi$ and point of unit elasticity,
+  $\xunit$.}
+\label{fig:efficacy}
+\end{framed}
+\end{figure}
+
+Let $\side(x) \geq 0$ denote the expected harm from side effects
+experienced by an individual receiving a vaccine having strength
+$x$. Assume that a vaccine with no antigen produces no side
+effects, i.e., $\side(0) = 0$. Assume, further, that side effects are
+increasing in dosage at a weakly increasing rate, i.e., $\side'(x) >
+0$ for all $x > 0$ and $\side''(x) \geq 0$ for all $x \geq 0$.
+
+The population consists of a continuum of homogeneous individuals of
+mass $N$. Letting $n \in [0,N]$ denote the number of individuals
+receiving a vaccine course and $v \in [0,1]$ denote the number of
+successfully immunized people, we have $v = n \efficacy(x)$. Denote
+the social benefit from preventing disease harm via successful
+vaccination by $B(v)$, capturing both the direct protective effects
+and the indirect epidemiological effects of reducing transmission from
+vaccinated individuals. Normalize benefits to 0 in the absence of
+vaccinations, i.e., $\benefit(0) = 0$. Assume benefits are increasing
+and strictly concave: i.e., $\benefit'(v) > 0$ and $\benefit''(v) < 0$
+for all $v \geq 0$.
+
+A social planner chooses the vaccine's potency $x$ and number of
+people vaccinated $n$ to maximize population health benefits---the
+social benefit from the vaccine less the harm from side effects---net
+of expenditures. Abstract from any expenditures besides spending on
+vaccine substance, for which the planner pays an exogenous price $p
+\geq 0$ per unit.\footnote{The choice to model $p$ as a constant, independent of the quantity demanded by the vaccine program, can be justified on several grounds. On theoretical grounds, price-taking is relevant to the case in which the planner controls vaccine production and internalizes unit cost $c$ as the relevant price $p$. Price-taking is also a reasonable assumption if the vaccine program is only a small part of the overall vaccine
+market. On practical grounds, during the Covid-19 pandemic,
+vaccine manufacturers appear to have been content to ration quantities
+to countries rather than letting rising prices clear the
+market. \citet{Castillo2021} found that vaccine courses (generally two doses) were being
+sold for between \$6 and \$40, compared to an estimated social value in the thousands of dollars. Vaccine manufacturers may fear raising prices during a pandemic would be viewed with repugnance \citep{Roth2007}.} This price may equal unit cost $c$ or may reflect a
+margin $m \geq 0$ above $c$, where $m \equiv (p-c)/p$. The planner's
+objective is to maximize
+\begin{equation}
+\label{obj}
+\benefit(n\efficacy(x)) - n \side(x) - pnx.
+\end{equation}
+
+Our specification nests the case of a perfectly benevolent planner who
+internalizes suppliers' profits. One can recover that case by
+substituting $p = c$ into equation \eqref{obj}, which then becomes
+equivalent to social welfare.  In practice, many health agencies do
+not internalize firm profits, so the model is specified to allow for
+this possibility.
+
+Let $\general(x) \equiv \side(x) + px$ denote the planner's generalized
+cost of vaccinating each individual, embodying both the expected harm
+the individual experiences from side effects and the unit price of
+additional substance. This function inherits the properties of
+$\side$: $\general(0) = \side(0) + p \cdot 0 = 0$, $\general'(x) =
+\side'(x) + p > 0$ for all $x > 0$, and $\general''(x) = \side''(x)
+\geq 0$ for all $x \geq 0$. The planner's objective \eqref{obj} can
+then be written more succinctly as
+\begin{equation}
+\label{obj_g}
+\benefit(n\efficacy(x)) - n \general(x).
+\end{equation}
+
+The planner faces several constraints on this problem. Let $Q > 0$
+denote the supply of vaccine substance. The total quantity of vaccine
+substance used cannot exceed this supply:
+\begin{equation}
+\label{capacity}
+nx \leq Q.
+\end{equation}
+Further, no more than the total population can be vaccinated:  
+\begin{equation}
+\label{population}
+n \leq N.
+\end{equation}
+Finally, the planner's choice variables must be nonnegative:
+\begin{equation}
+n, x \geq 0. \label{pos} 
+\end{equation}
+
+As usual, elasticities will play a key role in the analysis. Let
+$\elasticity{f}(x) \equiv x f'(x) / f(x)$ denote the elasticity of an
+arbitrary function $f$ at point $x$.  Then, in particular,
+$\elasticity{\efficacy}(x)$ is the efficacy elasticity at dosage $x$
+and $\elasticity{\general}(x)$ is the elasticity of generalized
+marginal cost.
+
+The analysis will focus on whether the planner keeps the same strength
+that is optimal in the absence of a capacity constraint when the
+capacity constraint starts to bind or whether the planner reduces
+strength---stretching doses---to reduce rationing. Tightening the
+capacity constraint shows up as a reduction in $Q$ in the model. Thus,
+the analysis will amount to the comparative-static effect of a
+reduction in $Q$ on the optimal dosage, $x^*$.
+
+The subsequent analysis is divided into two sections, each devoted to
+a different shape of the efficacy function, $\efficacy$. We consider
+concave efficacy in the next section and sigmoidal efficacy in the
+section after that.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Optimum with Concave Efficacy}
+\label{s:Concave}
+
+The planner's optimum is the solution to an inequality-constrained
+maximization problem---that of choosing $x$ and $n$ to maximize
+objective \eqref{obj} subject to constraints
+\eqref{capacity}--\eqref{pos}. The problem can be solved using the
+Karush-Kuhn-Tucker (KKT) method. In the appendix, we prove that the
+problem satisfies linear independence constraint qualification (LICQ),
+a textbook condition ensuring the KKT conditions are necessary for an
+optimum.
+
+In this section, we maintain the assumption that the efficacy function
+is strictly concave: i.e., $\efficacy''(x) < 0$ for all $x \geq
+0$. This assumption simplifies the analysis and generates definitive 
+results on the optimality of dose stretching. The more intricate
+analysis of sigmoidal efficacy is deferred to a later section.
+
+%------------------------------------------------------------------------------
+
+\SubSection{Nontrivial Policy}
+
+The next lemma provides a necessary and sufficient condition for the
+optimal vaccine policy to be nontrivial, meaning it involves positive
+vaccinations ($n^* > 0$) and positive dosage ($x^* > 0$).
+\begin{lemma}
+\label{l:concave_nontrivial}
+\singlespace
+Suppose $\efficacy$ is strictly concave. The planner's optimum is
+nontrivial if and only if
+\begin{equation}
+\label{concave_no_corner}
+\benefit'(0) \efficacy'(0) > \general'(0).
+\end{equation}
+\end{lemma}
+\noindent The proof of this and all subsequent results are provided in
+the appendix.  If condition \eqref{concave_no_corner} holds,
+vaccinating a few people with a tiny dose provides the planner with
+positive surplus. Thus, a trivial policy of not vaccinating anyone
+cannot be optimal.  If \eqref{concave_no_corner} is violated, on the
+other hand, vaccinating a few people with a tiny dose provides a lower
+marginal health benefit than the generalized cost per
+capita. Administering larger doses to more would be even worse for the
+planner because benefits are concave and costs weakly convex. Thus,
+the planner prefers to not vaccinate anyone.
+
+%------------------------------------------------------------------------------
+
+\SubSection{Full-Dose Counterfactual}
+\label{ss:Full}
+
+To help characterize the planner's optimum, we introduce a benchmark
+labeled a {\em full dose}, denoted $\xfull(N)$. A full dose solves the
+counterfactual problem of maximzing the planner's objective ignoring
+constraint \eqref{capacity} on the supply of vaccine substance, taking
+the number of vaccinations, $n$, as given:
+\begin{equation}
+\label{xfull}
+\xfull(n) \equiv \argmax_{x \geq 0} \left[ \benefit(n \efficacy(x)) - n
+  g(x) \right].
+\end{equation}
+A full dose must satisfy the first-order condition associated with
+\eqref{xfull}. Taking the first-order condition and rearranging, we
+have that $\xfull(n)$ must satisfy
+\begin{equation}
+\label{foc_full}
+\benefit'(n \efficacy(\xfull(n))) \efficacy'(\xfull(n)) =
+g'(\xfull(n)).
+\end{equation}
+The left-hand side of the equation is the marginal social benefit (per
+vaccinated individual) of increasing dose strength. A full dose
+equates this marginal social benefit with the marginal generalized
+cost of that dosage increase on the right-hand side of the equation.
+
+It is not a foregone conclusion that the bracketed expression in
+\eqref{xfull} has a unique maximizer, or that this maximizer is
+nontrivial, or that equation \eqref{foc_full} uniquely identifies
+it. The next lemma shows that these conclusions are indeed true under
+the condition guaranteeing a nontrivial solution to the planner's
+problem.
+\begin{lemma}
+\label{l:xfull}
+\singlespace
+Suppose $\efficacy$ is strictly concave and condition
+\eqref{concave_no_corner} holds. For all $n > 0$, a unique full dose
+$\xfull(n)$ exists and is positive. It is the unique solution to
+\eqref{foc_full}
+\end{lemma}
+
+%------------------------------------------------------------------------------
+
+\SubSection{Optimal Vaccine Program}
+
+With that preliminary analysis in hand, we can characterize the
+nontrivial solution to the planner's problem, as stated in the next
+proposition.
+\begin{proposition}
+\label{p:concave_optimum}
+\singlespace
+Suppose $\efficacy$ is strictly concave and condition
+\eqref{concave_no_corner} holds. The planner optimally vaccinates the
+entire population ($n^* = N$) with dose $x^* = \min \{ Q/N, \xfull(N) \}$.
+\end{proposition}
+
+\noindent The optimal policy for the planner is to vaccinate the
+entire population with doses of equal strength. A policy in which some
+consumers receive stronger doses than others can be improved by
+reallocating substance from those receiving more to those receiving
+less, holding constant the total amount of substance used. This
+reallocation preserves the capacity constraint and keeps expenditure
+constant while increasing social surplus because those with less
+substance generate a higher marginal benefit (because of the concavity
+of $\efficacy$) and lower marginal side-effect cost (because of the
+convexity of $\side$) compared to those receiving stronger doses. When
+possible, consumers are vaccinated with the full dose specified in
+equation \eqref{xfull} unless that violates the capacity constraint
+\eqref{capacity}, in which case each consumer obtains an equal share
+of available capacity.
+
+\begin{figure}[tp]
+\begin{framed}
+\centering
+\includegraphics[viewport=50 320 515 475, width=.99\textwidth, clip]{concave_optimum.pdf}
+\vspace{1ex}
+\caption{{\bf Optimal Dosage for Concave Efficacy.} The text below the
+  curve describes the optimal vaccine coverage and optimal dosage in
+  each partition.}
+\label{fig:concave_optimum}
+\end{framed}
+\end{figure}
+
+Figure~\ref{fig:concave_optimum} provides a schematic diagram of the
+planner's optimum.  As the figure shows, dose stretching is optimal
+when capacity $Q$ falls below $N\xfull(N)$, the threshold needed to
+vaccinate the entire population $N$ with full doses. Optimal doses
+shrink as the capacity constraint tightens below this threshold,
+approaching 0 in the limit $Q \downarrow 0$.
+ 
+ The optimal dose has intuitive comparative-static properties, as the next proposition states. 
+\begin{proposition}
+\label{p:cs_concave}
+\singlespace
+Suppose $\efficacy$ is strictly concave and condition
+\eqref{concave_no_corner} holds. 
+
+\begin{itemize} 
+
+\item An increase in $N$ strictly reduces $x^*$.  
+
+\item A decrease in vaccine supply from $Q'$ to $Q'' < Q'$ weakly reduces $x^*$. The reduction is strict if $Q'/N \leq \xfull(N)$.
+
+\item Re-parameterize efficacy as $\efficacy(x, \alpha)$, and assume $\partial \efficacy / \partial \alpha > 0$ and $\partial^2 \efficacy / \partial \alpha \partial x < 0$. An increase in $\alpha$ from $\alpha'$ to $\alpha'' > \alpha'$ weakly reduces $x^*$. The reduction is strict if $Q/N > \xfull(N,\alpha')$, where $\xfull(N, \alpha)$ denotes the full dose in the re-parameterized model.  
+
+\item Re-parameterize generalized marginal cost as $\general(x, \beta)$, and assume $\partial^2 \general/ \partial \beta \partial x > 0$. An increase in $\beta$ from $\beta'$ to $\beta'' > \beta'$ weakly reduces $x^*$. The reduction is strict if $Q/N > \xfull(N,\beta')$, where $\xfull(N, \beta)$ denotes the full dose in the re-parameterized model.   
+\end{itemize} 
+\end{proposition}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Optimum with Sigmoidal Efficacy}
+\label{s:Sigmoidal}
+
+The model with concave efficacy has the advantage of making a definitive case for dose stretching. A drawback is that it precludes
+the possibility that rationing may be optimal and that the optimal
+dosage $x^*$ does not shrink to 0 in the limit $Q \downarrow 0$. Those
+interesting possibilities are explored in this subsection in which we
+move from assuming $\efficacy$ is concave to assuming it is sigmoidal
+as drawn in the second panel of Figure~\ref{fig:efficacy}.
+
+Sigmoidal dose-response curves arise in the pharmacometric modeling of
+vaccines \citep{Rhodes2022}. At low dosage levels, efficacy is often
+observed to remain low, and increases in dosage at these low levels
+have little marginal effect. Marginal gains increase up to inflection
+point, after which they diminish. 
+
+Formally, a sigmoidal $\efficacy(x)$
+has a bell-shaped first derivative, implying it has a unique, interior
+inflection point, $\poi$, below which $\efficacy(x)$ is strictly convex
+and above which $\efficacy(x)$ is strictly concave. All the other
+properties of $\efficacy(x)$ from before are maintained, namely,
+$\efficacy(x) \in [0,1]$, $\efficacy(0) = 0$, $\efficacy(x)$ is twice
+continuously differentiable, and $\efficacy'(x) > 0$ for all $x > 0$.
+
+The analysis is considerably more intricate than that for concave efficacy. As we will see, the optimum involves a richer set of cases. In addition, the objective function is not guaranteed to be concave in $x$,\footnote{The second derivative of objective function \eqref{obj_g} with respect to $x$ equals
+\[
+\benefit''(n\efficacy(x)) \efficacy'(x)^2 + \benefit'(n \efficacy(x)) \efficacy''(x) - n \general''(x).
+\]
+All terms are negative when $\efficacy$ is strictly concave, but the middle term can be positive when $\efficacy$ is sigmoidal.} so we cannot rule out multiple solutions for the optimal dosage or discontinuities in the solution, so our analysis will have to accommodate these possibilities. 
+
+%------------------------------------------------------------------------------
+
+\SubSection{Unit Elasticity}
+
+Let $\xunit$ denote the dose at which efficacy is unit elastic, i.e.,
+$\elasticity{\efficacy}(\xunit) = 1$, shown in Figure~\ref{fig:efficacy}
+as the point where the chord from the origin is tangent to the
+curve. The next lemma states that $\xunit$ exists and is unique when
+$\efficacy$ is sigmoidal.
+\begin{lemma}
+\label{l:elasticity}
+\singlespace
+Suppose $\efficacy$ is sigmoidal. There exists a unique $\xunit > \poi$
+such that $\elasticity{\efficacy}(\xunit) = 1$. For all $x \in (0, \xunit)$,
+$\elasticity{\efficacy}(x) > 1$; for all $x > \xunit$,
+$\elasticity{\efficacy}(x) < 1$.
+\end{lemma}
+
+The unit-elastic dose $\xunit$ provides a key benchmark for the analysis. It is the dosage with the highest value for per-unit efficacy $\average(x) \equiv \efficacy(x) / x$, as the next lemma states. 
+\begin{lemma}
+\label{l:u}
+\singlespace
+Suppose $\efficacy$ is sigmoidal. Per-unit efficacy $\average(x)$ is strictly quasiconcave, strictly increasing for $x \in (0, \xunit)$, strictly decreasing for $x > 0$, reaching a maximum at $\xunit$. 
+\end{lemma}
+
+%------------------------------------------------------------------------------
+
+\SubSection{Short-Supply Counterfactual}
+\label{ss:Short}
+
+Another key benchmark is provided by a counterfactual that is the inverse of the full-dose counterfactual studied in Section~\ref{s:Concave}. The full-dose counterfactual maximized the
+planner's objective omitting the constraint on supply $Q$ and
+fixing the number of people to be vaccinated $n$. The counterfactual
+analyzed here omits the ceiling on the number of people that can be
+vaccinated and fixes the supply of vaccine substance that must be
+utilized at $Q$. Label the resulting solution the {\em short-supply dose},
+denoted $\xshort(Q)$. The label anticipates the role the
+counterfactual solution will play in the planner's optimum below,
+providing the formula for the optimum when supplies $Q$ become so
+tight that the supply constraint \eqref{capacity} takes over as the
+only active constraint; supplies are too constrained to consider
+vaccinating anywhere near the total population, allowing us to safely
+ignore constraint \eqref{population} on the number of vaccinations.
+
+The binding constraint that $Q$ must be fully utilized entails $n x = Q$. Rearranging and substituting $n = Q/x$ into the planner's objective function \eqref{obj_g}, we have 
+\begin{equation}
+\label{xconstrained}
+\xshort(Q) = \max \left\{  \argmax_{x \geq 0} \left[ \benefit(\average(x) Q) - \frac{g(x)Q}{x} \right] \right\}.
+\end{equation}
+In case of ties for the maximizer (which might emerge since the function in square brackets need not be concave in $x$), we take $\xshort(Q)$ to be the largest of 
+them.\footnote{This specification avoids overstating the importance of fractional doses if they are the artifact a equilibrium-selection rule favoring small doses. It also  simplifies the math by converting $\xshort(Q)$ from a correspondence into a function.}
+
+Taking the first-order condition and rearranging, we find that
+$\xshort(Q)$ must satisfy
+\begin{equation}
+\label{foc_constrained}
+\benefit' \left( \average(\xshort(Q)) Q\right) \efficacy'(\xshort(Q)) \left[ 1 -
+  \frac{1}{\elasticity{\efficacy}(\xshort(Q))} \right] =
+\general'(\xshort(Q)) \left[ 1 -
+  \frac{1}{\elasticity{\general}(\xshort(Q))} \right] .
+\end{equation}
+This rearranged first-order condition is more complicated than the
+analogous one for the full-dose counterfactual in
+\eqref{foc_full}. The extra factors in square brackets account 
+for the rate at which the number vaccinated must be decreased when $x$
+is increased to maintain a constant $Q$. The full-dose counterfactual
+does not have a constraint on $Q$ generating this tradeoff.
+
+The short-supply dose $\xshort(Q)$ is monotonic in $Q$---but in the opposite direction from what naïve intuition might suggest. One might think that tighter supplies would lead the planner to shrink optimal dose. In fact, $\xshort(Q)$ moves in the opposite direction, as the next proposition states. The proof applies a revealed-preference argument to sign the comparative-statics effect. 
+\begin{proposition}
+\label{p:short}
+\singlespace
+Suppose $\efficacy$ is sigmoidal. The short-supply dose $\xshort(Q)$ is weakly decreasing in $Q$.
+ \end{proposition}
+ 
+To gain some intuition for this surprising result, it is first important to recognize the relevant setting for the short-supply counterfactual, one in which supplies are so limited that it is not practical to vaccinate everyone. In a different setting with sufficient supplies to achieve a corner solution in which the entire population is vaccinated ($n = N)$, the optimum tends to stay at that corner when $Q$ falls, leaving a reduction in $x$ as the only viable policy response. In that case, the planner resorts to fractional dosing, as expected. In the short-supply counterfactual, however, $n$ is not at a corner, so reducing $n$ becomes a viable policy response to a fall in $Q$. Indeed, the planner optimally reduces $n$---by so much that a larger dose $x$ can be concentrated in this smaller vaccinated population. Why increase $x$? No matter how the planner responds to a reduction in $Q$, it cannot prevent the level of effective vaccination $v$ from falling when $Q$ falls, leading to an increase in marginal benefit $\benefit'(v)$ since $\benefit$ is concave. This inclines the planner to wring more efficacy out of the limited supply by increasing the dose toward the unit-elastic point $\xunit$, which maximizes per-unit efficacy, $\average(x)$. The planner is willing to accept greater marginal harm to vaccinated individuals to avoid an even greater reduction in the social benefit of effective vaccinations. 
+
+%------------------------------------------------------------------------------
+
+\SubSection{Unconstrained Counterfactual}
+
+Another key benchmark is provided by the solution to yet another
+counterfactual, the unconstrained problem maximizing the planner's
+objective \eqref{obj_g} removing all of the constraints except
+non-negativity. Denote the solution by $(\nun, \xun)$:
+\begin{equation}
+\label{hats}
+(\nun, \xun) \equiv \argmax_{(n,x) \in \Real^2} \left[ \benefit(n
+  \efficacy(x)) - n \general(x) \right].
+\end{equation}
+
+We delayed introducing this benchmark until now because it only
+becomes relevant with sigmoidal $\efficacy$. It was irrelevant for
+concave $\efficacy$ because the constraint \eqref{population} on the
+total number of vaccinations always binds in that case. The relevant
+counterfactual we studied in the section on concave $\efficacy$ was
+the full-dose counterfactual, which fixes the number of vaccinations
+at some arbitrary $n$. The unconstrained counterfactual here allows
+$n$ to be chosen optimally.
+
+Considerable insight can be gained by examing the problem that is
+equivalent to \eqref{hats} but makes the change of variables $v = n
+\efficacy(x)$ and solves for the optimal number of effective
+vaccinations $\vun$ rather than the optimal number of vaccinations
+$\nun$. Equation \eqref{hats} becomes
+\begin{equation}
+\label{hats2}
+(\vun, \xun) = \argmax_{(v,x) \in \Real^2} \left[ \benefit(v) - v
+  \cdot \frac{\general(x)}{\efficacy(x)} \right].
+\end{equation}
+It is immediate that the unconstrained-optimal dose $\xun$ maximizes
+the ratio $\efficacy(x) / \general(x)$. This ratio is not guaranteed
+to have a unique maximizer (though it will in many applications). In
+case of ties, specify that $\xun$ is the largest of the
+maximizers:\footnote{When the counterfactual unconstrained problem is
+embedding in the maximization problem subject to constraints, relevant
+constraints will be relaxed by taking the largest value of $x$.}
+\begin{equation}
+\label{max_ratio}
+\xun = \max \left\{ \argmax_{x \geq 0} \left[
+  \frac{\efficacy(x)}{\general(x)} \right] \right\}.
+\end{equation}
+Taking the first-order condition with respect to $x$ and rearranging
+yields the necessary condition for $\xun$,
+\begin{equation}
+\label{equal_elasticities}
+\elasticity{\efficacy}(\xun) = \elasticity{\general}(\xun). 
+\end{equation}
+
+The first-order condition with respect to $v$ is $ B'(v) - \general(x)
+/ \efficacy(x) = 0$. Changing back to the original choice variables,
+$v = n \efficacy(x)$, substituting the optimal values $\nun$ and
+$\xun$, and solving for $\nun$ yields
+\begin{equation}
+\label{nhat}
+\nun = \frac{1}{\efficacy(\xun)} (B')^{-1} \left(
+\frac{\general(\xun)}{\efficacy(\xun)} \right).
+\end{equation}
+
+%------------------------------------------------------------------------------
+
+\SubSection{Nontrivial Policy}
+
+Armed with the solutions to those counterfactual maximization
+problems, we can proceed to the solution of the problem actually
+facing the planner.
+
+The necessary and sufficient condition for the optimal vaccine policy
+to be nontrivial needs to be slightly modified from the case of
+concave efficacy.\footnote{Note that condition
+\eqref{sigmoidal_no_corner} is equivalent to $\benefit'(0)
+\efficacy'(\xun) > \general'(\xun)$, since $\efficacy'(\xun) /
+\general'(\xun) = \efficacy(\xun) / \general(\xun)$ by
+\eqref{equal_elasticities}. Thus, condition
+\eqref{sigmoidal_no_corner} only differs from
+\eqref{concave_no_corner} in the substitution of $\xun$ for 0 in
+certain arguments.}
+\begin{lemma}
+\label{l:sigmoidal_nontrivial}
+\singlespace
+Suppose $\efficacy$ is sigmoidal. The planner's optimum is nontrivial
+if and only if
+\begin{equation}
+\label{sigmoidal_no_corner}
+\benefit'(0) \efficacy(\xun) > \general(\xun).
+\end{equation}
+\end{lemma}
+
+\noindent Condition \eqref{l:sigmoidal_nontrivial} leverages the
+planner's best prospect for generating positive surplus. The best
+prospect is not to vaccinate a tiny fraction of the population with a
+tiny dose as it was with concave efficacy but rather to vaccinate a
+tiny fraction of the population with dose $\xun$ maximizing the ratio
+of efficacy to generalized marginal costs. Smaller doses than $\xun$
+fall into the region where sigmoidal efficacy is so low that it is
+less likely to cover marginal generalized cost for an individual. If
+\eqref{l:sigmoidal_nontrivial} holds, the planner's best prospect
+generates positive surplus, and thus there is scope for a nontrivial
+vaccination program; otherwise, the planner prefers no vaccinations.
+
+%------------------------------------------------------------------------------
+
+\SubSection{Optimal Vaccine Program}
+
+The next proposition characterizes the planner's optimum under
+sigmoidal efficacy. As did the proof of the analogous proposition for
+concave efficacy, the proof of the next proposition derives the
+solution from the associated KKT conditions. The proof is more
+intricate because the planner's optimum involves a richer set of cases
+than before.
+
+The cases are delineated by the value of the benefit/cost ratio
+\begin{equation}
+\label{bcr}
+\ratio \equiv \frac{\benefit'(N\efficacy(\xun))
+  \efficacy(\xun)}{\general(\xun)}.
+\end{equation}
+To be precise, $\ratio$ equals the ratio of the marginal benefit to the
+marginal generalized cost of extending a campaign distributing doses
+of strength $\xun$ to the last person in the population. To understand why $\ratio$ matters, first consider the case in which $\ratio > 1$. In that case,
+it would be worthwhile to extend the campaign beyond the last person
+if supply constraints did not prevent it. Hence, either the supply
+constraint \eqref{capacity}, the population constraint
+\eqref{population}, or both must bind in an optimum.  
+On the other hand, if $\ratio \leq 1$, the planner has no interest in vaccinating more
+than the total population even absent a supply constraint, so
+\eqref{population} never binds, leaving \eqref{capacity} as the only
+relevant constraint. In this case, the
+unconstrained optimum $(\nun, \xun)$ provides a feasible solution to the
+planner's problem for sufficiently large supplies $Q$.
+\begin{proposition}
+\label{p:sigmoidal_optimum}
+\singlespace
+Suppose $\efficacy$ is sigmoidal and condition
+\eqref{sigmoidal_no_corner} holds.  The planner's optimum falls into
+one of two cases, depending on $\ratio$.
+\begin{itemize}
+
+\item When $\ratio > 1$,  $n^* = \min \{ N, Q / \xshort(Q) \}$ and
+\[
+x^* = \begin{cases}
+\xfull(N) & Q \geq N \xfull(N) \\
+Q/N & Q \in \left( N \xshort(Q), N \xfull(N) \right) \\ 
+\xshort(Q) & Q \leq N\xshort(Q).
+\end{cases}
+\]
+
+\item When $\ratio \leq 1$, $n^* = \min \{ \nun, Q / \xshort(Q) \}$ and $x^* = \max \{ \xun, \xshort(Q) \}$.
+\end{itemize}
+\end{proposition}
+
+The optimal vaccine program in Proposition~\ref{p:sigmoidal_optimum}
+can be visualized with the aid of
+Figure~\ref{fig:sigmoidal_optimum}. The upper panel shows the optimal
+policy when $\ratio > 1$ and the lower panel when $\ratio \leq 1$. In each
+panel, we can trace out how the optimal program changes as supply
+$Q$ tightens, as we did with
+Figure~\ref{fig:concave_optimum} for concave $\efficacy(x)$.
+
+\begin{figure}[tp]
+\begin{framed}
+\centering
+\includegraphics[viewport=50 160 515 475, width=.99\textwidth, clip]{sigmoidal_optimum.pdf}
+\vspace{1ex}
+\caption{{\bf Optimal Dosage for Sigmoidal Efficacy.} The panels show
+  the planner's optimal vaccine policy for various values of $\ratio$. In the interval closest to the origin, the optimal dosing strategy is labeled with an abbreviation for ``concentrated dose,'' emphasizing that dose strength can increase as $Q$ decreases in that interval.}
+\label{fig:sigmoidal_optimum}
+\end{framed}
+\end{figure}
+
+First, consider the upper panel. For sufficiently high supply $Q$, there
+is no stretching or rationing. The entire population is vaccinated
+with a full dose. As capacity is tightened and $Q$ falls below
+$N \xfull(N)$, the optimal dose is initially stretched so all individuals
+can still be vaccinated. 
+
+For sufficiently tight capacity, below threshold $\Qhat$, a
+new dosing policy emerges with a sigmoidal $\efficacy(x)$, with surprising properties. Instead of
+continuing to reduce the dosage so all individuals can be vaccinated, it is optimal to concentrate the dose to $\xshort(Q)$ and ration it among less than the total population. According to Proposition~\ref{p:short}, $\xshort(Q)$ weakly increases when $Q$ decreases. The figure illustrates the case in which $\xshort(Q)$ is strictly increasing in $Q$, so the curve turns up as $Q$ approaches the origin. We discussed why doses are optimally concentrated when supplies are severely short in Section~\ref{ss:Short}. To recap, when supplies are very short, the level of effective vaccinations $v$ is very low. Consequently, the marginal benefit $\benefit(v)$ is very high, leading the planner to put more weight on increasing the efficacy of individual doses and less weight on avoiding an increase in side effects from concentrated doses. 
+
+The figure labels the optimal strategy in the interval closest to the origin ``concentrating doses,'' emphasizing the comparative-static effect that the dose becomes weakly stronger the lower is $Q$ in this region. Optimal doses in this interval cannot be unambiguously characterized as ``fractional'' or ``strong.'' The figure illustrates the case in which doses in the interval closest to the origin are weaker than a full dose. However, examples can be constructed in which optimal doses are stronger than full doses for $Q$ close to 0.
+
+Next, consider the lower panel of Figure~\ref{fig:sigmoidal_optimum}, depicting the case of a low benefit/cost ratio, $\ratio \leq 1$. In this case, for sufficiently high supply $Q$, full doses are distributed, but to less than the entire population. It is optimal to leave some individuals unvaccinated not because of scarce supplies but because the marginal benefit of vaccinating them is less than the marginal generalized cost. The optimal vaccine policy unconstrained by supplies or population happens to involve an interior number of vaccinations. As capacity is tightened and $Q$ falls below
+$\nun \xun$, the supply constraint starts to bind, and the optimal policy switches to short-supply dosing $\xshort(Q)$. Decreasing $Q$ in this interval weakly increases the optimal dose. The figure illustrates the case in which decreasing $Q$ in this interval strictly increases the strength of the optimal dose, so that, as in the upper panel, the curve turns up as $Q$ approaches the origin.    
+
+Comparative statics are more complicated with sigmoidal than concave efficacy. Regarding the key comparative static---the change in optimal dose $x^*$ as supplies $Q$ shrink---we now have a variety of possibilities. In Figure~\ref{fig:sigmoidal_optimum}, we see a case in which a reduction in $Q$ first reduces then increases $x^*$. We see another case in which a reduction in $Q$ weakly increases $x^*$. In Figure~\ref{fig:sigmoidal_optimum_linear} below, we see two further cases, one in which a reduction in $Q$ reduces $x^*$ and one in which a $x^*$ is independent of $Q$.  
+
+Concrete conclusions about the comparative-static effect on $x^*$ of parameters besides $Q$ are difficult to obtain because, for reasons alluded to in Section~\ref{ss:Short}, the constituent subfunction $\xshort(Q)$ is not guaranteed to be well-behaved, including possibly having possible discontinuities in some parameters. Since $\xshort(Q)$ is independent of $N$, we can obtain clear comparative-statics effects for changes in that parameter, recorded in the next proposition.
+
+ \begin{proposition}
+\label{p:cs_sigmoidal}
+\singlespace
+Suppose $\efficacy$ is sigmoidal and the condition
+\eqref{sigmoidal_no_corner} holds. An increase in the population from $N'$ to $N'' > N'$ weakly reduces $x^*$. The reduction is strict if $N'$ satisfies $\rho(N') > 1$ and $N' < Q / \xshort(Q)$.   
+\end{proposition}
+
+%------------------------------------------------------------------------------
+
+\SubSection{Linear Side Effects}
+\label{ss:Linear}
+
+The optimal vaccine policy simplifies considerably in the special case in which side-effect harm is a linear function, i.e., $s(x) = \sigma x$ for some constant $\sigma \geq 0$. The generalized marginal cost function $g$ inherits this linearity: $\general(x) = (\sigma + p)x$. 
+
+One can show that when $g$ is linear, the short-supply dose $\xshort(Q)$ is a constant, independent of $Q$. It is not just any constant, moreover, but the point of unit elasticity: $\xshort(Q) = \xunit$. The argument is straightforward. One can show that when $g$ is linear, $\elasticity{\general}(x) = 1$ for all $x \geq 0$. It follows that the
+right-hand side of equation \eqref{foc_constrained}, which implicitly defines $\xshort(Q)$, equals 0, requiring
+$\elasticity{\efficacy}(\xshort(Q)) = 1$ to establish equality with
+the left-hand side, implying $\xshort(Q) = \xunit$ by
+Lemma~\ref{l:elasticity}. 
+
+Given that $\xshort(Q) = \xunit$, we can express the optimal vaccine policy more simply than in Proposition~\ref{p:sigmoidal_optimum}.\footnote{The simplification also relies on the fact, proved in the appendix, that $\xfull(N) > \xunit$ when $g$ is linear and $\ratio > 1$.}
+\begin{proposition}
+\label{p:sigmoidal_optimum_linear}
+\singlespace
+Suppose $\efficacy$ is sigmoidal, $s$ is linear, and condition
+\eqref{sigmoidal_no_corner} holds.  The planner's optimum falls into
+one of two cases, depending on $\ratio$.
+\begin{itemize}
+
+\item When $\ratio > 1$,  $n^* = \min \{ N, Q / \xunit \}$ and $x^* = \max \{ \xunit, \min \{ Q/N, \xfull(N) \} \}$.
+
+\item When $\ratio \leq 1$, $n^* = \min \{ \nun, Q / \xunit \}$ and $x^* = \xunit$.
+\end{itemize}
+\end{proposition}
+
+\begin{figure}[tp]
+\begin{framed}
+\centering
+\includegraphics[viewport=50 160 515 475, width=.99\textwidth, clip]{sigmoidal_optimum_linear.pdf}
+\vspace{1ex}
+\caption{{\bf Optimal Dosage for Sigmoidal Efficacy and Linear Side Effects}}
+\label{fig:sigmoidal_optimum_linear}
+\end{framed}
+\end{figure}
+
+The optimal vaccine program in the special case of linear side effects is shown in Figure~\ref{fig:sigmoidal_optimum_linear}. The main difference from Figure~\ref{fig:sigmoidal_optimum}  is that the upturn in $x^*$ previously observed in the interval of $Q$ closest to the origin is flattened out, a constant at the unit-elastic point $\xunit$. It is immediate from the formulas for $x^*$ in Proposition~\ref{p:sigmoidal_optimum_linear} that $x^*$ is weakly decreasing in $Q$ in all cases since it is the envelope of constituent functions that are either constant or decreasing in $Q$. 
+
+In the special case of linear side effects, therefore, we lose the surprising result that $x^*$ can be non-monotonic in $Q$. For $x^*$ to be non-monotonic in $Q$ requires both that efficacy is sigmoidal and that side-effect harm is strictly convex. When $s$ is linear, the planner can safely ignore the prospect of increasing marginal harm from side effects and focus exclusively on maximizing effective vaccinations from scarce supplies $Q$, which it accomplishes by setting $x^* = \xunit$. 
+
+%------------------------------------------------------------------------------
+
+\SubSection{Nesting Efficacy Shapes}
+\label{ss:Nesting}
+
+Concave and sigmoidal curves have distinct shapes and thus ostensibly
+apply to non-overlapping cases. However, the sigmoidal curve can be
+shown to approach the concave curve in an appropriately chosen
+limit. In that sense, sigmoidal efficacy is the general case
+encompassing both sets of results. 
+
+Consider the limit in which the point of inflection $\poi$ and
+unit-elastic dosage $\xunit$ shrink to the origin in
+Figure~\ref{fig:efficacy}. One can see that the sigmoidal curve in the
+right panel converges to the concave curve in the left panel. 
+The~optimal vaccine policy also converges, as the next proposition states.
+\begin{proposition}
+\label{p:nest}
+\singlespace
+Suppose $\efficacy$ is sigmoidal and condition
+\eqref{concave_no_corner} holds. In the limit $\xunit \downarrow 0$, the optimal vaccine policy converges to that found for concave efficacy in Proposition~\ref{p:concave_optimum}. In particular, $\lim_{\xunit \downarrow 0} n^* = N$ and $\lim_{\xunit \downarrow 0} x^* = \min \{ Q/N, \xfull(N) \}$.
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagebreak
+
+\section{Optimal dosing with heterogeneous and dynamic harm}
+
+The theoretical model we presented is homogeneous and static. In epidemics, both risk and vaccination are dynamic over time and vary across different subgroups of population. Therefore we analyse optimal dosing in a model with heterogeneous harm under a subjective choice of dose-response function, at different levels of dose supply constraints. 
+
+Our calibration is based on the initial efficacy results of the first effective COVID-19 vaccines and mass vaccination campaigns in late 2020 and throughout 2021, when all countries faced shortage of vaccines. We are interested in comparing three possible approaches to vaccination: giving ``standard'' doses (that is, the dose that was initially approved by the regulator), giving optimal doses not differentiated by risk, and varying the optimal dose as a function of harm. Note that in this section we will use the term ``standard'' rather than ``full'' to denote the amount of antigen used under the {\em status quo}; that standard dose does not have to be ``full'' in the sense of $\xfull$ defined in \eqref{xfull}.
+
+Previously, in \cite{wiecek2021}, we demonstrated that fractional dosing (that is, a set lower dose given to everyone) can have large benefits under a range of realistic scenarios stylised after early COVID epidemics. Here, we expand on that work in two major ways. First, we want to characterise the solutions for harm-specific optimal dose: when risk is heterogeneous, how heterogeneous is the dose? Second, we investigate magnitude of marginal benefits of moving beyond fixed optimal dose to an age-specific one. We also extend the implications beyond single epidemic peak to long-run dynamics, where over time individuals lose immunity and are re-vaccinated.
+
+
+
+
+\subsection{Calibration model}
+To solve for optimal dose under variety of scenarios, we use a slightly modified version of the model we previously presented in detail in \cite{wiecek_2021}. Here, we give only a short exposition. 
+
+We account for the dynamics of infection, mortality, and vaccination through a SEIRD-type compartmental epidemiological model, which is the workhorse of mathematical epidemiology.\footnote{We solve the model numerically using the \textit{odin} package in R \cite{odin}. While some simple compartmental models admit closed-form solutions, most realistic models, including ours, are too complex to solve analytically due to use of multiple compartments, age structure, and time-varying parameters. Therefore, we rely on numerical simulation to study the model's behavior and evaluate objective function for the dose optimisation problem.} 
+
+The model divides the population into several compartments: susceptible ($S$), exposed ($E$), infectious ($I$), recovered ($R$), dead ($D$), vaccinated and protected ($P$), and vaccinated but not protected ($N$). Individuals move between these compartments based on a set of differential equations. The population is further stratified into age cohorts, as we will detail below.
+
+The basic epidemic model is as follows. The rate at which susceptible individuals ($S + N$) become infected depends on their contact rates with infectious individuals, which are governed by a fixed contact matrix that specifies the frequency of interactions between different age groups. Once infected, individuals move from the exposed to the infectious compartment at a rate determined by the incubation period of the virus. They then either recover or die, with the proportion of deaths determined by age-specific infection fatality rates (IFRs). 
+
+The basic reproductive number, $\mathcal{R}_0$, represents the average number of new infections generated by a single infected individual in a fully susceptible population. We consider two scenarios: a fast-growing outbreak ($\mathcal{R}_0 = 2$; in absence of vaccine infections peak at about four months, with about 55\% of population infected) and a slower-growing case ($\mathcal{R}_0 = 1.1$, infections slowly rise over 6 months, about 15\% of population infected). For an epidemic with $\mathcal{R}_0 = 1.1$ it's relatively easy to stop exponential growth by making about one in ten individuals immune. The fast-growth case is appropriate for epidemics such as COVID-19 in 2020, whereas the slow case somewhat resembles seasonal influenza.
+
+Figure~\ref{fig:example_model} shows outputs for a few compartments of the model with $\mathcal{R}_0 = 2$, at different vaccination speeds, more on which below. The model parameters (contact rates, incubation and infectious periods, pre-existing immunity, IFRs etc.) are based on empirical evidence for COVID-19, but, given the large heterogeneity in all parameters across countries, the example should be thought of as mainly illustrative. 
+
+The initial cases we present assume no loss of immunity with time, which is appropriate for modeling a single epidemic outbreak, where the length of simulation is measured in months, not years. We revisit this assumption later in this section.
+
+
+
+\subsubsection{Vaccine supply and vaccination model}
+
+We consider vaccination of seven age groups: 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, and 80+. We assume that under-20s do not get vaccinated since vaccines were initially approved for adults only. We assume vaccine hesitancy of 20\% in each age group, i.e. 80\% of people are willing to get vaccinated.\footnote{Overall, 80\% was the upper limit of vaccination coverage during COVID, but note that we use the same coverage in all age groups. In 2021 it was typical to reach over 80\% in highest risk groups and much lower in general population, but this pattern differed considerably across countries.}
+
+% We contrast two vaccination problems: ``dynamic'', where vaccinations occur during the epidemic, and ``static'', where vaccinations occur before the epidemic. The dynamic case is intended as a more realistic one in the case of COVID, but we also include the static case for contrast and because it's more flexible. In both cases we use the same SEIRD model.
+
+In contrast to the theoretical model we presented earlier, vaccination in this model is ``dynamic'', occurring throughout the epidemic. In dynamic cases, the number of vaccinations is constant every day to reflect supply and logistical constraints. We express it in terms of the length of time needed to vaccinate the whole population (e.g. 1\% of adult population vaccinated every day means a 100-day campaign). Vaccination is reflected by moving individuals from the susceptible and recovered compartments to the $P$ compartment: each day we vaccinate a set proportion of total population $\delta$; a fraction $\phi(x)$ (efficacy) moves to protected compartment $P$ and remaining $1-\phi(x)$ move to compartment $N$.
+
+In other words, that means the vaccine is all-or-nothing, just as in the theoretical model we described earlier. That means it works equally well to prevent infection (also known as providing sterilising immunity), disease, and severe disease or death. There is no partial protection.\footnote{We empirically know that this was not the case for COVID vaccines, especially with emergence of variants: vaccines stayed effective at preventing deaths and hospitalisations, but less so at preventing transmission. However, there are three good reasons to make that assumption in this section: (1) it simplifies presentation and allows us to generalise from this example, (2) efficacy against infection was heavily dependent on viral variants (which we do not model), so there isn't a canonical value we could use (3) even with the assumption of sterilising immunity in place, the optimal solutions tend toward dosing that is proportional to mortality risk anyway.} 
+
+While the implementation varied from country to country, all vaccination campaigns aim to vaccinate higher risk individuals first. Therefore we use a strict prioritisation strategy commonly seen in the real world: 10-year age bands are vaccinated in descending order, each of them up to a point when there are no more willing individuals. 
+
+% In static cases, we consider several strategies for selecting age-group-specific dosage. This scheme is more flexible than in the dynamic cases: since we do not have to consider the order in which groups are vaccinated, prioritisation is meaningless. What matters is how the finite supply is divided among individuals.
+
+% This is done by changing the starting condition of the ODE system so that appropriate fraction of individuals are placed in $P$ and $N$ compartments. 
+
+We discuss the potential loss of (natural and vaccine-induced) immunity later, but ignore it in the initial examples.
+
+For comparative analysis below, we vary the quantity of vaccine available every day. This covers the heterogeneity in country-level supplies which occurred during the COVID pandemic. For example, Israel was able to vaccinate a large fraction of its population in a manner of weeks, while most countries were only able to secure a very small supply of vaccine, which was then reserved for priority groups. In many cases these supply constraints were not alleviated until 2022. We use a broad range of values for illustrative purposes.\footnote{Let us give more precise examples for pace of COVID vaccinations in 2021. Wealthy countries that were at the front of the queue initially (circa January 2021) had enough doses to vaccinate a small fraction of their populations. 
+
+As vaccination campaigns took off, these countries were vaccinating between 0.5\% and 1\% of their population. The UK and US fully vaccinated half of the population in the first half of 2021. Many EU countries started slowly and took several more months to reach that milestone. Typically the coverage of 60\%-80\% (depending on hesitancy) was reached within one year.
+
+In poorer countries that had to rely on COVAX and donations, there was initially no supply; once vaccines were available, the vaccination rates were very slow. India (with large domestic supply) took 13 months to reach 50\% fully vaccinated, but Nigeria vaccinated 2\% in 2021 and then 25\% in 2022. }
+
+
+\begin{figure}
+\centering
+\includegraphics{figures/example_model.pdf}
+\caption{Example of the SEIRD model used in this section. We show how several crucial quantities evolve over time. This is a model with $\mathcal{R}_0 = 2$ and no loss of immunity. Vaccination occurs throughout the epidemic; different colours denote different speeds of vaccination campaign. These graphs show all age groups together, but each age group is a discrete compartment, with different vaccination and infection dynamics; crucially, each age group only starts their vaccinations once there are no individuals left to vaccinate in older groups.}
+\label{fig:example_model}
+\end{figure}
+
+
+
+\subsubsection{Efficacy and safety of vaccine}
+
+In Section~\ref{s:Model} we made assumptions on $\phi(x)$, efficacy, $g(x)$, generalised cost, and $B(v)$, benefits from vaccination. Let us discuss their counterparts in this SEIRD model.
+
+For the dose-response function, we use $\phi(x) = Ax^\beta + Bx$ for $x \in [0,\infty)$. Our choice of $\phi(x)$ is twice differentiable and concave. We chose a subjective dose-response function as follows: first, assume that vaccine developers set full doses, $x^m=1$, to maximize expected net benefits such that $\phi'(1)=0$. At a full dose, we assumed the vaccine course would yield 95\% of maximum net benefits, $\phi(1)=0.95$, which is roughly level of efficacy that has been estimated for Moderna and Pfizer vaccines in December 2020; both vaccines have also reported no serious adverse events.
+
+Second, at a half dose, $x=0.5$, we assumed some loss of efficacy, down to 80\% of maximum net benefits, $\phi(0.5)=0.8$. We then assumed that minimal acceptable level of efficacy (according to WHO's target product profile for COVID-19 vaccines) occurs at one-fifth of the dose and set $\phi(0.2) = 0.5$. At $x=0$, we expected the vaccine to yield no net benefits, $\phi(0)=0$.  Together these imply parameters $A=-25.3$, $\beta = 1.04$, and $B=26.3$. 
+
+Our subjective choice of dose-response for this example is motivated by trial data and analysis we conducted in \cite{wiecek_pnas_2021}. Our analysis in that paper suggested that the subjective choice of dose-response curve for this example can be thought of as conservative with regards to loss of efficacy, but it's important to remember that this ignores emergence of viral variants.
+
+
+\subsubsection{Objective function, heterogeneity in infection and death risks}
+
+Unlike the theoretical model, we do not explicitly account for side effects in our optimisation problem. COVID-19 vaccines were shown to be safe and the social benefits far outweighed cost of the vaccine (Castillo et al 2021). Therefore we assume a decision maker who is simply seeking to minimise health harm, measured as the total number of deaths.
+
+While in Section~\ref{s:Model} we made assumptions about $B(v)$, in this problem the benefits of vaccinating population arise from the assumptions and parameterisation of the SEIRD model, in a way that is not easily tractable. We assume a discrete distribution of harm, which is driven by a combination of two risks; (1) a risk of infection: dynamic with time and age-specific, governed by the epidemiological model; (2) a risk death if infected (IFR): invariant over time, but also age-specific. Both IFR and infection risks vary in 10-year age bands. Older people have a much higher IFR than the younger adults (about 10\% in 80+ compared to 0.1\% in 30-40).\footnote{While IFR varied from country to country and also changed over time, these simple estimates capture the main feature we are interested in illustrating here, the steep increase with age. The patterns also look different in low-income countries compared to high-income countries, more on which below.} 
+
+A demonstration of an evolution of a fast-growing epidemic with vaccinations is given in Figure~\ref{fig:example_model}. We can clearly see that in this case a vaccination can have a decisive impact if enough people acquire vaccine-induced protection early enough in the outbreak.
+
+
+\subsection{Magnitude of benefits from optimising}
+
+For the rest of this section, we use non-linear optimisation solver to find optimal doses under a variety of scenarios.\footnote{We solve the differntial equations numerically using the \textit{odin} package in R. While some simple compartmental models admit closed-form solutions, most realistic models, including ours, are too complex to solve analytically, due to multiple compartments, age structure, and time-varying parameters. Therefore, we rely on numerical simulation to study the model's behavior and make quantitative predictions.} In the base case we vary the daily vaccination speed and cover two cases of slow and fast growth, $\mathcal{R}_0 = 1.1$ and $\mathcal{R}_0 = 2$.
+
+We can summarise the base case results either in terms of magnitude of mortality reductions or characterising the optimal dose. Figure~\ref{fig:obj_f} focuses on magnitude. This is the crucial point to start with, because it directly addresses the central question of whether dose-stretching has potential save many lives. We contrast three increasingly complex strategies of dosing:
+
+% REMOVE THE INTERMEDIATE APPROACH (ON OR OFF) AND ADD COMMENTARY ON IT AS A FOOTNOTE
+
+\begin{itemize}
+
+\item using standard doses (e.g., if supply is 10\% that means the top 10\% of the population with highest risk are vaccinated);
+\item age-invariant fractional doses: we optimise a single parameter $x$, the optimal fractional dose to vaccinate, used until the supply is exhausted;
+\item age-specific optimal dose: we find a 7-dimensional vector of optimal doses, $(x_{[20,30)}, \allowbreak x_{[30, 40)}, \ldots, x_{\geq 80})$, with each vector component varying freely.\footnote{To solve the non-linear optimisation problem, we use R package \textit{nloptr} with tolerance set to 1e-06. We find that this provides precise results with short run times.}
+
+\end{itemize}
+
+We assume that daily number of vaccinees rises in inverse proportion to dose: e.g. if using 0.5 dose for all, we can vaccinate twice as many people every day. In other words, we do not consider any logistical constraints.
+
+Figure~\ref{fig:obj_f} contrasts fast-growth and slow-growth epidemics (left and right panels). It shows proportion of deaths reduced relative to no vaccination (top and middle panels) and further improvements relative to the full dose strategy (bottom). Some of the values for the top panel are given in Table~\ref{table:obj_f}. 
+
+
+\begin{table}
+\centering
+\input{table.tex}
+\caption{Magnitude of benefits and optimal age-invariant fractional dose for varying levels of supply. For the middle three columns the values are numbers of deaths per 10,000 people and, in parentheses, percent of deaths averted comparable to no vaccination. Rightmost column is the optimal dose under the ``age-invariant'' case.}
+\label{table:obj_f}
+\end{table}
+
+Predictably, we find that vaccination with an effective vaccine can avert a large proportion of deaths (Figure~\ref{fig:obj_f}, upper panels, black line); because the full doses are highly effective, at a certain level of coverage herd immunity is reached and there are nearly no deaths. For a slowly growing epidemic with $\mathcal{R}_0 = 1.1$ that point is achieved quickly since there is no exponential growth once about 10\% of population is immune. 
+
+Secondly, in presence of supply constraints there are very large benefits from fractionation. The crucial question in pandemic is vaccinating high mortality risk population before their risk of infection rises exponentially. Therefore, if there is enough supply to vaccinate everyone quickly, using standard doses is enough to avert most of the burden. There is still some marginal benefit from fractionation, but it is relatively miniscule. If the vaccinations are very slow, standard doses work less well and fractionation is highly beneficial, reducing burden of mortality from 40 to 31 per 10,000 people under a hypothetical slow vaccination campaign. 
+
+Thirdly, while there are always some gains from making dosing age-specific compared to the ``uniform'' (age-invariant) fractional dose, the magnitude of further improvements is very small. As we can see in Table~\ref{table:obj_f}), in the most relevant cases of heavily constrained supply, the marginal gain from making dosing age-specific is 1-2\% of deaths averted compared to no vaccination. 
+
+\begin{figure}[p]
+\thispagestyle{empty}
+\label{fig:obj_f}
+\centering
+\includegraphics{figures/obj_f_solutions.pdf}
+\caption{Magnitude of benefits from vaccination and switching to different lower dose strategies.}
+\end{figure}
+
+
+
+
+\subsection{Optimal dose solutions}
+
+% AGE-INVARIANT SOLUTIONS RESEMBLE AGE-SPECIFIC SOLUTIONS
+
+%The slow-growth case can be thought of as one in which vaccination can prevent exponential growth. The fast-growing case is one where high coverage is needed to stop growth and where it may be best to focus on protecting high-risk individuals.
+
+To see how the improvements are achieved and why they are only meaningful when supply is severly limited, we now look at the age-optimal solutions themselves. These are shown in Figure~\ref{fig:age_solutions_both}.
+
+When vaccinating before the epidemic (upper panels), the optimal strategy tends to distribute limited supply of vaccine to groups with high mortality risk and ignore the ``transmitting groups'', i.e. most solution vectors rise with age. That is because of steep differences in mortality risk and the fact that small quantities of vaccine are not able to slow the spread, even assuming sterilising immunity.\footnote{For slowly-growing epidemics with very small supply, we find an exception to this, where working-age adults are targetted for vaccination ahead of the elderly. That is because for it's easier to blunt the exponential growth when $\mathcal{R}_0$ is smaller. As we saw in Figure~\ref{fig:obj_f} a large majority of deaths can be averted by using lower doses.} When supply is very low, the optimal solution is proportional to IFR, which we plot on the top left panel in black dotted line.
+
+For the dynamic problem (Figure~\ref{fig:age_solutions_both}, lower panels), the optimal dose also rises with age when supply is constrained. (We do not show optimal dose in groups with less than 10\% coverage before the peak of the epidemic.) For particularly fast vaccination campaigns (3-6 months) it assumes an U shape; an intuitive explanation is that this is done to extend protection to youngest adults in order to slow down transmission. 
+
+In general it seems the large differences in dosing in heterogeneous population (in both static and dynamic cases) occur in the case of severe supply constraints. When supply is really short, the optimal strategy is roughly proportional to mortality risk. When there is more supply, the optimal solutions tend to slope upwards with age, although often less steeply. However, in cases where the vaccine has impact on transmission (which we assumed here), there are no hard rules, because the protection against disease in those at highest risk of mortality has to be traded off against benefits of breaking transmission, which occurs in working age adults. Thus in realistic cases the vector of optimal dosing is not always monotonic with risk
+ 
+\clearpage
+
+\begin{figure}[p]
+\thispagestyle{empty}
+\centering
+\includegraphics{figures/age_solutions_both.pdf}
+\caption{Optimal doses as a function of age (coloured lines). For reference, we show IFR as a dotted black line in top-left panel.}
+\label{fig:age_solutions_both}
+\end{figure}
+
+\clearpage
+
+
+\subsection{Additonal considerations}
+
+
+\subsubsection{More homogeneous risk structure}
+
+Our base case model used IFR estimates from high-income countries, steeply rising with age. However, in low-income countries, while the overall age-averaged COVID mortality was often higher than in HICs (due to health care factors), various estimates suggested that the IFR as a function of age was flatter than in the HICs (Figure~\ref{fig:age_solutions_lic_hic}, right panel), e.g. due to fewer comorbidities.
+
+Therefore we repeated our analysis with flatter IFR structure, typical of LICs. Left panel of Figure~\ref{fig:age_solutions_lic_hic} compares the optimal solutions in LICs and HICs; for brevity we show only the static case with $\mathcal{R}_0=2$. 
+There are two main differences. First, large portion of supply is allocated to younger adults, presumably due to transmission-breaking properties. Consequentially, with flatter IFR vector the optimal doses are also comparably less variable with age than in the base case, at all levels of supply.
+
+\begin{figure}
+\centering
+\includegraphics{figures/age_solutions_lic_hic.pdf}
+\caption{Optimal doses as a function of age (coloured lines). For reference, we show IFR as a dotted black line in top-left panel.}
+\label{fig:age_solutions_lic_hic}
+\end{figure}
+
+Magnitude of benefits from moving from full to optimal fractional doses in this case follows a similar shape to Figure~\ref{fig:obj_f}, albeit the fraction of deaths averted from fractionation can be smaller by several percentage points than in the HIC case.
+
+
+
+
+\subsubsection{Multiple vaccinations and re-infections}
+
+{\tt WW: THIS MAY STILL GET REVISED; IT'S EVEN MORE COMPLICATED THAN I THOUGHT}
+
+In the base case we analysed a single epidemic outbreak, assuming no loss of immunity over time, either from vaccination or natural infection. However, for many infectious diseases immunity will wane quickly enough to lead to re-infections. For COVID and influenza this risk can be managed by booster vaccinations. 
+
+Fully capturing these dynamics in even a complex compartmental model is difficult, for three reasons. First, each vaccination and infection compounds the population heterogeneity by stimulation of immune memory, which renders the assumption of leaky vaccine even more simplistic. This in turn is further complicated by emergence of different strains and viral drift, leading to effectiveness of vaccines changing over time. Second, high-quality data required to inform all of these quantities are not easy to obtain and analysing them requires a lot of judgement calls. Third, and perhaps most importantly, beyond short-term efficacy and side effects, reducing the dose can also lead to shorter duration of protection. 
+  
+With that in mind, we provide only an illustrative modification of our base case model, adapted to multiple seasons. In the modified model, individuals in the recovered ($R$) and ``vaccinated, protected'' ($P$) compartments gradually lose their immunity and move back to the susceptible ($S$) compartment at a rate determined by the duration of immunity. We assume the average length of protection to be 365 days. The loss of immunity leads to a periodical resurgence of infections, as the pool of susceptible individuals grows, much as we observe for COVID or influenza. To counter this, we introduce recurring vaccinations, where individuals are re-vaccinated at regular intervals to maintain a high level of population immunity. We still use the simplistic dichotomy of non-leaky vaccine. This abstracts from some relevant real world issues, but does provide an interesting illustration of some issues.
+
+This dynamic is illustrated over four years in Figure~\ref{fig:example_multiseason}. The oscillatory behaviour of infection risk is instantly apparent in the left panel. If there is little vaccination happening (red line), the seasonal amplitude decreases over time. If an effective vaccine is available fast (blue line), the initial wave is prevented, but there is a perceptible ``rebound'' in subsequent waves. For an endemic disease, preventing infections during a single outbreak means that the pool of susceptible individuals is going to be larger during the next period of exponential growth. This problem can be eliminated (or exacerbated) by timing the vaccination accordingly, which is not done in this example (Figure~\ref{fig:example_multiseason}, right panel).
+
+Over longer term the total mortality in both scenarios is similar (Figure~\ref{fig:example_multiseason}, middle panel); that is, if we ignore time discounting the benefits of a policy that optimises for reduced short-term infections are net zero. We showed elsewhere using a more realistic model that this ``rebound'' effect has a sizeable impact on estimates of vaccine benefits in COVID epidemics (Więcek et al 2023).
+
+
+\begin{figure}
+\centering
+\includegraphics{figures/example_multiseason.pdf}
+\caption{Example of a differently parameterised SEIRD model with $\mathcal{R}_0 = 2$, which allows for loss of immunity and re-vaccination at the start of every year.}
+\label{fig:example_multiseason}
+\end{figure}
+
+
+
+
+\subsubsection{No sterilising immunity}
+
+{\tt WW: WILL ADD A SIMPLE ANALYSIS HERE}
+
+
+
+\subsection{Summary of the calibration}
+
+{\tt WW: THIS TO BE USED FOR OVERALL PAPER SUMMARY? UNIFNISHED}
+
+All of these numbers are intended to be illustrative. They use realistic ranges of parameters, but purposefully ignore some crucial features of COVID vaccines, such as development of variants, lower efficacy against transmission, behaviour change, and more. 
+
+Indeed, our main point is to show that in situations where optimal dosing appears promising (i.e. we know \textit{a priori} that there are small losses from fractionation), the optimal vaccination strategy and magnitude of benefits still vary widely depending on epidemic and population factors. 
+
+%However, we also show large benefits
+
+For example, with doses for only 5\% of population and in fast-growing epidemic, the deaths averted under age-optimal dosing are additional 10 percentage points higher than under age-invariant strategy (44\% compared to 34\%, see Table~\ref{table:obj_f}) and 17 p.p. higher than under no fractionation (27\%). 
+
+%incorporate
+
+The result implies that it is optimal to give partial doses to all groups when the vaccine supply constraint binds ($Q<1$). Higher doses are given to those more at risk, because a small marginal gain in net benefits is more valuable (in averting harm) for the elderly than large gains in net benefits for the young. 
+
+Moreover, some have suggested that lower doses, at least for some COVID-19 vaccines, may elicit more potent immunological response \cite{sanchez_limiting_2021}.
+
+\pagebreak
+
+\section{Real-world instances of dosing changes}
+
+Vaccine optimisation has been applied many times, as a means of addressing supply, cost and coverage issues. Case-by-case analysis of how these real-world examples relate to our model is a matter for a future paper, since it would also require a careful investigation of producers' incentives and regulatory frameworks in which these decisions are made. An attempt at summarising these factors, without any models, can be found in Więcek 2025. However, we can make a series of observations on how the real-world dosing changes relate to our model.
+
+Three most notable recent (last decade or so) cases of adjusting doses to address supply constraints are yellow fever vaccine, inactivated polio vaccine (IPV), and mpox vaccine. All of them have decreased dosage to one-fifth of the previously used dose, although in the IPV case this also required a switch to two shots from one. Another notable case of optimisation was a 2022 change from a 3-dose to a 1-dose regimen of human papillomavirus (HPV) vaccine, without changing the amount of antigen per dose. Crucially, in each case the recommendations made by public health bodies were justified on the grounds of no drop-off in efficacy.\footnote{To be more precise, these alternative vaccine regimens were shown in trials to likely have at least {\em non-inferior} immune response or efficacy. There were no considerable gains in safety from going to lower doses. Since in two cases the method of vaccination switched to intradermal injection, this led to many more ``local reactions'', e.g. swelling and redness around the point of injection.} 
+
+At first glance it may seem counter-intuitive that a five-fold decrease from ``full'' dose would produce similar efficacy. Shouldn't a much smaller dose lead to considerably smaller efficacy? One likely explanation hinges on two hypotheses. First, that the doses tested by manufacturers tend to sit on the ``plateau'' of the S-shaped efficacy curve. Second, that the steep increase in side effects occurs ``far into the plateau''. In other words, testing of vaccines mainly occurs in the range of doses where efficacy is close to maximum and safety increases very slowly. 
+
+Anecdotally, this explanation is matched by the practice common in vaccine development, where the strategy for setting the dose is the ``maximum tolerated dose'': that is, the dose at which side effects are still acceptable to patients. This is a rational strategy for a vaccine maker, who goes into large scale clinical trials with a lot of uncertainty about the shape of the dose-response curve, especially considering that the clinical trials are most of the research and development costs and {\em sine qua non} of realising any profits from the vaccine. If several candidate doses have safety profiles that are deemed sufficient for future approval, then choosing the highest dose offers the best chance of the trial succeeding.
+
+Consequently, this means that for some vaccines there may be a wide gap between ``full'' doses in the sense of the dose that is (initially) approved for the market and the more technical ``optimal'' full dose in the sense of $x^f$ parameter that we defined in the theory section of this paper. The non-inferiority of much smaller doses in the three examples we just mentioned definitely lends some credence to this hypothesis of large gaps.
+
+%Consequently, we can view the three examples of adjusting the dosing as attempts to move from the licensed dose to something closer to the ``theoretical'' full dose $x^f$.
+
+However, even if these decisions to decrease doses did not optimally trade off individual for public health benefits, they did involve some other trade-offs, which our model does not explicitly cover. First, higher uncertainty about efficacy, in particular uncertainty about how long the protection from the reduced dose vaccine may last. Second, ``programmatic factors'': for example, adjusting the method of injection to intradermal requires training of health care workers.
+
+(Can also reference Open Phil report I wrote since it has case studies for all three of these. Just need to put it online.)
+
+Our COVID-19-inspired optimal dosing calibration example is based on the problem facing decision makers in late 2020 and throughout 2021, when there was a strong rationale for spreading the doses among more people, given that, one, the supplies of effective vaccines were limited; two, the mortality rate from the strains of the virus that were circulating was high; three, vaccines were close to 100\% effective at preventing severe disease. In the end, there was no fractionation, although Moderna did cut the dosage of its booster by a half starting in autumn 2021. There was a movement towards extending gaps between the two shots (of vaccines manufactured by Pfizer, Moderna, and Astrazeneca), which allowed more people to be vaccinated early on.\footnote{Extending gaps from 3-4 weeks to 8-12 weeks also improved the immune response following the second dose, a mechanism which is common to many vaccines. This also makes any analysis of this problem complicated, even at an individual level, since it trades off prolonging period with lower protection from one dose with having an ultimately more potent response following the second shot.}  Within our nomenclature this change is also a type of dosing optimisation. However, it is not explicitly covered by the theoretical model, which is static. Other modelling, including retrospective counterfactual analyses, suggests that extending gaps had large benefits (Imai et al 2023).
+
+Finally, it is important to note that in the real world the adjustments are not always downwards. In the absence of supply constraints, there are known cases of increasing doses. Two notable ones are the cases when second shots were introduced for measles and varicella in the United States to prevent outbreaks.
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Conclusion}
+\label{s:Conclusion}
+
+\hl{COPIED FROM MERGED PAPER AS PLACEHOLDER. REVISE.}
+
+
+We find that the potential health benefits of ``stretching'' vaccine
+doses are large. First, speeding up vaccination with any given dosing
+regimen substantially reduces mortality and infections. Second, under
+a variety of conditions faster is better than more
+efficacious. Switching from a regime where 0.25\% of the population is
+vaccinated per day with a vaccine that is 95\% efficacious to an 80\%
+efficacious option reduces disease burden if the speed gain is as
+little as 20-40\%. Third, the First Dose First strategy always results
+in fewer deaths and infections than the status quo, and fewer
+infections if the efficacy of the first doses is high and the risk of
+infection is growing. Absolute health benefits are even higher in
+countries with a large fraction of elderly or other high-risk
+groups. Finally, we show that the option value of testing such
+policies is large.
+
+
+\end{spacing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\setcounter{equation}{0}
+\setcounter{section}{0}
+
+\renewcommand{\thesection}{\Alph{section}}
+\titleformat{\section}{\normalfont\Large\bfseries}{Appendix~\thesection}{1em}{}
+\renewcommand{\Section}[1]{\section{\hskip -1em.~~#1}} 
+
+\renewcommand{\theequation}{\thesection\arabic{equation}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Proofs}
+
+This appendix provides proofs of the propositions and lemmas stated in
+the text. Before proceeding, we state and prove a supplementary
+result as an additional lemma.
+
+%------------------------------------------------------------------------------
+
+\vspace{1ex}
+
+\begin{lemma}
+\label{l:f}
+\singlespace
+Consider a function $f$ that starts at the origin: i.e., $f(0) = 0$. If $f''(x) \leq 0$ for all $x > 0$, then
+$\elasticity{f}(x) \leq 1$ for all $x > 0$. If $f''(x) \geq 0$ for all
+$x > 0$, then $\elasticity{f}(x) \geq 1$ for all $x > 0$. The
+statements also hold when all weak inequalities are replaced by strict
+inequalities or are replaced by equalities.
+\end{lemma}
+
+\begin{proof}
+Suppose $f(0) = 0$. Suppose further that $f''(x) \leq 0$ for all $x >
+0$. Then
+\begin{equation}
+\label{a:concave}
+f'(x) \leq \frac{f(x) - f(x')}{x - x'}
+\end{equation}
+for $x, x' \geq 0$ such that $x' \neq x$. Substituting $x' = 0$ yields
+$f'(x) \leq f(x)/x$ for all $x > 0$, implying $\elasticity{f}(x) \leq
+1$ for all $x > 0$.
+
+The other statements of the lemma can be proved similarly, either by
+reversing the inequalities, substituting strict for weak inequalities,
+or substituting equalities for inequalities.
+\end{proof}
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Lemma~\ref{l:concave_nontrivial}}
+
+We need to prove both directions of the biconditional statement.
+
+\paragraph{$(\Longrightarrow)$} 
+
+Suppose the planner's solution is nontrivial. We will show
+\eqref{concave_no_corner} holds. The objective function \eqref{obj_g}
+can be rewritten
+\begin{align}
+\benefit(n\efficacy(x)) - n \general(x) & = \int_0^x \left[ \benefit'(n\efficacy(t))n \efficacy'(t) - n \general'(t) \right] dt  \label{a:ftc_concave1} \\
+& = n \int_0^x \left[ \benefit'(n\efficacy(t)) \efficacy'(t) - \general'(t) \right] dt, \label{a:ftc_concave2}
+\end{align} 
+where the first step follows from the Fundamental Theorem of Calculus
+and the second from factoring out $n$. Since a trivial program (with
+either $x = 0$ or $n = 0$) generates a value of 0 for
+\eqref{a:ftc_concave2}, a nontrivial solution $n^*, x^* > 0$ must
+generate a positive value:
+\begin{align}
+0 & < n^* \int_0^{x^*} \left[ \benefit'(n^*\efficacy(t)) \efficacy'(t) - \general'(t) \right] dt \label{a:ftc_concave3} \\
+& < n^* \int_0^{x^*} \left[ \benefit'(0) \efficacy'(0) - \general'(0) \right] dt \label{a:ftc_concave4} \\
+& = n^* x^* \left[ \benefit'(0) \efficacy'(0) - \general'(0) \right]. \label{a:ftc_concave5}
+\end{align}
+Inequality \eqref{a:ftc_concave4} follows from $\benefit''(v) < 0$,
+$\efficacy''(x) < 0$, and $-\general''(x) < 0$, implying that their
+first derivatives, $\benefit'(v)$, $\efficacy'(x)$, and
+$-\general'(x)$, respectively, reach their lowest values when their
+arguments are set to 0. Given \eqref{a:ftc_concave5} is positive and
+$n^*, x^* > 0$, the factor in square brackets must be positive,
+implying \eqref{concave_no_corner} holds.
+
+\paragraph{$(\Longleftarrow)$}
+
+Suppose \eqref{concave_no_corner} holds. We will construct a
+vaccination policy generating a positive value for the planner's
+objective \eqref{obj_g}. Since the optimal policy must do weakly
+better than our constructed policy, it must also generate a positive
+planner surplus and thus cannot be trivial.
+
+Consider a policy involving a small dosage $\ex > 0$ administered to a
+small number of people $\en > 0$. Substituting these values into
+\eqref{obj} yields planner surplus
+\begin{equation}
+\label{a:epsilons1}
+\benefit(\en \efficacy(\ex)) - \en \general(\ex) = \en \ex \left[
+  \frac{\benefit(\en \efficacy(\ex))}{\en \ex} -
+  \frac{\general(\ex)}{\ex} \right].
+\end{equation}
+We will study the sign of the bracketed factor. Applying
+l'H\^{o}pital's Rule, its limit for small $\en$ is
+\begin{equation}
+\label{a:lHopital1}
+\lim_{\en \downarrow 0} \left[ \frac{\benefit(\en \efficacy(\ex))}{\en
+    \ex} - \frac{\general(\ex)}{\ex} \right] = \frac{\benefit'(0)
+  \efficacy(\ex)}{\ex} - \frac{\general(\ex)}{\ex}.
+\end{equation}
+Applying l'H\^{o}pital's Rule again to the right-hand side of
+\eqref{a:lHopital1}, we see that the double limit of the bracketed
+factor in \eqref{a:epsilons1} is
+\begin{equation}
+\label{a:lHopital2}
+\lim_{\ex \downarrow 0} \left\{ \lim_{\en \downarrow 0} \left[
+  \frac{\benefit(\en \efficacy(\ex))}{\en \ex} - \frac{\general(\ex)}{\ex} \right] \right\}= \benefit'(0) \efficacy'(0) - \general'(0),
+\end{equation}
+which is positive by \eqref{concave_no_corner}. Since the limit of the
+bracketed factor in \eqref{a:epsilons1} is positive, by continuity it
+is positive for $\en$ and $\ex$ in neighborhoods above 0, implying the
+entire expression is positive for $\en$ and $\ex$ in these
+neighborhoods. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Lemma~\ref{l:xfull}}
+
+Suppose \eqref{concave_no_corner} holds. Consider any $n > 0$. It is
+straightforward to show that the objective function \eqref{obj_g} is
+concave in $x$ because $\benefit$ and $\efficacy$ are
+concave. Concavity of \eqref{obj_g} is a necessary and sufficient
+condition for the solution of first-order condition \eqref{xfull}, if
+it exists, to be the unique maximizer of \eqref{obj_g} given $n$ and
+thus the unique value of $\xfull(n)$.
+
+We next prove that a positive solution to \eqref{xfull}
+exists. Rearranging \eqref{xfull} and taking the limit at the low
+extreme,
+\begin{equation}
+\label{a:limit0}
+\lim_{x \downarrow 0} \left[ \benefit'(n\efficacy(x)) \efficacy'(x) -
+  \general'(x) \right] = \benefit'(0) \efficacy'(0) - \general'(0),
+\end{equation}
+which is positive by \eqref{concave_no_corner}. The limit at the
+opposite extreme is
+\begin{align}
+\lim_{x \uparrow \infty} \left[ \benefit'(n \efficacy(x)) \efficacy'(x) - \general'(x) \right] & \leq B'(0) \lim_{x \uparrow \infty} \efficacy'(x) - \lim_{x \uparrow \infty} \general'(x) \label{a:limit_infinity1} \\
+& < 0. \label{a:limit_infinity2} 
+\end{align}
+Condition \eqref{a:limit_infinity1} holds since, by the concavity of
+$\benefit$, $\benefit'(v) \leq \benefit'(0)$ for all $v \geq
+0$. Equation \eqref{a:limit_infinity2} follows from $\lim_{x \uparrow
+  \infty} \efficacy'(x) = 0$ and $\lim_{x \uparrow \infty}
+\general'(x) > 0$, which we will prove in turn.
+
+A sandwiching argument can be used to prove $\lim_{x \uparrow \infty}
+\efficacy'(x) = 0$.
+For all $x > 0$,
+\begin{equation}
+\label{a:sandy1}
+0 < \efficacy'(x) < \frac{\efficacy(x)}{x} \leq \frac{1}{x}.
+\end{equation}
+To see the second inequality, Lemma~\ref{l:f} implies
+$\elasticity{\efficacy} < 1$ since $\efficacy''(x) < 0$, implying
+$\efficacy'(x) < \efficacy(x) / x$. The last inequality in
+\eqref{a:sandy1} follows from $\efficacy \in [0,1]$. Taking limits,
+\begin{equation}
+\label{a:sandy_limit}
+0 \leq \lim_{x \uparrow \infty} \efficacy'(x) \leq \lim_{x \uparrow
+  \infty} \frac{\efficacy(x)}{x} \leq \lim_{x \uparrow \infty}
+\frac{1}{x} = 0,
+\end{equation}
+implying $\lim_{x \uparrow \infty} \efficacy'(x) = 0$. 
+
+To prove $\lim_{x \uparrow \infty} \general'(x) > 0$, note
+$\general'(x) \geq \general'(1)$ for all $x \geq 1$ since
+$\general''(x) \geq 0$ for all $x \geq 0$. Thus, $\lim_{x \uparrow
+  \infty} \general'(x) \geq \general'(1) > 0$, where the second
+inequality follows from $\general'(x) > 0$ for all $x > 0$.
+
+We have shown that \eqref{xfull} is positive for sufficiently low $x$
+and negative for sufficiently high $x$, so equals 0 for some interior
+$x$ by continuity. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:concave_optimum}}
+
+\paragraph{KKT Conditions.}
+
+Letting $\lambda$ and $\mu$ be the Lagrange multiplier on constraints
+\eqref{capacity} and \eqref{population}, respectively, the Lagrangian
+associated with the planner's maximization problem is
+\begin{equation}
+\label{a:Lagrangian}
+\lagrangian = B(n \efficacy(x)) - n\general(x) + \lambda(Q - nx)
++ \mu(N - n).
+\end{equation}
+
+We will maintain condition \eqref{concave_no_corner} throughout the
+proof. Then $n^*, x^* > 0$ by Lemma~\ref{l:concave_nontrivial}.  Thus,
+nonnegativity constraint \eqref{pos} can be omitted from the
+problem. The remaining KKT conditions are
+\begin{align}
+\frac{\partial \lagrangian}{\partial n} & = \benefit'(n^* \efficacy(x^*)) \efficacy(x^*) - \general(x^*) - \lambda^* x^* - \mu^* = 0 \label{a:partial_L_partial_n} \\
+\frac{\partial \lagrangian}{\partial x} & = \benefit'(n^* \efficacy(x^*)) n^* \efficacy'(x^*) - n^* \general'(x^*) - \lambda^* n^* = 0 \label{a:partial_L_partial_x} 
+\end{align}
+\begin{align}
+Q & \geq n^* x^*  \label{a:KKT_capacity} \\
+N & \geq n^*  \label{a:KKT_population}
+\end{align}
+\begin{align}
+\lambda^* & \geq 0 \label{a:lambda} \\
+\mu^* & \geq 0 \label{a:mu}
+\end{align}
+\begin{align}
+\lambda^* (Q - n^* x^*) & = 0 \label{a:cs_capacity} \\
+\mu^* (N - n^*) & = 0. \label{a:cs_population}
+\end{align}
+
+\paragraph{Necessity of KKT Conditions.}
+
+We will prove that a nontrivial solution to the planner's problem
+satisfies linear independence constraint qualification (LICQ).
+According to textbook results \citep[see, e.g.,][]{Solodov2011}, if
+the problem's constraints satisfy LICQ, the KKT conditions are
+necessary for an optimum.
+
+LICQ requires the gradients of all equality constraints and all active
+inequality constraints to be linearly independent. Note that the
+planner's problem involves only inequality constraints, not equality
+constraints. The nonnegativity constraint \eqref{pos} is inactive when
+$x^* > 0$ and $n^* > 0$. The remaining constraints \eqref{capacity}
+and \eqref{population} are the only potentially active ones in a
+nontrivial solution.
+
+The gradients of constraints \eqref{capacity} and \eqref{population}
+are linearly independent if and only if the Jacobian matrix containing
+these gradients,
+\begin{equation}
+\label{a:Jacobian}
+J = \begin{pmatrix}
+n & x \\
+0 & 1
+\end{pmatrix},
+\end{equation}
+has full rank. Its determinant is $|J| = n$, which is nonzero in a
+nontrivial optimum with $n^* > 0$, proving $J$ has full rank in that
+case.
+
+\paragraph{Derivation of Optimum.}
+
+Suppose for the sake of contradiction that $n^* < N$. Then $\mu^* = 0$
+by \eqref{a:cs_population}. Dividing \eqref{a:partial_L_partial_n} by
+$n^*$ and substituting $\mu^* = 0$, dividing
+\eqref{a:partial_L_partial_x} by $x^*$, and then equating the
+results---justified since both equal 0---yields
+\begin{equation}
+\label{a:two_sides1}
+\benefit'(n^* \efficacy(x^*)) \frac{\efficacy(x^*)}{x^*} - \frac{\general(x^*)}{x^*} = \benefit'(n^* \efficacy(x^*)) \efficacy'(x^*) - \general'(x^*).
+\end{equation}
+Rearranging \eqref{a:two_sides1} and expressing in terms of elasticities,
+\begin{equation}
+\label{a:two_sides2}
+\general(x^*) \left[ \elasticity{\general}(x^*) - 1 \right] = \efficacy(x^*) \benefit'(n^* \efficacy(x^*)) \left[
+  \elasticity{\efficacy}(x^*) - 1 \right].
+\end{equation}
+
+We can show that the left-hand side of \eqref{a:two_sides2} is
+nonnegative. To this end, note $\general(0) = 0$, $\general'(x) > 0$
+for all $x \geq 0$, and $x^* > 0$ implies $\general(x^*) >
+0$. Further, since $\general''(x) \geq 0$ for all $x > 0$,
+$\elasticity{\general}(x^*) \geq 1$ by Lemma~\ref{l:f}.  We can show
+that the right-hand side of \eqref{a:two_sides2} is negative.  To this
+end, note $\efficacy(x^*) > 0$ since $\efficacy(0) = 0$,
+$\efficacy'(x) > 0$ for all $x \geq 0$, and $x^* > 0$. Further, $n^* >
+0$, $\efficacy(x^*) > 0$, and $\benefit'(v) > 0$ for $v \geq 0$ imply
+$\benefit'(n^* \efficacy(x^*)) > 0$. By Lemma~\ref{l:f},
+$\elasticity{\efficacy}(x^*) < 1$ since $\efficacy(0) = 0$ and
+$\efficacy''(x) < 0$ for all $x \geq 0$. Thus, the right-hand side of
+\eqref{a:two_sides2} is strictly less than the right-hand side, a
+contradiction establishing $n^* = N$.
+
+If $x^* < Q/N$, then $\lambda^* = 0$ by
+\eqref{a:cs_capacity}. Substituting $n^* = N$ and $\lambda^* = 0$ into
+\eqref{a:partial_L_partial_x} and rearranging yields $\benefit'(N
+\efficacy(x^*))\efficacy'(x^*) = \general'(x^*)$, implying $x^* =
+\xfull(N)$ by \eqref{xfull}. Otherwise $x^* = Q/N$. This proves $n^* =
+N$ and $x^* = \min [\xfull(N), Q/N]$.  \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:cs_concave}}
+
+\paragraph{Increase in $N$.}
+
+According to Proposition~\ref{p:concave_optimum}, $x^*$ is the minimum of two constituent subfunctions, $Q/N$ and $\xfull(N)$. We will argue that both are strictly decreasing in $N$. It follows that their minimum is also strictly decreasing in $N$. It is obvious that $Q/N$ is strictly decreasing in $N$. It remains to show $\xfull(N)$ is strictly decreasing in $N$. 
+
+Equation \eqref{foc_full} implicitly determines $\xfull(N)$. Totally differentiating \eqref{foc_full} with respect to $N$ and rearranging yields
+\begin{equation}
+\label{a:csN1}
+\frac{\partial \xfull}{\partial N} = \frac{-\benefit'' \efficacy' \efficacy}{\benefit'' N (\efficacy')^2 + \benefit' \efficacy'' - g''},
+\end{equation}
+where the functions' arguments have been omitted for brevity. The numerator is positive and all terms in the denominator are negative, implying the entire expression is negative. 
+
+\paragraph{Decrease in $Q$.} 
+
+Both subfunctions constituting $x^*$ are weakly increasing in $Q$. More specifically, $Q/N$ is strictly increasing in $Q$ and $\xfull(N)$ is independent of $Q$. Hence, $x^*$ is weakly decreasing in $Q$. Starting from a value of $Q$ for which $Q / N \leq \xfull(N)$, we have $x^* = Q/N$, which strictly decreases if $Q$ decreases. 
+
+\paragraph{Increase in $\alpha$.} 
+
+We will argue that both subfunctions constituting $x^*$ are weakly decreasing in $\alpha$. Obviously, $Q/N$ is independent of $\alpha$, implying it is weakly decreasing. We will show $\xfull(N, \alpha)$ is strictly decreasing in $\alpha$. (We have modified the notation by adding argument $\alpha$ to $\xfull$ to emphasize its dependence on parameters besides $N$.) Totally differentiating  
+\eqref{foc_full} with respect to $\alpha$ and rearranging yields
+\begin{equation}
+\label{a:csN2}
+\frac{\partial \xfull}{\partial \alpha} = \frac{-\benefit'' \frac{\partial \efficacy}{\partial \alpha} \frac{\partial \efficacy}{\partial x} - \benefit' \frac{\partial^2 \efficacy}{\partial \alpha \partial x}}{\benefit'' \left( \frac{\partial \efficacy}{\partial x} \right)^2 + \benefit' \frac{\partial^2 \efficacy}{\partial x^2} - \frac{\partial^2 \general}{\partial x^2}}.
+\end{equation}
+All terms in the numerator are positive and in the denominator are negative, implying the entire expression is negative. 
+
+For all $\alpha$ such that $\xfull(N, \alpha) < Q/N$, we have $x^* = \xfull(N, \alpha)$, which is strictly decreasing in $\alpha$, as just shown.
+
+\paragraph{Increase in $\beta$.} The proof is similar to the preceding one. Here, will provide the additional analysis needed to verify that $\xfull(N, \beta)$ is strictly decreasing in $\beta$.  (We have modified the notation by adding argument $\beta$ to $\xfull$ to emphasize its dependence on a new parameter under consideration.) Totally differentiating  
+\eqref{foc_full} with respect to $\beta$ and rearranging yields
+\begin{equation}
+\label{a:csN3}
+\frac{\partial \xfull}{\partial \beta} = \frac{\frac{\partial^2 \general}{\partial \beta \partial x}}{\benefit'' \left( \frac{\partial \efficacy}{\partial x} \right)^2 + \benefit' \frac{\partial^2 \efficacy}{\partial x^2} -  \frac{\partial^2 \general}{\partial x^2}}.
+\end{equation}
+The numerator is positive, and all terms in the denominator are negative, implying the entire expression is negative. 
+
+For all $\beta$ such that $\xfull(N, \beta) < Q/N$, we have $x^* = \xfull(N, \beta)$, which is strictly decreasing in $\beta$, as just shown. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Lemma~\ref{l:elasticity}}
+
+By the definition stated in the text, a sigmoidal $\efficacy(x)$ has a
+unique, interior inflection point, $\poi > 0$, and is strictly convex
+below $\poi$ and strictly concave above $\poi$. Since it is further
+assumed that $\efficacy(x)$ is twice-continuously differentiable, we
+have $\efficacy''(x) > 0$ for all $x \in [0, \poi) \neq \emptyset$,
+  $\efficacy''(x) < 0$ for all $x > \poi$, and $\efficacy''(\poi) = 0$.
+
+Since $\efficacy''(x) > 0$ for all $x \in [0, \poi)$, we have that, for
+  all $x_1, x_2 \in [0, \poi)$ with $x_1 < x_2$,
+\begin{equation}
+\label{a:convex_below_xi}
+\efficacy(x_2) + (x_1 - x_2) \efficacy'(x_2) < \efficacy(x_1).
+\end{equation}
+Substituting $x_1 = 0$ and $x_2 = x$ into \eqref{a:convex_below_xi}
+yields $\efficacy(x) - x \efficacy'(x) < \efficacy(0) = 0$. Hence, $1
+< x \efficacy'(x) / \efficacy(x) = \elasticity{\efficacy}(x)$ for all
+$x \in (0,\poi)$.
+
+Recall the definition of average efficacy provided in the text: i.e., $\average(x) \equiv \efficacy(x) /
+x$. We can conclude from \eqref{a:sandy_limit} that $\lim_{x \uparrow \infty}
+\average(x) = 0$. Now $\average(\poi) > 0 = \lim_{x \uparrow \infty}
+\average(x)$ implies that there exists $x > \poi$ such that
+$\average'(x) < 0$. Differentiating,
+\begin{equation}
+\label{a:diff_a}
+\average'(x) = \frac{\efficacy(x)x - \efficacy(x)}{x^2} =
+\average(x) [\elasticity{\efficacy}(x) - 1].
+\end{equation}
+That $\average'(x) < 0$ for some $x > \poi$ implies
+$\elasticity{\efficacy}(x) < 1$ for some $x > \poi$. Since
+$\elasticity{\efficacy}(x) > 1$ for all $x \in (0,\poi)$, by
+continuity, there must $x > \poi$ such that $\elasticity{\efficacy}(x)
+= 1$. Let $\xunit > \poi$ denote the minimum $x$ for which
+$\elasticity{\efficacy}(x) = 1$.
+
+Suppose for the sake of contradiction that $\elasticity{\efficacy}(x')
+\leq 1$ for some $x' \in [0, \xunit)$. Then $\elasticity{\efficacy}(x) >
+  1$ for all $x \in [0, \poi)$ implies the existence of $x'' \in [\poi,
+      x') \subset [\poi, \xunit)$ such that $\elasticity{\efficacy}(x'') =
+        1$ by the continuity of $\elasticity{\efficacy}(x)$. This
+        contradicts the definition of $\xunit$ as the minimum of its
+        defining set, proving $\elasticity{\efficacy}(x) > 1$ for all
+        $x \in (0, \xunit)$.
+
+We have shown $\xunit > \poi$. Since $\efficacy''(x) < 0$ for all $x >
+\poi$, $\efficacy''(x) < 0$ for all $x \geq \xunit$, implying
+\begin{equation}
+\label{a:concavity_above_xu}
+\efficacy(x) + (\xunit - x) \efficacy'(x) > \efficacy(\xunit)
+\end{equation}
+for all $x > \xunit$. Then
+\begin{align}
+\efficacy(x) \left[ 1 - \elasticity{\efficacy}(x) \right] & = \efficacy(x) - x \efficacy'(x) \label{a:efficacy1} \\
+& \geq \efficacy(\xunit) - \xunit \efficacy'(x) \label{a:efficacy2} \\
+& > \efficacy(\xunit) - \xunit \efficacy'(\xunit) \label{a:efficacy3} \\
+& = \efficacy(\xunit) \left[ 1 - \elasticity{\efficacy}(\xunit) \right], \label{a:efficacy4}
+\end{align}
+where \eqref{a:efficacy1} follows from the definition of
+$\elasticity{\efficacy}(x)$, \eqref{a:efficacy2} from
+\eqref{a:concavity_above_xu}, \eqref{a:efficacy3} from $\efficacy''(x)
+> 0$ for $x > \poi$, and \eqref{a:efficacy4} again from the definition
+of $\elasticity{\efficacy}(x)$. Substituting
+$\elasticity{\efficacy}(\xunit) = 1$ into \eqref{a:efficacy4} implies
+$\elasticity{\efficacy}(x) < 1$. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Lemma~\ref{l:u}}
+
+Equation \eqref{a:diff_a} shows that $\average'(x) > 0$ if $\elasticity{\efficacy}(x) > 1$, $\average'(x) = 0$ if $\elasticity{\efficacy}(x) = 0$, and $\average'(x) < 0 $ if $\elasticity{\efficacy}(x) < 1$. Therefore, by Lemma~\ref{l:elasticity}, $\average(x)$ is quasiconcave in $x$ and reaches a maximum at $\xunit$. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:short}}
+
+Consider two levels of the supply of vaccine substance, $Q_1, Q_2 > 0$, with $Q_2 > Q_1$. Since $\xshort(Q_1)$ maximizes the right-hand side of \eqref{xconstrained} when $Q$ is set to $Q_1$---but $\xshort(Q_2)$ does not necessarily---we have
+\begin{equation}
+\label{a:revealed1}
+\benefit \left( \average(\xshort(Q_1)) Q_1 \right)- \frac{\general(\xshort(Q_1)) Q_1 }{\xshort(Q_1)} \geq \benefit \left( \average(\xshort(Q_2)) Q_1 \right) - 
+\frac{\general(\xshort(Q_2)) Q_1}{\xshort(Q_2)}.
+\end{equation}
+Similarly,
+\begin{equation}
+\label{a:revealed2}
+\benefit \left( \average(\xshort(Q_2)) Q_2 \right) - \frac{\general(\xshort(Q_2)) Q_2}{\xshort(Q_2)} \geq \benefit \left( \average(\xshort(Q_1)) Q_2 \right) - 
+\frac{\general(\xshort(Q_1)) Q_2}{\xshort(Q_1)}.
+\end{equation}
+Rearranging \eqref{a:revealed1} and \eqref{a:revealed2} and combining them,
+\begin{align}
+& \frac{1}{Q_2} \left[ \benefit \left( a(\xshort(Q_2)) Q_2 \right) - \benefit \left( a(\xshort(Q_2)) Q_2 \right) \right]  \label{a:revealed3} \\
+\geq & \frac{\general(\xshort(Q_2))}{\xshort(Q_2)} -  \frac{\general(\xshort(Q_1))}{\xshort(Q_1)} \label{a:revealed4} \\
+\geq & \frac{1}{Q_1} \left[ \benefit \left( a(\xshort(Q_2)) Q_1 \right) - \benefit \left( a(\xshort(Q_1)) Q_1 \right) \right].  \label{a:revealed5} 
+\end{align}
+Subtracting \eqref{a:revealed5} from \eqref{a:revealed3} yields
+\begin{align}
+0 & \leq \frac{1}{Q_2} \left[ \benefit \left( a(\xshort(Q_2)) Q_2 \right) - \benefit \left( a(\xshort(Q_2)) Q_2 \right) \right] \notag \\
+ & \hspace{5em} - \frac{1}{Q_1} \left[ \benefit \left( a(\xshort(Q_2)) Q_1 \right) - \benefit \left( a(\xshort(Q_1)) Q_1 \right) \right] \label{a:revealed6} \\
+& = \int_{\average(\xshort(Q_1))}^{\average(\xshort(Q_1))} \benefit'(t Q_2) dt - \int_{\average(\xshort(Q_1))}^{\average(\xshort(Q_1))} \benefit'(t Q_1) dt \label{a:revealed7} \\
+& = \int_{Q_1}^{Q_2} \int_{\average(\xshort(Q_1))}^{\average(\xshort(Q_1))} t \benefit''(tQ) \, dt \, dQ, \label{a:revealed8}
+\end{align}
+where \eqref{a:revealed7} and \eqref{a:revealed8} follow from the Fundamental Theorem of Calculus. Since the double integral in \eqref{a:revealed8} is nonnegative, its integrand is negative, and the first integral's upper limit exceeds its lower limit, we have that the second integral's lower limit must weakly exceed its upper limit: $\average(\xshort(Q_1)) \geq \average(\xshort(Q_2))$. 
+
+The next step is to show $\xshort(Q) \leq \xunit$ for all $Q > 0$. Since $\general''(x) \leq 0$ for all $x > 0$, $\elasticity{\general}(x) \geq 1$ for all $x > 0$ by Lemma~\ref{l:f}. Therefore, the right-hand side of \eqref{foc_constrained} is nonnegative since $g' > 0$. The left-hand side must also be nonnegative for the equation to hold. For the left-hand side of \eqref{foc_constrained} to be nonnegative, since $\benefit', \efficacy' > 0$, $\elasticity{\efficacy}(\xshort(Q)) \geq 1$, implying $\xshort(Q) \leq \xunit$ by Lemma~\ref{l:elasticity}.
+
+By Lemma~\ref{l:u}, $\average(x)$ is weakly increasing in $x$ for $x \leq \xunit$. We just showed $\xshort(Q_1), \xshort(Q_2) \leq \xunit$. Thus, $\average(x)$ is weakly increasing in the interval containing $\xshort(Q_1)$ and $\xshort(Q_2)$. Then $\average(\xshort(Q_1)) \geq \average(\xshort(Q_2))$ implies $\xshort(Q_1) \geq \xshort(Q_2)$. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Lemma~\ref{l:sigmoidal_nontrivial}}
+
+While this proof is similar to that of
+Lemma~\ref{l:concave_nontrivial}, there are enough differences to
+merit providing the full details here. As in the proof of
+Lemma~\ref{l:concave_nontrivial}, both directions of the biconditional
+statement need to be proved.
+
+\paragraph{$(\Longrightarrow)$}
+
+Suppose the planner's solution is nontrivial.  We will show
+\eqref{sigmoidal_no_corner} holds. A nontrivial solution must generate
+a positive value for the planner's objective \eqref{obj_g}. Thus,
+\begin{align}
+0 & < \benefit(n^*\efficacy(x^*)) - n^* \general(x^*) \label{a:ftc_sigmoidal1} \\
+& = \int_0^{n^*} \left[ \benefit'(t\efficacy(x^*)) \efficacy(x^*) - \general(x^*) \right] dt \label{a:ftc_sigmoidal2} \\
+& < \int_0^{n^*} \left[ \benefit'(0) \efficacy(x^*) - \general(x^*) \right] dt \label{a:ftc_sigmoidal3} \\
+& = \general(x^*) \int_0^{n^*} \left[ \benefit'(0) \frac{\efficacy(x^*)}{\general(x^*)} - 1 \right] dt \label{a:ftc_sigmoidal4} \\
+& \leq \general(x^*) \int_0^{n^*} \left[ \benefit'(0) \frac{\efficacy(\xun)}{\general(\xun)} - 1 \right] dt \label{a:ftc_sigmoidal5} \\
+& = \frac{\general(x^*)}{\general(\xun)} \int_0^{n^*} \left[ \benefit'(0) \efficacy(\xun) - \general(\xun) \right] dt. \label{a:ftc_sigmoidal6} 
+\end{align} 
+Equation \eqref{a:ftc_sigmoidal2} follows from the Fundamental Theorem of Calculus. 
+Inequality \eqref{a:ftc_sigmoidal4} follows from $\benefit''(v) < 0$,
+implying $\benefit'(v)$ is maximized over $v \geq 0$ by $v =
+0$. Equation \eqref{a:ftc_sigmoidal4} follows from factoring out $\general(x^*)$. Inequality \eqref{a:ftc_sigmoidal5} follows from \eqref{max_ratio}, which defines $\xun$ as the maximizer of the ratio $\efficacy(x) / \general(x)$. Equation \eqref{a:ftc_sigmoidal6} follows from factoring out $1/\general(\xun)$. 
+Since the integral in \eqref{a:ftc_sigmoidal6} is positive, its
+integrand must be positive, implying \eqref{sigmoidal_no_corner}
+holds.
+
+\paragraph{$(\Longleftarrow)$}
+
+Suppose \eqref{sigmoidal_no_corner} holds. We will construct a
+vaccination policy generating a positive value for the planner's
+objective \eqref{obj_g}. As argued in the proof of
+Lemma~\ref{l:concave_nontrivial}, such a construction is sufficient
+for establishing that the planner's problem is nontrivial.
+
+Consider a policy vaccinating a small number of people $\en > 0$ with
+a dose of potency $\xun$. Substituting these values into \eqref{obj_g}
+yields planner surplus
+\begin{equation}
+\label{a:epsilons3}
+\benefit(\en \efficacy(\xun)) - \en \general(\xun) = \en \general(\xun) \left[
+  \frac{\benefit(\en \efficacy(\xun))}{\en \general(\xun)} - 1 \right].
+\end{equation}
+By l'H\^{o}pital's Rule, the limit of the bracketed factor for small $\en$ is
+\begin{equation}
+\label{a:lHopital3}
+\lim_{\en \downarrow 0} \left[ \frac{\benefit(\en \efficacy(\xun))}{\en \general(\xun)} - 1 \right] = \benefit'(0) \frac{\efficacy(\xun)}{\general(\xun)} - 1.  
+\end{equation}
+Since the limit of the bracketed factor in \eqref{a:epsilons3} is
+positive, by continuity it is positive for $\en$ in a neighborhood
+above 0, implying the entire expression in \eqref{a:epsilons3} is
+positive for $\en$ in this neighborhood. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:sigmoidal_optimum}}
+
+\paragraph{Preliminaries.}
+
+Maintain condition \eqref{sigmoidal_no_corner} throughout the
+proof. Then the planner's optimum is nontrivial by
+Lemma~\ref{l:sigmoidal_nontrivial}.  The KKT conditions
+\eqref{a:partial_L_partial_x}--\eqref{a:cs_population} from the proof
+of Proposition~\ref{p:concave_optimum} for concave $\efficacy(x)$
+carry over for a sigmoidal $\efficacy(x)$ here. The proof that those
+conditions are necessary for a nontrivial optimum also carries over.
+
+\paragraph{Case $\ratio > 1$.}
+
+With those preliminaries in hand, we move to analyzing the cases in
+the statement of the proposition. First, suppose $\ratio > 1$.  We have
+\begin{equation}
+\label{a:R}
+\frac{\benefit'(N \efficacy(\xun)) \efficacy(\xun)}{\general(\xun)} >
+1 = \frac{\benefit'(\nun \efficacy(\xun))
+  \efficacy(\xun)}{\general(\xun)},
+\end{equation}
+where the first step follows from \eqref{bcr} and the second from
+\eqref{nhat}. Since $\benefit''(v) < 0$, \eqref{a:R} implies
+\begin{equation}
+\label{a:nugN}
+\nun > N.
+\end{equation} 
+
+Suppose for the sake of contradiction that neither constraint
+\eqref{capacity} or \eqref{population} binds. Then the pair $(\nun,
+\xun)$ is a planner optimum. But $n^* = n^u > N$ by \eqref{a:nugN},
+violating constraint \eqref{capacity}. This contradiction proves that
+either \eqref{capacity} or \eqref{population} must bind.
+
+For $Q$ sufficiently high, \eqref{capacity} does not bind. Thus, the
+other constraint, \eqref{population}, must bind, implying $n^* =
+N$. The problem reduces to maximizing objective \eqref{obj_g} ignoring
+constraint \eqref{capacity} fixing $n$ at a certain value (here $n =
+N$). This is exactly the problem solved in the full-dose
+counterfactual in Section~\ref{ss:Full}, implying $x^* =
+\xfull(N)$. The solution $(n^*, x^*) = (N, \xfull(N))$ obtains as long
+as it satisfies \eqref{capacity}, requiring $N \xfull(N) = n^* x^*
+\leq Q$.
+
+If $N \xfull(N) > Q$, then the solution ignoring \eqref{capacity}
+violates \eqref{capacity}, implying \eqref{capacity} binds. The
+resulting solution is determined by whether \eqref{population} also
+binds. If \eqref{population} does not bind, the problem reduces to
+maximizing objective \eqref{obj_g} ignoring constraint
+\eqref{population}, fully utilizing supply $Q$. This is exactly the
+problem solved in the short-supply counterfactual in
+Section~\ref{ss:Short}, implying $x^* = \xshort(Q)$. Since
+\eqref{capacity} binds, $n^* x^* = Q$, implying $n^* = Q / x^* = Q /
+\xshort(Q)$. This solution obtains as long as it satisfies
+\eqref{population}, requiring $n^* = Q / \xshort(Q) \leq N$.
+
+If $Q / \xshort(Q) > N$, then both \eqref{capacity} and
+\eqref{population} bind. We are left with a system of two equations in
+two unknowns: $n^* = N$ and $n^* x^* = Q$, implying $x^* = Q / n^* =
+Q/N$.
+
+\paragraph{Case $\ratio \leq 1$.}
+
+Next, suppose $\ratio \leq 1$. Repeating \eqref{a:R} reversing the inequality yields
+\begin{equation}
+\label{a:nulN}
+n^u \leq N.
+\end{equation} 
+The unconstrained solution $(\nun, \xun)$ thus satisfies constraint \eqref{population} on the number vaccinated. It is the optimum if it also satisfies supply constraint \eqref{capacity}, requiring $\nun \xun \leq Q$. 
+
+Suppose for the remainder of the proof that 
+\begin{equation}
+\label{a:remaining}
+\nun \xun > Q.
+\end{equation}
+Then \eqref{capacity} binds. We assert for now that \eqref{population} does not bind. Then, the remaining problem is the same
+as the short-supply counterfactual in
+Section~\ref{ss:Short}, implying $x^* = \xshort(Q)$ and $n^* = Q/
+\xshort(Q)$. 
+
+It remains to verify the assertion that the solution $n^* = Q / \xshort(Q)$ does not violate \eqref{population}. As a preliminary step, we will show that $\xun$ solves the short-supply counterfactual problem when $Q = \nun \xun$. We have
+\begin{align}
+\benefit( \nun \efficacy(\xun)) - \nun \general(\xun) & \geq \benefit \left( \frac{\nun \xun}{\xshort(\nun \xun)} \efficacy(\xshort(\nun \xun)) \right) - \frac{\nun \xun}{\xshort(\nun \xun)} \general(\xshort(\nun \xun)) \label{a:same1} \\
+& = \benefit ( \average(\xshort(\nun \xun)) \nun \xun) - \frac{ \general(\xshort(\nun \xun)) \nun \xun}{\xshort(\nun \xun)} \label{a:same2} \\
+& \geq \benefit(\average(\xun) \nun \xun) - \frac{\general(\xun)}{\xun} \label{a:same3} \\
+& =  \benefit( \nun \efficacy(\xun)) - \nun \general(\xun). \label{a:same4}
+\end{align}
+Inequality \eqref{a:same1} follows since $(\nun, \xun)$ produces a weakly higher value for the unconstrained counterfactual on the right-hand side of \eqref{hats} than any other pair, including $n = \nun \xun / \xshort(\nun \xun)$ and $x = \xshort(\nun \xun))$. Inequality \eqref{a:same3} follows since $\xshort(\nun \xun)$ produces a weakly higher value for the short-supply counterfactual on the right-hand side of \eqref{xconstrained} than any other proposed solution, including $\xun$. Equations \eqref{a:same2} and \eqref{a:same4} are rearrangements. The expressions sandwiched in \eqref{a:same1}--\eqref{a:same4} thus must all be equal. Hence $\xun$ is a solution to the short-supply counterfactual. Since $\xshort(\nun \xun)$ is the largest such solution by definition, we have $\xshort(\nun \xun) \geq \xun$. 
+
+With those preliminaries in hand, we proceed to establish a series of inequalities: $Q / \xshort(Q) \leq \nun \xun / \xshort(Q) \leq \nun \xun / \xshort(\nun \xun) \leq \nun \xun / \xun = \nun \leq N$. The first step follows from \eqref{a:remaining}. The second step follows from $\xshort(Q)$ is nonincreasing in $Q$ by Proposition~\ref{p:short}, so $\xshort(Q) \geq \xshort(\nun \xun)$ by \eqref{a:remaining}. The third step follows from $\xshort(\nun \xun) \geq \xun$ as shown in the previous paragraph. The fourth step is simple division. The last step follows from \eqref{a:nulN}. This verifies $n^* = Q / \xshort(Q) \leq N$, and thus the proposed solution satisfies constraint \eqref{population}.  \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:sigmoidal_optimum_linear}}
+
+The proposition is a corollary of Proposition~\ref{p:sigmoidal_optimum}. We will show that the formulas for $(n^*, x^*)$ in Proposition~\ref{p:sigmoidal_optimum} reduce to those in Proposition~\ref{p:sigmoidal_optimum_linear} when $g$ is linear, which we maintain throughout the proof. 
+
+We first prove that $\elasticity{\general}(x) = 1$ for all $x \geq 0$. When $\general$ is linear, $\general''(x) = 0$, implying $\general''(x) \geq 0$ and $\general''(x) \leq 0$, implying $1 \leq \elasticity{\general}(x) \leq 1$ by Lemma~\ref{l:f}. Thus, $\elasticity{\general}(x) = 1$. 
+
+Next, we prove $\xun = \xunit$. We have $\elasticity{\efficacy}(\xun) = \elasticity{\general}(\xun) = 1$, where the first equality follows from \eqref{equal_elasticities} and the second from the result in the previous paragraph. According to Lemma~\ref{l:elasticity}, $\xunit$ is the unique point satisfying $\elasticity{\efficacy}(\xunit) = 1$, implying $\xun = \xunit$. 
+
+It was argued in the text preceding the proposition that $\elasticity{\general}(x) = 1$ for all $x \geq 0$ implies $\xshort(Q) = \xunit$. 
+
+Next, we prove $\xfull(N) \geq \xunit$ when $\ratio > 1$. The proof of Proposition~\ref{p:sigmoidal_optimum} showed that when $\ratio > 1$ and $x^* = \xfull(N)$, the complete solution is $(n^*, x^*) = (N, \xfull(N))$. This solution must satisfy KKT condition \eqref{a:partial_L_partial_n}, which upon rearranging implies
+\begin{equation}
+\label{a:partial_L_partial_n_rearranged}
+\benefit'(N \efficacy(\xfull(N))) = \frac{\general(\xfull(N)) + \lambda^* \xfull(N) + \mu^*}{\efficacy(\xfull(N))}.
+\end{equation}
+This solution must also satisfy \eqref{a:partial_L_partial_x}, which upon rearranging and multiplying numerator and denominator by $\xfull(N)$ yields 
+\begin{equation}
+\label{a:partial_L_partial_x_rearranged}
+\benefit'(N \efficacy(\xfull(N))) = \frac{\general'(\xfull(N))\xfull(N) + \lambda^* \xfull(N)}{\efficacy'(\xfull(N)) \xfull(N)}.
+\end{equation}
+Equating the right-hand sides of \eqref{a:partial_L_partial_n_rearranged} and  \eqref{a:partial_L_partial_n_rearranged},
+\begin{align}
+\frac{\general'(\xfull(N))\xfull(N) + \lambda^* \xfull(N)}{\efficacy'(\xfull(N)) \xfull(N)} & = \frac{\general(\xfull(N)) + \lambda^* \xfull(N) + \mu^*}{\efficacy(\xfull(N))} \label{a:equate1} \\
+& \geq \frac{\general(\xfull(N)) + \lambda^* \xfull(N)}{\efficacy(\xfull(N))} \label{a:equate2}
+\end{align}
+since $\mu^* \geq 0$ by \eqref{a:mu}. Cross multiplying,
+\begin{align} 
+\frac{\general'(\xfull(N))\xfull(N) + \lambda^* \xfull(N)}{\general(\xfull(N)) + \lambda^* \xfull(N)} & \geq \frac{\efficacy'(\xfull(N)) \xfull(N)}{\efficacy(\xfull(N))}  \label{a:equate3} \\
+& = \elasticity{\efficacy}(\xfull(N)). \label{a:equate4}
+\end{align}
+Since $\elasticity{\general}(x) = 1$ for all $x \geq 0$, we have $\general'(x) x = \general(x)$ for all $x \geq 0$. In particular, $\general'(\xfull(N)) \xfull(N) = \general(\xfull(N))$. Substituting this equality into \eqref{a:equate3}--\eqref{a:equate4}  yields $1 \geq \elasticity{\efficacy}(\xfull(N))$, implying $ \xfull(N) \geq \xunit$ by Lemma~\ref{l:elasticity}.
+
+We verify that substituting $\xun = \xshort(Q) = \xunit$ into the formulas in Proposition~\ref{p:sigmoidal_optimum} yield those in Proposition~\ref{p:sigmoidal_optimum_linear}. Consider the formulas for $n^*$ and $x^*$ when $\ratio > 1$. Substituting $\xshort(Q) = \xunit$ into the formula for $n^*$ in Proposition~\ref{p:sigmoidal_optimum} yields $n^* = \min \{ N, Q / \xunit \}$, as stated in Proposition~\ref{p:sigmoidal_optimum_linear}. Substituting $\xshort(Q) = \xunit$ into the formula for $x^*$ in  Proposition~\ref{p:sigmoidal_optimum} yields
+\begin{equation}
+\label{a:cases}
+x^* = \begin{cases}
+\xfull(N) & Q \geq N \xfull(N) \\
+Q/N & Q \in \left( N \xunit, N \xfull(N) \right) \\ 
+\xunit & Q \leq N\xunit
+\end{cases}. 
+\end{equation}
+To verify that \eqref{a:cases} equals the formula for $x^*$ given in Proposition~\ref{p:sigmoidal_optimum_linear}, namely
+\begin{equation}
+\label{a:linear_same}
+x^*  = \max \{ \xunit, \min \{ Q/N, \xfull(N) \} \},
+\end{equation}
+we will show they generate the same value in all cases. There are three relevant cases to consider. If $\xunit \leq Q/N \leq \xfull(N)$, then both \eqref{a:cases} and \eqref{a:linear_same} yield  $x^* = Q/N$. If $\xunit \leq \xfull(N) \leq Q/N$, then both \eqref{a:cases} and \eqref{a:linear_same} yield  $x^* = \xfull(N)$. If $Q/N \leq \xunit \leq  \xfull(N)$, then both \eqref{a:cases} and \eqref{a:linear_same} yield  $x^* = \xunit$. Those are the only three relevant cases since, as shown above, $\xfull(N) \geq \xunit$ when $\general$ is linear. 
+
+Finally, consider the formulas for $n^*$ and $x^*$ when $\ratio \leq 1$. 
+Substituting $\xshort(Q) = \xunit$ into the formula for $n^*$ in Proposition~\ref{p:sigmoidal_optimum} yields $n^* = \min \{ \nun, Q / \xunit \}$, as stated in Proposition~\ref{p:sigmoidal_optimum_linear}. Substituting $\xshort(Q) = \xun = \xunit$ into the formula for $x^*$ in Proposition~\ref{p:sigmoidal_optimum} yields $x^* = \max \{ \xunit, \xunit \} = \xunit$, as stated in Proposition~\ref{p:sigmoidal_optimum_linear}. \qed
+
+%------------------------------------------------------------------------------
+
+\subsection*{Proof of Proposition~\ref{p:nest}}
+
+We first prove $\lim_{\xunit \downarrow 0} \xshort(Q) = 0$ via a sandwiching argument. Now $0 \leq \xshort(Q) \leq \xunit$, where the second inequality was established in the proof of Proposition~\ref{p:short}. Taking limits, $0 \leq \lim_{\xunit \downarrow 0} \xshort(Q) \leq \lim_{\xunit \downarrow 0} \xunit = 0$, implying $\lim_{\xunit \downarrow 0} \xshort(Q) = 0$.  
+
+Similar arguments can be used to prove $\lim_{\xunit \downarrow 0} \xun = 0$. By Lemma~\ref{l:elasticity},  $\elasticity{\efficacy}(x) < 1$ for all $x > \xunit$. By Lemma~\ref{l:f}, $\elasticity{\general}(x) \geq 1$ for all $x > 0$. Therefore, equation \eqref{equal_elasticities} cannot be satisfied if $\xun > \xunit$, implying $\xun \leq \xunit$. Taking limits, $0 \leq \lim_{\xunit \downarrow 0} \xun \leq \lim_{\xunit \downarrow 0} \xunit = 0$, implying $\lim_{\xunit \downarrow 0} \xun = 0$.  
+
+We next show $\lim_{\xunit \downarrow 0} \ratio > 1$. We have
+\begin{align}
+\ratio & = \frac{\benefit'(N\efficacy(\xun)) \efficacy(\xun)}{\general(\xun)} \label{a:bcr1} \\
+& = \frac{\benefit'(N\efficacy(\xun)) \efficacy'(\xun)}{\general'(\xun)}, \label{a:bcr2}
+\end{align}
+where \eqref{a:bcr1} follows from \eqref{bcr} and \eqref{a:bcr2} follows from \eqref{equal_elasticities}. Taking limits,
+\begin{align}
+\lim_{\xunit \downarrow 0} \ratio & = \frac{\benefit'(N\efficacy(0)) \efficacy'(0)}{\general'(0)} \label{a:bcr3} \\
+& = \frac{\benefit'(0) \efficacy'(0)}{\general'(0)}, \label{a:bcr4}
+\end{align}
+which exceeds 1 by \eqref{concave_no_corner}. 
+
+We have just shown that the first bullet is the relevant one in Proposition~\ref{p:sigmoidal_optimum} for the optimal program in the limit. Taking limits in this first bullet, $\lim_{\xunit \downarrow 0} n^* = \min \{ N, Q/0 \} = N$ and
+\begin{align}
+\lim_{\xunit \downarrow 0} x^* & = \begin{cases}
+\xfull(N) & Q \geq N \xfull(N) \\
+Q/N & Q \in \left(0, N \xfull(N) \right) \\ 
+\end{cases} \label{a:xnest1} \\
+& = \max \{ Q/N, \xfull(N) \},
+\end{align}
+as stated in the proposition. \qed
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+\begin{thebibliography}{00}
+
+\frenchspacing
+
+\bibitem[Castillo et al.(2021)]{Castillo2021}
+Castillo, Juan Camillo, Amrita Ahuja, Susan Athey, Arthur Baker, Eric
+Budish, Tasneem Chipty, Rachel Glennerster, Scott D. Komiers, Michael
+Kremer, Greg Larson, Jean Lee, Canice Predergast, Christopher
+M. Snyder, Alex Tabarrok, Brandon J. Tan, and Witold Wiecek. (2021)
+``Market design to accelerate COVID-19 vaccine supply,'' {\em Science}
+371 (6534): 1107--1019.
+
+\bibitem[Palfrey and Rosenthal(1984)]{Palfrey1984}
+Palfrey, Thomas R. and Howard Rosenthal. (1984) ``Participation and
+the provision of discrete public goods: A strategic analysis,'' {\em
+  Journal of Public Economics} 24: 171--193.
+
+\bibitem[Pan-American Health Organization(2018)]{PAHO2018}
+Pan-American Health Organization. (2018) ``Brazil launches world's
+largest campaign with fractional-dose yellow fever vaccine,'' PAHO
+report, January 25 [Online only]. Available at
+\url{https://www.paho.org/hq/index.php?option=com_content&view=article&id=14065:brazil-launches-worlds-largest-campaign-with-fractional-dose-yellow-fever-vaccine&Itemid=135&lang=en}.
+
+\bibitem[Rhodes, et al.(2022)]{Rhodes2022}
+Rhodes, Sophie, Neal Smith, Thomas Evans, and Richard White. (2022)
+``Identifying COVID-19 optimal vaccine dose using mathematical
+immunostimulation/immunodynamic modelling,'' {\em Vaccine} 40 (49):
+7032--7041.
+
+\bibitem[Roth(2007)]{Roth2007}
+Roth, Alvin E. (2007) ``Repugnance as a constraint on markets,'' {\em Journal of Economic Perspectives} 21 (3): 37--58.
+
+\bibitem[Solodov(2011)]{Solodov2011}
+Solodov, Mikhail V. (2011) ``Constraint qualification,'' in James
+J. Cochran, ed., {\em Encyclopedia of Operations Research and
+  Management Science}. New York: Wiley.
+
+\bibitem[World Health Organization(2021)]{WHO2021}
+World Health Organization. (2021) ``The COVAX facility: Interim
+distribution forecast," World Health Organization Report, February 3
+[Online only]. Available at
+\url{https://www.who.int/docs/default-source/coronaviruse/act-accelerator/covax/covax-interim-distribution-forecast.pdf?sfvrsn=7889475d_5}.
+
+
+
+\end{thebibliography}
+
+\end{document}
