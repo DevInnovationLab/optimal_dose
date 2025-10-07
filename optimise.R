@@ -4,7 +4,11 @@ dr_df <- tibble::enframe(dr_foos, name = "dose_name", value = "dose_response")
 
 # Generate all combinations of options. Since q is defined differently for 
 # dynamic and static problems, we generate the grids separately and rbind later. 
-cases_dynamic <- expand_grid(q_per_day = c(10, 5, 3, 2, 1.5, 1, 0.75, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01)/100, 
+cases_dynamic <- expand_grid(q_per_day = c(10, 5, 3, 2, 1.5, 1.25, 1, 0.9, 0.8, 
+                                           # smooth out around where the benefits are maximised
+                                           0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 
+                                           0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 
+                                           0.05, 0.01)/100, 
                              # q = c(7, 28, 45, 90, 120, 150, 180, 270, 360, 720, 1440), 
                              objective = c("D"), 
                              homogen_mixing = F,

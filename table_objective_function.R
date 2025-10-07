@@ -1,5 +1,5 @@
 # Table with optimal solutions -----
-q_table <- c(0.03, 0.01, 0.005, 0.003, 0.001, 0.0005, 0.0001)
+q_table <- c(0.1, 0.01, 0.001, 0.0001)
 q_labels <- paste(scales::percent(q_table), "per day")
 df_obj_tab <- df_results %>% 
   select(-result_solution) %>% 
@@ -26,17 +26,20 @@ df_obj_tab <- df_results %>%
       mutate(q_per_day = factor(q_per_day, levels = q_table, labels = q_labels)) %>% 
       mutate(solution = round(solution, 2)) %>% 
       rename(dose = solution)
-  ) %>% 
-  filter(scenario == "fast-growth (R0 = 2)")
+  ) 
 
-df_obj_tab
+df_obj_tab %>% 
+  filter(scenario == "fast-growth (R0 = 2)")
+df_obj_tab %>% 
+  filter(scenario != "fast-growth (R0 = 2)")
 
 latex_table <- df_obj_tab %>% 
+  filter(scenario == "fast-growth (R0 = 2)") %>% 
   ungroup() %>% 
   select(-static, -scenario, -dose_name) %>% 
   knitr::kable(format = "latex", booktabs = TRUE) %>% 
   add_header_above(c("Standard doses per day", "Deaths per 10,000" = 3)) %>% 
-  pack_rows("Concave dose-response, R0 = 2", 1, 7) %>% 
-  pack_rows("Sigmoid dose-response, R0 = 1.1", 8, 14)
+  pack_rows("Concave dose-response", 1, 4) %>% 
+  pack_rows("Sigmoid dose-response", 5, 8)
 
 writeLines(latex_table, "paper/table_concave_sigmoid.tex")

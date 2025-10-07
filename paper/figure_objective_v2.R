@@ -14,12 +14,13 @@ df_obj_plot <- readRDS("results/nlopt_results.rds") %>%
   select(-result_solution) %>%
   group_by(q, static, scenario, dose_name) %>%
   mutate(deaths_vs_full_dose = value / max(value)) %>%
-  ungroup()
+  ungroup() %>% 
+  mutate(y2 = (1 - deaths_vs_full_dose) * 100)
 
 df_obj_plot %>%
   filter(key != "full_dose") %>%
   ggplot(aes(x = 1 / q,
-             y = (1 - deaths_vs_full_dose) * 100,   # percentage-point improvement
+             y = y2,   # percentage-point improvement
              color = dose_name,
              linetype = key)) +
   geom_line(linewidth = 1) +
