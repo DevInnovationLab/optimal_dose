@@ -48,7 +48,6 @@ df_optimal_dose %>%
   ) +
   labs(x = "Age cohort", y = "Optimal dose fraction") + 
   ylim(0, 1) +
-  theme_minimal(base_size = 12) + 
   theme(
     legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1),

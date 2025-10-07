@@ -1,3 +1,18 @@
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(patchwork)
+
+theme_set(theme_minimal(base_size = 11))
+
+optim_names <- c("Age-specific", "Age-invariant", "Standard dose")
+optim_values <- c("#E69F00", "#56B4E9", "black")
+optim_lvls <- c("frac_age", "frac_uniform", "full_dose")
+
+df_results <- readRDS("results/nlopt_results.rds")
+
+
 df_objf_combined <- df_results %>% 
   filter(static == "Dynamic case") %>% 
   filter(scenario == "fast-growth (R0 = 2)") %>% 

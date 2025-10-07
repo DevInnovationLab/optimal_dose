@@ -28,7 +28,6 @@ dr_plot <- ggplot(df, aes(x, y, linetype = curve)) +
   geom_hline(yintercept = c(0.5, 0.8), linetype = "dotted", color = "grey70") +
   geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey70") +
   coord_cartesian(clip = "off") +
-  theme_minimal(base_size = 12) +
   theme(
     legend.position = "none",
     panel.grid.minor = element_blank()
