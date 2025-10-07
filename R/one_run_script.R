@@ -1,4 +1,4 @@
-source("optimisation-epi/nlopt_general.R")
+source("R/nlopt_general.R")
 
 time_elapsed_vec <- c()
 results_list <- list()

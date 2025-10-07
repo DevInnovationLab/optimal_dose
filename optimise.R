@@ -1,3 +1,4 @@
+source("project_setup.R")
 
 dr_df <- tibble::enframe(dr_foos, name = "dose_name", value = "dose_response")
 

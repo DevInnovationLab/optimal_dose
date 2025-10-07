@@ -6,7 +6,7 @@
 
 source("project_setup.R")
 source("load_results.R")
-source("optimisation-epi/nlopt_plot.R")
+source("R/nlopt_plot.R")
 library(patchwork)
 library(knitr)
 library(kableExtra)
