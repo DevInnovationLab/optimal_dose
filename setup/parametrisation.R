@@ -125,7 +125,8 @@ pars_le_slow <- lst(
   tmore2 = rep(Inf, Ngroups),
   ts1 = rep(Ndays, Ngroups),
   pdeath = default_pdeath,
-  vrf = 1,
+  vrf = 1, # give vaccines to recovered fraction
+  mtv = 0, # move recovered to vaccinated-protected compartment
   vstop = rep(.8, Ngroups), # slow down when 80% vaccinated, may be modified in apap_*()
   constantrisk = 0
 )
@@ -336,8 +337,6 @@ default_speeds <- unique(c(default_speeds,le_speeds))
 # Long names of compartments ------
 ln <- c(
   "S" = "Susceptible",
-  "R" = "Natural immunity (no vaccine)",
-  "RV" = "Recovered following vaccination",
   "E" = "Exposed (latent phase)",
   "E0" = "Exposed (not vaccinated)",
   "E1" = "Exposed (had 1 dose)",
@@ -346,6 +345,9 @@ ln <- c(
   "I0" = "Infectious (not vaccinated)",
   "I1" = "Infectious (had 1 dose)",
   "I2" = "Infectious (had 2 doses)",
+  # "R" = "Natural immunity (no vaccine)",
+  "R"  = "Recovered",
+  "RV" = "Recovered following vaccination",
   "P"  = "Vaccinated, protected",
   "N"  = "Vaccinated, susceptible",
   "V1" = "Had vaccine 1, protected",
@@ -382,4 +384,30 @@ main_metrics <- function(y, pop, vat = 31, t = dim(sr)[1]) {
     # "harm_v"  = 1-benefit(y, pop),
     "harm_vr" = harm(y))
 }
-# ------------------------------------------------------------------------------
+
+
+
+
+
+# Dose-response functions used by the paper ------
+
+# See paper appendix for documentation
+# These parameters have been derived by Chris Snyder to match
+# f(0.5) = 0.8, f'(0) = 0, f(1) = 0.95
+# additionally phi_concave(0.2) ~= 0.5
+phi_concave <- function(x, a1 = 26.3, a2 = 0.964, a3 = 0.0375) {
+  a1 * x * (1 - a2 * x^a3)
+}
+phi_sigmoid <- function(x, a1 = 0.950, a2 = 0.210, a3 = 0.434) {
+  z <- 2 / (1 - a3)
+  ifelse(
+    x <= a2,
+    a1 * x^z / (a2^(z - 1)),
+    a1 * (1 - ((1 - x)^z) / ((1 - a2)^(z - 1)))
+  )
+}
+
+dr_foos <- list(
+  "sigmoid" = phi_sigmoid,
+  "concave" = phi_concave
+)

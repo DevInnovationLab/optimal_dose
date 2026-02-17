@@ -6,12 +6,10 @@
 prop_adults <- sum(pop[3:9])/sum(pop) #for now I ignore children, so Q is scaled down to adult pop
 q_seq <- c(0.1, 0.25, 0.5, 0.75, 1) #just try two quantities at first
 
-
-# Choose dimensionality of x here: -----
-n_x <- 7
-# these are our controls - how many doses go to each age bin
-unroll_x <- function(x, sub=1) #set sub to 0 for static model where no doses go to children
-  c(sub,sub,x[1],x[2],x[3],x[4],x[5],x[6],x[7])
+# see below for explanation, these are the global defaults
+# n_x <- 7
+# unroll_x <- function(x, sub=1) #set sub to 0 for static model where no doses go to children
+  # c(sub,sub,x[1],x[2],x[3],x[4],x[5],x[6],x[7])
 
 
 # Function Arguments:
@@ -28,17 +26,24 @@ unroll_x <- function(x, sub=1) #set sub to 0 for static model where no doses go 
 # - pdeath: mortality risk vector, default to high-income country case
 # - scenario: cases decreasing, slowly increasing, rapidly increasing, etc
 # - recurring: list with vectors vaccine hesitancy parameter for each year of the campaign
+# - n_x = number of parameters to optimise
+# - unroll_x = how the different x's (1, ..., n_x) unroll into a vector of doses
 opt_general <- 
   function(q,
            initial_value,
            objective = "D",
-           dose_response = "covid_default",
+           dose_response = phi_covid,
            homogen_mixing = F, 
            static = T,
            pdeath = "ifr_hic",
            scenario = "pars_le_slow",
            recurring = c(0.8,0.2,0.5,1),
-           iterations = 100) {
+           n_x = 7,
+           unroll_x = function(x, sub=1) c(sub,sub,x[1],x[2],x[3],x[4],x[5],x[6],x[7]),
+           iterations = 1000) {
+    
+    if (class(dose_response) == "character" && (dose_response == "covid_default"))
+      dose_response <- phi_covid
     
     # Select objective function
     if(static)
@@ -52,7 +57,7 @@ opt_general <-
                                             rep = recurring)
     else
       eval_f <- function(x) model_fd_dynamic(scenario = scenario,
-                                             fd = unroll_x(x), 
+                                             fd = unroll_x(x,sub=1), 
                                              length_campaign = q,
                                              phi_x = dose_response,
                                              pdeath = pdeath,

@@ -88,7 +88,7 @@ save(results_full_dose, file = "results/results_full_dose.Rdata")
 n_x <- 1
 unroll_x <- function(x, sub = 1) {c(sub, sub, rep(x, 7))} 
 
-# results_frac_uni_dynamic <- cases_dynamic %>% 
+results_frac_uni_dynamic <- cases_dynamic %>%
   mutate(result = future_pmap(., opt_general)) %>%
   unnest_wider(result, names_sep = "_")
   # mutate(result_solution = map(result_solution, pluck, 2)) %>%

@@ -53,11 +53,11 @@ odin_ode_2vaccines_v2 <- odin::odin({
   deriv(E[])      <-  (beta[i] + constantrisk)*(S[i]+N1[i]+N2[i]) - gamma1[i]*E[i]
   deriv(I[])      <-  gamma1[i]*E[i] - gamma2[i]*I[i]
   deriv(R[])      <-  (1-pdeath[i])*gamma2[i]*I[i] - phi[i]*R[i] - 
-    R[i]*vrf*(va1[i]*delta1[i] + va2[i]*delta2[i])/(S[i]+R[i])
+    mtv*R[i]*vrf*(va1[i]*delta1[i] + va2[i]*delta2[i])/(S[i]+R[i])
   deriv(D[])      <-  pdeath[i]*gamma2[i]*I[i]
   deriv(V1[])     <-  va1[i]*delta1[i]*(e1[i]*S[i] + R[i]*vrf)/(S[i]+R[i]*vrf) - kappa1[i]*V1[i]
   deriv(N1[])     <-  va1[i]*delta1[i]*(1-e1[i])*S[i]/(S[i]+R[i]*vrf) + kappa1[i]*V1[i]  - (beta[i] + constantrisk)*N1[i]
-  deriv(V2[])     <-  va2[i]*delta2[i]*(e2[i]*S[i]+R[i]*vrf)/(S[i]+R[i]*vrf) - kappa2[i]*V2[i]
+  deriv(V2[])     <-  va2[i]*delta2[i]*(e2[i]*S[i]+R[i]*vrf*mtv)/(S[i]+R[i]*vrf) - kappa2[i]*V2[i]
   deriv(N2[])     <-  va2[i]*delta2[i]*(1-e2[i])*S[i]/(S[i]+R[i]*vrf) + kappa2[i]*V2[i]  - (beta[i] + constantrisk)*N2[i]
   deriv(cumV1[])  <-  va1[i]*delta1[i]
   deriv(cumV2[])  <-  va2[i]*delta2[i]
@@ -68,7 +68,8 @@ odin_ode_2vaccines_v2 <- odin::odin({
   Ngroups        <- user()
   Nc             <- user()
   constantrisk   <- user()
-  vrf            <- user()
+  vrf            <- user() # give vaccines to recovered fraction
+  mtv            <- user() # move recovered to vaccinated-protected compartment
   y0[,]          <- user()
   contacts[,]    <- user()
   vstop[]        <- user()

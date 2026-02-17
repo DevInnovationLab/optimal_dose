@@ -42,7 +42,7 @@ Visualizations below use the plotting functions defined in **optimisation-epi/nl
 ```{r message=FALSE, warning=FALSE}
 source("project_setup.R")
 load("results/results_all.Rdata")
-source("optimisation-epi/nlopt_plot.R")
+source("R/nlopt_plot.R")
 
 results_all <- results_all %>% 
   mutate(recurring = map(recurring, pluck, 4), 
