@@ -1,5 +1,9 @@
 # Documentation for optimisation files
 
+For the current paper workflow, generated tables and figures, and uptake
+sensitivity results, see the [project README](../README.md).
+The file descriptions below also cover older analysis scripts.
+
 ## Description of files
 
 `single_run.R`
@@ -10,6 +14,8 @@ Runs SEIR for 360 days - with primary emphasis on the 2 vaccines v2 model. More 
 
 Functions:
 `sr` : outputs numerical integration results from `setup/model_2vaccine.R` given initial conditions and model parameters.
+
+`check_compartment_mass` : checks that the nine population compartments sum to one in every age cohort at every output time (absolute tolerance `1e-6`). Excludes cumulative counters. Called by `sr()` before population weighting; stops the run if the check fails.
 
 Depends on:
 - `setup/model_2vaccine.R`

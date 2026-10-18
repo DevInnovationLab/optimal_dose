@@ -1,3 +1,6 @@
+# Plot doses only for cohorts reached under the saved age-varying policy.
+# Re-run those policies to measure cumulative vaccinations by day 360.
+
 source("project_setup.R")
 
 library(ggplot2)
@@ -25,25 +28,34 @@ q_colours <- c(
 fig_width <- 15.9
 fig_height <- fig_width * 10 / 16.5
 
-frac_vac_365 <- function(q_per_day, age_group, pop, days = 365) {
-  pop_use <- tail(pop, length(unique(age_group)))
-  rev_cum <- rev(cumsum(rev(pop_use)))
-  i <- match(age_group, unique(age_group))
-  pmin(1, pmax(0, (q_per_day * days - (rev_cum[i] - pop_use[i])) / pop_use[i]))
-}
-
-df_optimal_dose <- df_results %>% 
-  filter(key == "frac_age") %>%
-  select(scenario, q_per_day, static, dose_name, result_solution) %>% 
-  unnest(result_solution) %>% 
-  mutate(frac_vac_365 = frac_vac_365(q_per_day, age_group, pop))
+df_optimal_dose <- df_results %>%
+  filter(key == "frac_age", static == "Dynamic case", q_per_day %in% q_plot) %>%
+  select(scenario, q, q_per_day, dose_name, result_solution) %>%
+  mutate(coverage = pmap(list(scenario, q, dose_name, result_solution),
+    function(scenario, q, dose_name, result_solution) {
+      pars <- if (scenario == "fast-growth (R0 = 2)") {
+        pars_le_fast
+      } else {
+        pars_le_slow
+      }
+      dose <- c(1, 1, result_solution$solution)
+      pars <- apap_2v(pars, len = q, fractional_dose = dose)
+      pars$e1 <- dr_foos[[dose_name]](dose)
+      y <- sr(pars)
+      tibble(age_group = colnames(pbc_spread)[3:9],
+             cumulative_vaccinations = y[Ndays, "cumV", 3:9])
+    })) %>%
+  mutate(result_solution = map2(result_solution, coverage,
+    ~ left_join(.x, .y, by = "age_group"))) %>%
+  select(-coverage) %>%
+  unnest(result_solution)
+write_csv(df_optimal_dose, "paper/figures/age_solutions_coverage.csv")
 
 plot_age_solutions_dr <- function(scenario_name) {
   df_optimal_dose %>%
     filter(q_per_day %in% q_plot) %>%
     filter(scenario == scenario_name) %>%
-    filter(static == "Dynamic case") %>%
-    filter(frac_vac_365 > .0001) %>%
+    filter(cumulative_vaccinations > .0001) %>%
     mutate(
       dose_name = factor(
         dose_name,
@@ -78,3 +90,9 @@ ggsave("paper/figures/age_solutions_dr.pdf", width = fig_width, height = fig_hei
 plot_age_solutions_dr("slow-growth (R0 = 1.1)")
 ggsave("paper/figures/age_solutions_dr_slow.pdf", width = fig_width, height = fig_height,
        unit = "cm")
+
+# Keep the manuscript's figure inputs in step with the generated plots.
+dir.create("overleaf/figures", showWarnings = FALSE)
+stopifnot(file.copy(c("paper/figures/age_solutions_dr.pdf",
+            "paper/figures/age_solutions_dr_slow.pdf"),
+          "overleaf/figures", overwrite = TRUE))

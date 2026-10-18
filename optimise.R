@@ -1,6 +1,7 @@
 source("project_setup.R")
 
 dr_df <- tibble::enframe(dr_foos, name = "dose_name", value = "dose_response")
+age_n_starts <- 5L
 
 # Generate all combinations of options. Since q is defined differently for 
 # dynamic and static problems, we generate the grids separately and rbind later. 
@@ -18,7 +19,7 @@ cases_dynamic <- expand_grid(q_per_day = c(10, 5, 3, 2, 1.5, 1.25, 1, 0.9, 0.8,
                              recurring = list(c(0.8,0.2,0.5,1)),
                              iterations = 1000) %>% 
   mutate(q = 1/q_per_day) %>% 
-  # Initial value set as random uniform draw
+  # Single-start fits use this draw; dynamic age-varying fits use five starts.
   mutate(initial_value = runif(nrow(.), 0.1, 0.9)) %>% 
   relocate(initial_value, .after = q) %>% 
   # Now also expand across functions of interest
@@ -63,7 +64,8 @@ results_full_dose <- cases_df %>%
 results_frac_uniform_dynamic <- cases_dynamic %>% 
   select(-dose_name, -q_per_day) %>% 
   mutate(result = pmap(., opt_general, n_x = 1, unroll_x = unroll_1)) %>%
-  unnest_wider(result, names_sep = "_") %>%
+  unnest_wider(result, names_sep = "_",
+               simplify = list(result_start_diagnostics = FALSE)) %>%
   bind_cols(cases_dynamic %>% select(dose_name, q_per_day))
 
 results_frac_uniform_static <- cases_static %>% 
@@ -73,9 +75,12 @@ results_frac_uniform_static <- cases_static %>%
   bind_cols(cases_static %>% select(dose_name, q_per_day))
 
 results_frac_age <- cases_df %>% 
+  mutate(n_starts = if_else(static, 1L, age_n_starts)) %>%
   select(-dose_name, -q_per_day) %>% 
   mutate(result = pmap(., opt_general, n_x = 7, unroll_x = unroll_7)) %>%
-  unnest_wider(result, names_sep = "_") %>%
+  select(-n_starts) %>%
+  unnest_wider(result, names_sep = "_",
+               simplify = list(result_start_diagnostics = FALSE)) %>%
   bind_cols(cases_df %>% select(dose_name, q_per_day))
 
 

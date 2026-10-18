@@ -55,7 +55,7 @@ y0_gen <- function(Nc, Ngroups,
   y0_default[S,] <- 1 - pre_immunity
   y0_default[E,] <- (y0_default[1,]*ii)/2
   y0_default[I,] <- (y0_default[1,]*ii)/2 # Exposed == Infected initially
-  y0_default[S,] <- y0_default[1,] - y0_default[2,] # Subtract initial infections
+  y0_default[S,] <- y0_default[S,] - y0_default[E,] - y0_default[I,]
   y0_default[R,] <- pre_immunity
   y0_default
 }

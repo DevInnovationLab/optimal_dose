@@ -1,5 +1,16 @@
 library(abind)
 
+# Check cohort masses before population weighting; exclude cumulative counters.
+check_compartment_mass <- function(y, tolerance = 1e-6) {
+  compartments <- c("S", "E", "I", "R", "D", "P1", "N1", "P2", "N2")
+  mass <- apply(y[, compartments, , drop = FALSE], c(1, 3), sum)
+  deviation <- max(abs(mass - 1))
+  if (!is.finite(deviation) || deviation > tolerance)
+    stop("Compartment masses differ from 1; maximum deviation: ",
+         signif(deviation, 4))
+  invisible(TRUE)
+}
+
 sr <- function(pars, f = "2v_v2") { 
   gnames <- 1:pars$Ngroups
   times <- 1:(pars$Ndays)
@@ -22,6 +33,8 @@ sr <- function(pars, f = "2v_v2") {
              dim = c(max(times), pars$Ngroups, pars$Nc), 
              dimnames = list(times, gnames, cnames)) %>%
     aperm(c(1, 3, 2))
+  check_compartment_mass(y)
+  y
 }
 
 # Chain a few models
@@ -43,7 +56,7 @@ multi_year_run <- function(par, f = "2v_v2", takeup = list(rep(0.8, 9))) {
       last_state["cumV",] <-
       last_state["P1",] <- 
       last_state["N1",] <- 
-      0.0005 + 0*last_state["cumV1",]
+      0*last_state["cumV1",]
     # simulate another period
     cpar <- list_modify(par, y0 = last_state, vstop = takeup[[i]])
     cy <- sr(cpar, f)

@@ -27,7 +27,7 @@ plot_example_model <- function(scenario) {
     model_fd_dynamic(
       scenario,
       length_campaign = speed,
-      fd = rep(0.5, Ngroups),
+      fd = rep(1, Ngroups),
       phi_x = phi_covid,
       pdeath = "ifr_hic",
       rm = TRUE,
@@ -63,6 +63,12 @@ ggsave("paper/figures/example_model.pdf", plot = plot_example_model("pars_le_fas
        width = 16.5, height = 7.5, unit = "cm")
 ggsave("paper/figures/example_model_slow.pdf", plot = plot_example_model("pars_le_slow"),
        width = 16.5, height = 7.5, unit = "cm")
+
+# Keep the two single-outbreak illustrations used by the manuscript current.
+dir.create("overleaf/figures", showWarnings = FALSE)
+stopifnot(file.copy(c("paper/figures/example_model.pdf",
+                      "paper/figures/example_model_slow.pdf"),
+                    "overleaf/figures", overwrite = TRUE))
 
 # Long-term simulation ("recurring")
 # speed_x <- c(10, 33, 100, 365, 1000)

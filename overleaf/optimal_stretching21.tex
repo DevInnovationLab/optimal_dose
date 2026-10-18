@@ -319,7 +319,7 @@ reduced-form model, the second part of the paper turns to constructing
 and simulating a full-blown epidemiological model. We adapt the
 epidemiological model from our own previous work \citet{Wiecek2022},
 which allows for heterogeneity in mortality risk and a flexible
-contact matrix across seven age cohorts and is calibrated to the
+contact matrix across eight age cohorts and is calibrated to the
 \covid\ pandemic. The dynamic vaccination process distributes doses to
 cohorts prioritized by risk in a flow constrained by available
 capacity. Like \citet{Riley2007}, we solve for the optimal fractional
@@ -332,7 +332,7 @@ doses, a level of detail that is novel in the literature. The few
 previous studies that allowed any variation in dosing by age
 considered a single age threshold between those receiving full doses
 and those receiving an exogenous stretched dose
-\citep{Wu2016,Matrajt2021,Leung2022}.
+\citep{Wu2016,Leung2022}.
 
 The discussion so far has traced the connection between our paper and
 the biomedical literature. The paper also continues a line of
@@ -463,9 +463,9 @@ T-cells that prevent excessive immune responses leading to autoimmune
 disease \citep{Sakaguchi2008}.\footnote{Biology aside, as a
 mathematical principle, any increasing, bounded function converges to
 its limit from below, implying that it must eventually plateau.}
-Empirical estimates of dose-response functions find a sigmoid shape
+Empirical estimates of immune response functions find a sigmoid shape
 fits the data well in both animal and human studies
-\citep{Benest2020,deJonge2020,Roozendall2021}.
+\citep{deJonge2020,Roozendall2021}.
 
 Let $\side(x) \geq 0$ denote the expected harm from side effects for
 an individual vaccinated with a dose of strength $x$. We will take the
@@ -1671,16 +1671,21 @@ protected from infection ($P_a$); otherwise they are not protected
 \label{fig:seird}
 \end{figure}
 
-More formally, members of each age cohort move between compartments
-according to the following differential equations:
+Each compartment is measured as a proportion of its age cohort. Let
+$p_a$ denote cohort $a$'s share of the total population and $q_0$ the
+daily vaccine supply in full-dose equivalents per member of the total
+population. When capacity is allocated to cohort $a$, its vaccination
+rate is $q_a = q_0/(p_a x_a)$, where $x_a>0$ is its dose strength.
+Members of each age cohort move between compartments according to the
+following differential equations:
 \begin{align}
-\dot{S}_a(t) &= - \lambda_a(t) S_a(t) - q \, v_a(t) \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right]  \label{S} \\
+\dot{S}_a(t) &= - \lambda_a(t) S_a(t) - q_a \, v_a(t) \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right]  \label{S} \\
 \dot{E}_a(t) &= \lambda_a(t) [ S_a(t) + N_a(t) ] - \epsilon_a E_a(t) \label{E} \\
 \dot{I}_a(t) &= \epsilon_a E_a(t) - \xi_a I_a(t) \label{I} \\
 \dot{R}_a(t) &= (1 - \mu_a) \xi_a I_a(t) \label{R} \\
 \dot{D}_a(t) &= \mu_a \xi_a I_a(t) \label{D} \\
-\dot{P}_a(t) &= q \, v_a(t) \efficacy(x_a) \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right] - \psi_a P_a(t) \label{P} \\
-\dot{N}_a(t) &= q \, v_a(t) [ 1 - \efficacy(x_a)] \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right] + \psi_a P_a(t) - \lambda_a(t) N_a(t). \label{N} 
+\dot{P}_a(t) &= q_a \, v_a(t) \efficacy(x_a) \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right] - \psi_a P_a(t) \label{P} \\
+\dot{N}_a(t) &= q_a \, v_a(t) [ 1 - \efficacy(x_a)] \left[ \frac{S_a(t)}{S_a(t) + R_a(t)} \right] + \psi_a P_a(t) - \lambda_a(t) N_a(t). \label{N} 
 \end{align}
 
 Susceptible individuals, in compartment $S_a(t)$, become infected at
@@ -1709,12 +1714,16 @@ wane.\footnote{Assuming natural immunity does not wane is a reasonable
 approximation given the calibration traces a single epidemic outbreak
 over an interval of months, not years.}
 
-Each unit of time, a constant proportion $q$ of the total population
-is vaccinated, using all available vaccine capacity. The
-prioritization strategy is captured by $v_a(t)$, an indicator function
-that turns on when the cohort is eligible to receive the vaccine and
-remains on until the campaign is completed for that cohort. As in the
-reduced-form model, we assume that the vaccine is all-or-nothing,
+At a given supply $q_0$, halving the dose doubles the number
+vaccinated per day. The prioritization strategy is captured by
+$v_a(t)$, which controls vaccination of each cohort. The implementation
+uses smooth transitions at scheduled start times and tapers
+vaccination as cumulative vaccinations approach the cohort's uptake
+target. The scheduled time allocated to cohort $a$ is approximately
+$p_a h_a x_a/q_0$, where $h_a$ denotes uptake. Dose strength therefore
+affects both vaccination throughput and the start times of subsequent
+cohorts. As in the reduced-form model, we assume that the vaccine is
+all-or-nothing,
 providing perfect protection (perfectly preventing transmission,
 disease, and death) for an individual with a probability given by the
 vaccine's efficacy, $\efficacy(x_a)$, moving them to compartment
@@ -1731,8 +1740,12 @@ Possible imperfections in the vaccine campaign are captured via three
 model assumptions. First, as mentioned, we assume that the vaccine is
 imperfectly effective, i.e., $\efficacy(x_a)< 1$. Second, we assume
 that recovered and susceptible individuals cannot be distinguished, so
-both compartments end up being vaccinated. Since recovered individuals
-already have natural immunity, the vaccine is effectively wasted on
+both compartments end up being vaccinated.\footnote{For simplicity,
+among recovered individuals we do not distinguish between vaccinated
+and unvaccinated people. A vaccinated person who becomes infected and
+recovers is therefore eligible for vaccination again. Recovered
+recipients remain eligible after vaccination.} Since recovered
+individuals already have natural immunity, the vaccine is effectively wasted on
 them. This imperfection explains the factor in square brackets in
 equation \eqref{S}, the share left for the susceptible compartment
 after the ``leakage'' to the recovered compartment.  Third, we assume
@@ -1772,9 +1785,9 @@ timing of boosters, and so forth.}
 
 \paragraph{Age Cohorts.}
 
-We partition the population into eight age cohorts: a cohort of
-children under 19 and seven cohorts of adults, aged 20--29, 30--39,
-40--49, 50--59, 60--69, 70--79, and 80 and above.
+We partition the population into nine age cohorts: two cohorts of
+children aged 0--9 and 10--19 and seven cohorts of adults, aged 20--29,
+30--39, 40--49, 50--59, 60--69, 70--79, and 80 and above.
 
 \paragraph{Virus Transmission.}
 
@@ -1810,10 +1823,9 @@ the model; roughly 1\% of infected individuals die.
 \paragraph{Vaccine Supply.}
 
 Turn now to calibrating the vaccine side of the model, starting with
-vaccine supply. We measure vaccine supply in terms of the percentage
-of the whole population that can be vaccinated with full doses per
-day. We allow vaccine supply to range over several orders of magnitude
-(0.01\%, 0.1\%, 1\%, and 10\%), spanning possibilities from negligible
+vaccine supply. We allow daily vaccine supply $q_0$ to range over
+several orders of magnitude (0.01\%, 0.1\%, 1\%, and 10\%), spanning
+possibilities from negligible
 to virtually unconstrained supplies. For example, a daily 0.1\% supply
 achieves 50\% coverage of the population with full doses in just over
 16 months. We take 0.1\% as the benchmark supply, since the associated
@@ -1839,7 +1851,8 @@ heterogeneity in age and not other characteristics like comorbidities
 or healthcare work, we specify a strict age-based prioritization,
 where each cohort is vaccinated in descending age order. The cohort
 whose turn it is to receive the vaccine is vaccinated with the entire
-available supply until all willing members are vaccinated. We assume
+available supply until cumulative vaccinations reach its uptake
+target. We assume
 80\% of each cohort are willing to be vaccinated and 20\% not (perhaps
 due to logistical frictions or vaccine hesitancy).\footnote{Overall,
 80\% was the upper limit of vaccination coverage at the end of the
@@ -1849,7 +1862,9 @@ good supply to reach over 80\% in highest risk groups and much lower
 in general population. This pattern differed considerably across
 countries (by 2023 Nigeria reached 30\%, Ethiopia 35\%, Democratic
 Republic of Congo below 10\%; all figures according to
-\citet{OWID_COVID_Vax}).}  We assume that the cohort of children
+\citet{OWID_COVID_Vax}). We also conduct a sensitivity analysis
+where we set maximum coverage to 60\%, reflecting a hypothetical of
+higher vaccine hesitancy.} We assume that the cohort of children
 cannot be vaccinated, echoing the fact that \covid\ vaccines were not
 initially approved for children.
 
@@ -1920,9 +1935,15 @@ simulate the time path of the model's compartments and evaluate the
 objective function behind the dose-optimization problem.\footnote{We
 use the \pkg{odin} package in R to solve the differential-equation
 system and the \pkg{nloptr} package in R (with tolerance set to
-\num{1e-06}) for dose optimization. All of our code is available at
+\num{1e-06}) for dose optimization. For the seven-dimensional
+age-varying \pkg{nloptr} cases only, we use $K=5$ starting dose
+vectors, with all cohorts initially receiving the optimal uniform
+dose, 25\%, 75\%, 1\%, or 100\% of a full dose. All of our code is
+available at
 \url{https://github.com/DevInnovationLab/optimal_dose}.} We run all
-simulations for 365 days.
+simulations for 360 days. Table~\ref{tab:seirdv_parameters} in
+Appendix~\ref{A:Parameters} collects the calibration parameters and
+initial compartment values.
 
 \paragraph{Epidemic Diagram.}
 
@@ -1935,10 +1956,11 @@ and about 55\% of population are eventually infected.
 
 \begin{figure}[tp]
 \centering
-\includegraphics{figures/example_model_edited.pdf}\\[-3ex]
+\includegraphics{figures/example_model.pdf}\\[-3ex]
 \caption{{\bf Evolution of Compartments in Calibrated Model.}
   Simulates outcome from SEIRDV model for various levels of vaccine
-  capacity. Simulation allows proportions in compartments to vary
+  capacity, using full doses and a concave dose response.
+  Simulation allows proportions in compartments to vary
   across age cohorts; graphs here aggregate age cohorts, showing
   proportions of total population.}
 \label{fig:example_model}
@@ -1993,7 +2015,16 @@ function. In that case, full doses avert 32\% of the deaths under no
 vaccination. To stretch such a modest capacity, the optimal uniform
 dose ends up being about half of a full dose. Distributing these
 smaller doses more quickly allows the planner to avert 44\% of
-deaths. With ten times more vaccine supply than the benchmark (1\% of
+deaths.\footnote{These results assume 80\% of each
+adult age group is willing to receive vaccine. What if hesitancy is
+higher? For example, if we can only vaccinate 60\% of each group, 
+under the scenario sigmoid dose response and daily vaccine supply of 0.1\%
+(Table~\ref{tab:results}, row 2) 
+we find an optimal uniform dose rise slightly, to 53\%, and reductions in 
+deaths to decrease from 32.2\% to 31.8\% for full and 44\% to 41\% for 
+uniform dose.}
+
+With ten times more vaccine supply than the benchmark (1\% of
 the population vaccinated each day), full doses avert most deaths
 (88\%). Capacity of this magnitude speeds doses to the population so
 quickly that there is little gain from speeding the process further
@@ -2003,8 +2034,8 @@ points more than full doses.  When vaccine supply is increased another
 ten fold---to 10\% of the population vaccinated each day---at that
 point supply is all but unconstrained, essentially leaving no room for
 fractional doses to generate improvements. Full doses already avert
-95\% of deaths, the maximum possible given the vaccine is calibrated
-to be 95\% effective.
+95\% of deaths, leaving little room for fractional dosing to improve 
+mortality further.
 
 \begin{table}[t]
 \caption{{\bf Calibration Results for Optimal Dosing and Averted Deaths}}
@@ -2077,7 +2108,7 @@ dose-response function.
 
 \begin{figure}[t]
 \centering
-\includegraphics[]{figures/improvement_edited.pdf}\\[-2ex]
+\includegraphics[]{figures/improvement.pdf}\\[-2ex]
 \caption{{\bf Deaths Averted Moving from Full to Fractional Dosing.}
   Solid curves represent percentage of deaths under full dosing
   averted under optimal uniform fractional dosing. Dashed curves
@@ -2117,15 +2148,15 @@ this range.
 \begin{figure}[t]
 \thispagestyle{empty}
 \centering
-\includegraphics{figures/age_solutions_dr_edited.pdf}\\[-1ex]
+\includegraphics{figures/age_solutions_dr.pdf}\\[-1ex]
 \caption{{\bf Optimal Age-Varying Fractional Doses.} Each curve
   corresponds to a different order of magnitude of vaccine
   supply. Tick marks on horizontal axis correspond to different age
   cohorts. Variation in strength across cohorts is layered on top of
   vaccine prioritization by age, completing the vaccination campaign
   for an older cohort before moving to a younger cohort. We omit
-  points when age cohort does not receive supply during the simulation
-  period.}
+  points when cumulative vaccinations are below 0.01\% of the cohort
+  by the end of the simulation period.}
 \label{fig:age_solutions_both}
 \end{figure}
 
@@ -2214,14 +2245,14 @@ Our calibration may considerably understate the potential for gains
 from fractional dosing in many real-world cases. The introduction
 mentioned that fifth doses were used in the 2018 yellow fever and 2022
 mpox outbreaks. In both cases randomised trials suggested
-immunological non-inferiority \citep{JuanGiner2021,
-  CDC2026MpoxVaccine}.  In the context of our model this suggests that
-full doses for these vaccines must be very far out on the long plateau
-of dose-response functions.  This is in contrast to our calibration
+immunological non-inferiority \citep{JuanGiner2021, CDC2026MpoxVaccine}.  
+In the context of our model, these results are consistent with the 
+possibility that full doses lie on a relatively flat part of the 
+dose-response curve. This is in contrast to our calibration
 example which assumed a large drop-off in efficacy at low doses.
 
-That the full dose was five times more concentrated than needed for
-the same efficacy is remarkable. Such an outcome may emerge from way
+That a one-fifth dose could meet the relevant immunological noninferiority 
+criterion is remarkable. Such an outcome may emerge from way
 clinical trials are staged in vaccine development. Early-stage trials
 are often run escalating the antigen concentration while an acceptable
 safety and reactogenicity profile is retained. Facing substantial
@@ -3443,6 +3474,112 @@ does not rest on the assumption of increasing $\efficacy$. \qed
 
 \clearpage
 
+\Section{Parameters of the SEIRDV Calibration Model}
+\label{A:Parameters}
+
+Tables~\ref{tab:seirdv_age_cohorts} and \ref{tab:seirdv_parameters} collect
+the parameters used in the SEIRDV simulations, including the initial
+compartment values and the vaccination schedule. Values apply to both epidemic calibrations unless
+otherwise stated.
+
+\begin{table}[htbp]
+\centering
+\caption{{\bf Age Cohorts, Population Shares, Natural Immunity, and Fatality Rates.}}
+\label{tab:seirdv_age_cohorts}
+\footnotesize
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+\toprule
+Age cohort & Population share $p_a$ & Initial $R_a(0)$ & Fatality rate $\mu_a$ \\
+\midrule
+0--9   & 11.0\% & 50\% & 0.002\% \\
+10--19 & 11.3\% & 50\% & 0.006\% \\
+20--29 & 12.6\% & 20\% & 0.03\% \\
+30--39 & 13.7\% & 20\% & 0.08\% \\
+40--49 & 13.7\% & 20\% & 0.15\% \\
+50--59 & 13.3\% & 20\% & 0.60\% \\
+60--69 & 11.4\% & 20\% & 2.2\% \\
+70--79 & 8.0\%  & 20\% & 5.1\% \\
+80 and above & 5.0\% & 20\% & 9.3\% \\
+\bottomrule
+\end{tabular*}
+\parbox{\textwidth}{\footnotesize \emph{Notes:} Population shares are for high-income
+countries in the input data supplied with the code and are rounded
+here. Fatality rates follow \citet{Verity2020}.}
+\end{table}
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{.17\textwidth}>{\raggedright\arraybackslash}p{.33\textwidth}>{\raggedright\arraybackslash}p{\dimexpr.50\textwidth-4\tabcolsep\relax}@{}}
+\caption{{\bf Parameters of the SEIRDV Calibration.}}
+\label{tab:seirdv_parameters}\\
+\toprule
+Parameter & Definition & Value or specification \\
+\midrule
+\endfirsthead
+\caption[]{Parameters of the SEIRDV Calibration (continued).}\\
+\toprule
+Parameter & Definition & Value or specification \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r@{}}{\emph{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{3}{@{}l}{\textbf{Virus transmission and compartment transitions}}\\[.5ex]
+$(c_{a,a'})$ & Contacts between age cohorts &
+Contact matrix from \citet{Mossong2008}. \\[.5ex]
+$\Rzero$ & Basic reproductive number &
+2 (fast-growing epidemic); 1.1 (slow-growing epidemic). \\[.5ex]
+$\epsilon_a$ & Rate of moving from exposed to infectious &
+$0.2$ per day (mean incubation period of 5 days). \\[.5ex]
+$\xi_a$ & Rate of exit from the infectious compartment &
+$0.2$ per day (mean infection period of 5 days). \\[.5ex]
+$\psi_a$ & Rate of loss of vaccine-induced immunity &
+0. \\[.5ex]
+--- & Rate of loss of natural immunity &
+0. \\[1ex]
+\multicolumn{3}{@{}l}{\textbf{Initial compartment values}}\\[.5ex]
+$E_a(0)$, $I_a(0)$ & Initially exposed and infectious &
+$0.001[1-R_a(0)]/2$ in the fast-growing epidemic and
+$0.005[1-R_a(0)]/2$ in the slow-growing epidemic. \\[.5ex]
+$S_a(0)$ & Initially susceptible &
+$1-R_a(0)-E_a(0)-I_a(0)$. \\[.5ex]
+\shortstack[l]{$D_a(0)$\\$P_a(0)$, $N_a(0)$} & Initially dead or vaccinated &
+0 in each compartment. \\
+--- & Start of the vaccination campaign &
+Day 10; subsequent cohorts start after the scheduled vaccination
+periods of older cohorts, approximately $p_a h_a x_a/q_0$ days each. \\[.5ex]
+$T$ & Simulation horizon & 360 days in the code. \\[.5ex]
+
+\multicolumn{3}{@{}l}{\textbf{Vaccine efficacy}}\\*[.5ex]
+
+--- & Dose-response calibration conditions &
+$\phi(0)=0$, $\phi(0.5)=0.8$, $\phi(1)=0.95$, and $\phi'(1)=0$. \\[.5ex]
+$\alpha_1$, $\alpha_2$, $\alpha_3$ & Concave dose-response function &
+26.3, 0.964, and 0.0375 in equation~\eqref{a:calibration_concave}. \\[.5ex]
+$\alpha_1$, $\alpha_2$, $\alpha_3$ & Sigmoid dose-response function &
+0.950, 0.210, and 0.434 in equation~\eqref{a:calibration_sigmoid}. \\[1ex]
+$\phi(x_a)$ & Probability that the vaccine provides perfect protection &
+All-or-nothing protection against transmission, disease, and death;
+no delay in developing immunity. \\[.5ex]
+
+\multicolumn{3}{@{}p{\textwidth}@{}}{\emph{Notes:}
+Compartment values represent proportions of their own age cohort; $p_a$ is
+a share of the total population.  To reproduce the
+transmission calibration, let $C=(c_{a,a'})$ and let $\rho$ denote the
+largest eigenvalue. 
+All data are available at
+\url{https://github.com/DevInnovationLab/optimal_dose}.}\\
+\end{longtable}
+\endgroup
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
 \Section{Calibrating Dose-Response Functions}
 \label{A:Dose}
 
@@ -3499,7 +3636,7 @@ parameterization, one can compute the unit-elastic point as $\xunitbar
 
 \begin{figure}[h]
 \centering
-\includegraphics{figures/example_model_slow_edited.pdf}\\[-3ex]
+\includegraphics{figures/example_model_slow.pdf}\\[-3ex]
 \caption{{\bf Evolution of Compartments in Calibrated Model in a Slow-Growing Epidemic.}
   Reprises results from Figure~\ref{fig:example_model}, reduicing $\Rzero$ from 2 to 1.1. See that figure for additional notes.}
 \label{fig:example_model_slow}
@@ -3520,21 +3657,21 @@ population & dose & dose & dose & dose & dose & dose \\
 supplied per day) & $X = \xpeak$ & $X = x^*$ & $X = (x_a^*)$ & $X = \xpeak$ & $X = x^*$ & $X = (x_a^*)$ \\ 
 \midrule
 \mc{7}{c}{\bf Sigmoid Dose Response} \\[2ex]
-0.01\% & 100\% & 41\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 6\% & 10\% & 10\% \\
-0.1\% & 100\% & 43\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 43\% & 57\% & 57\% \\
+0.01\% & 100\% & 41\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 6\% & 10\% & 12\% \\
+0.1\% & 100\% & 43\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 43\% & 57\% & 58\% \\
 1\% & 100\% & 60\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 85\% & 87\% & 87\% \\
 10\% & 100\% & 78\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 91\% & 91\% & 91\% \\
 \midrule	
 \mc{7}{c}{\bf Concave Dose Response} \\[2ex]
-0.01\% & 100\% & 3\%  & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 6\%  & 23\%  & 23\% \\
+0.01\% & 100\% & 3\%  & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 6\%  & 23\%  & 27\% \\
 0.1\% & 100\% & 15\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 43\% & 65\% & 67\% \\
-1\% & 100\% & 55\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 85\% & 87\% & 87\% \\
+1\% & 100\% & 55\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 85\% & 86\% & 86\% \\
 10\% & 100\% & 87\% & \mc{1}{c}{Fig.~\ref{fig:slow_age_solutions}} & 91\% & 91\% & 91\% \\
 \bottomrule
 \addlinespace[2ex]
 \end{tabularx}
 \parbox{\textwidth}{\footnotesize \emph{Notes:} Reprises results from
-  Table~\ref{tab:slowresults}, reducing $\Rzero$ from 2 to 1.1.  See
+  Table~\ref{tab:results}, reducing $\Rzero$ from 2 to 1.1.  See
   that table for additional notes. The optimal
   age-varying dosage is not a single number but the vector plotted in
   Figure~\ref{fig:slow_age_solutions}. }
@@ -3542,7 +3679,7 @@ supplied per day) & $X = \xpeak$ & $X = x^*$ & $X = (x_a^*)$ & $X = \xpeak$ & $X
 
 \begin{figure}[t]
 \centering
-\includegraphics[]{figures/improvement_slow_edited.pdf}\\[-2ex]
+\includegraphics[]{figures/improvement_slow.pdf}\\[-2ex]
 \caption{{\bf Deaths Averted Moving from Full to Fractional Dosing in
     a Slow-Growing Epidemic.} Reprises results from
   Figure~\ref{fig:improvement}, reducing $\Rzero$ from 2 to 1.1. See
@@ -3552,7 +3689,7 @@ supplied per day) & $X = \xpeak$ & $X = x^*$ & $X = (x_a^*)$ & $X = \xpeak$ & $X
 
   \begin{figure}[b]
   \centering
-  \includegraphics{figures/age_solutions_dr_slow_edited.pdf}\\[-1ex]
+  \includegraphics{figures/age_solutions_dr_slow.pdf}\\[-1ex]
   \caption{{\bf Optimal Age-Varying Fractional Doses in a Slow-Growing
       Epidemic.} Reprises results from
     Figure~\ref{fig:age_solutions_both}, reducing $\Rzero$ from 2 to
