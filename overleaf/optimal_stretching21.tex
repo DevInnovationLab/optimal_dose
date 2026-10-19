@@ -1716,13 +1716,11 @@ over an interval of months, not years.}
 
 At a given supply $q_0$, halving the dose doubles the number
 vaccinated per day. The prioritization strategy is captured by
-$v_a(t)$, which controls vaccination of each cohort. The implementation
-uses smooth transitions at scheduled start times and tapers
-vaccination as cumulative vaccinations approach the cohort's uptake
-target. The scheduled time allocated to cohort $a$ is approximately
-$p_a h_a x_a/q_0$, where $h_a$ denotes uptake. Dose strength therefore
-affects both vaccination throughput and the start times of subsequent
-cohorts. As in the reduced-form model, we assume that the vaccine is
+$v_a(t)$, which controls vaccination of each cohort. The scheduled time
+allocated to cohort $a$ is $p_a h_a x_a/q_0$, where $h_a$ denotes uptake.
+Dose strength therefore determines both flow of vaccinations and the
+vaccination start times in each subsequent age cohort. As in the
+reduced-form model, we assume that the vaccine is
 all-or-nothing,
 providing perfect protection (perfectly preventing transmission,
 disease, and death) for an individual with a probability given by the
@@ -2149,14 +2147,15 @@ this range.
 \thispagestyle{empty}
 \centering
 \includegraphics{figures/age_solutions_dr.pdf}\\[-1ex]
-\caption{{\bf Optimal Age-Varying Fractional Doses.} Each curve
+\caption{{\bf Optimal Age-Varying Fractional Doses.} The left panel uses
+  a concave dose response and the right panel a sigmoid dose response. Each curve
   corresponds to a different order of magnitude of vaccine
   supply. Tick marks on horizontal axis correspond to different age
   cohorts. Variation in strength across cohorts is layered on top of
   vaccine prioritization by age, completing the vaccination campaign
   for an older cohort before moving to a younger cohort. We omit
-  points when cumulative vaccinations are below 0.01\% of the cohort
-  by the end of the simulation period.}
+  points when 5\% or less of the cohort is in vaccinated compartments
+  at the peak of population-wide infectious prevalence.}
 \label{fig:age_solutions_both}
 \end{figure}
 
