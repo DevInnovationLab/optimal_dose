@@ -162,7 +162,8 @@ for task, before, after, stem in [
         subprocess.run(["diff-review", "--patch", str(rendered_patch),
                         "--no-open", "--context", "3", "--output", str(rendered)],
                        check=True, capture_output=True, text=True)
-        diff_pages[stem] = rendered.read_text()
+        diff_pages[stem] = rendered.read_text().replace(
+            str(rendered_patch), str(out / (stem + ".diff")))
 
 # Show the model-introduction change alongside the base-case note as well.
 header, *hunks = re.split(r"(?m)(?=^@@ )", review_patch(old, new))
