@@ -1,85 +1,79 @@
 # Optimal dose stretching
 
 Run R scripts from the RStudio project root. The manuscript is
-[`overleaf/optimal_stretching21.tex`](overleaf/optimal_stretching21.tex).
+[`overleaf/optimal_stretching24.tex`](overleaf/optimal_stretching24.tex).
+
+The single base case uses R0 = 1.5, with 0.53% of each cohort initially exposed,
+99.47% susceptible, and nobody initially infectious or immune. Without
+vaccination, about 49.8% are infected by day 360 and the epidemic peaks near
+three months. These are illustrative choices. Other attack rates and peak
+trajectories are calibrated in the sensitivity analysis, rather than stored as
+separate fast- and slow-growth defaults.
 
 ## Main results and paper outputs
 
-`optimise.R` fits the vaccination policies and saves
-`results/nlopt_results.rds`. Dynamic age-varying fits use five starts (the
-optimal uniform dose, 25%, 75%, 1%, and 100%) and retain the fewest-deaths solution.
-`opt_general()` defaults to `n_starts = 1` for interactive calls;
-`optimise.R` sets `age_n_starts <- 5L` for dynamic age-varying cases only.
-Uniform and static fits use one start. Per-start objectives,
-termination statuses and iterations are retained in `result_start_diagnostics`.
-This can take a while and replaces the saved main
-results. After running `source("optimise.R")`, use this block to regenerate the
-paper outputs produced by the current R scripts:
+`optimise.R` fits both dose-response shapes over the dynamic supply grid and
+the retained static cases, saving `results/nlopt_results.rds`. The result has a
+single `Base case` scenario and records its parameters as an attribute.
+Dynamic age-varying policies use five starts (the uniform optimum, 25%, 75%,
+1%, and 100%), with up to 5,000 evaluations per start. Uniform and static fits
+use one start. Start diagnostics are retained in `result_start_diagnostics`.
+The random seed is fixed for reproducibility. Multiple starts do not certify
+a global optimum.
+
+Verify the rounded initial seed with `source("setup/calibrate_base_case.R")`,
+then run `source("optimise.R")`. Regenerate the outputs with:
 
 ```r
-# Tables and figures that use the new optimisation results
 source("paper/table_calibration_results.R")
 source("paper/figure_objective_v2.R")
 source("paper/figure_optimal_dose.R")
-
-# Model illustrations and dose-response curves (independent of optimisation)
 source("paper/figure_example.R")
 source("paper/figure_dose_response.R")
+source("figures.R") # supplementary base-case death tables
 
-# Uptake sensitivity summaries (loads saved fits unless refit <- TRUE)
 source("sensitivity/uptake.R")
+source("sensitivity/analysis.R")
 ```
 
-The table script writes `overleaf/tables/calibration_fast_rows.tex` and
-`calibration_slow_rows.tex` as reference outputs. Copy their numerical rows into
-the two results tables in `overleaf/optimal_stretching21.tex`; the manuscript
-keeps these rows inline so changes to individual values remain visible in Git.
-Unrounded percentages are saved in `paper/tables/calibration_results.csv`.
+The calibration-table script writes `paper/tables/calibration_results.csv`
+and reference rows in `overleaf/tables/calibration_rows.tex`. The sensitivity
+script writes `overleaf/tables/sensitivity_rows.tex`. Copy these rows into the
+corresponding inline tables in `optimal_stretching24.tex` so numerical changes
+remain visible in manuscript diffs. Both tables have been updated for the
+current base case.
 
-The objective and age-dose figure scripts write PDFs under `paper/figures/`
-and copy the four manuscript inputs to `overleaf/figures/`. The manuscript uses these generated PDFs rather
-than separate manually edited versions. The age-dose script also saves
-`paper/figures/age_solutions_coverage.csv`: cohorts are plotted only when
-`frac_vac > .05`, using the peak-based measure from `figures.R` (2024–2025)
-with a 5% display threshold. The concave panel is on the left and the sigmoid
-panel on the right.
-`frac_vac` sums the vaccinated compartments (`P1`, `N1`, `P2`, `N2`) at the
-population-wide infection peak; `max_I_day` records that day. These values
-come from the saved age-varying policies. They are not cumulative vaccinations
-at the end of the simulation.
+The objective, age-dose and epidemic-illustration scripts write PDFs under
+`paper/figures/` and copy the main inputs to `overleaf/figures/`. They generate
+only base-case figures. `paper/figure_example.R` also generates the retained
+multi-season illustration. The age-dose script saves
+`paper/figures/age_solutions_coverage.csv`; cohorts are plotted only when
+`frac_vac > .05`. This quantity sums vaccinated compartments at the overall
+infection peak, rather than counting cumulative administrations.
 
-`paper/figure_example.R` regenerates the epidemic trajectories and copies the
-two single-outbreak illustrations (using full doses) to `overleaf/figures/`.
-`paper/figure_dose_response.R` writes `paper/figures/dose_response.pdf`; the
-manuscript currently uses a separately edited `dose_response_edited.pdf`, which
-this command does not replace. The theoretical figures and model diagram also
-use separate assets and are not regenerated by this block. The missing
-`matrices.pdf`, `epi_model.pdf`, and `dose_response_edited.pdf` were recovered
-from their embedded PDF forms in the July 2026 compiled manuscript; these
-preserve the existing diagrams and edited dose-response figure.
+The dose-response figure is also regenerated, but the manuscript uses the
+separately edited `dose_response_edited.pdf`. The theoretical figures and model
+diagram are separate assets. Finally, compile `overleaf/optimal_stretching24.tex`.
 
-The first three commands are sufficient after changing only the optimisation
-procedure. Rerun the illustrations and refit the uptake sensitivity if model
-code or parameters change; set `refit <- TRUE` in `sensitivity/uptake.R` for the
-latter. Sensitivity numbers in the text are entered manually from its summaries.
-Finally, compile `overleaf/optimal_stretching21.tex` to update the paper PDF.
+## Sensitivity analyses
 
-## Uptake sensitivity
+See [`sensitivity/README.md`](sensitivity/README.md). The systematic analysis
+calibrates R0 and E(0) jointly to compare attack rates of 30% and 70% at a
+three-month peak, and 50% attack rates with peaks at two, four and six months.
+The base case supplies the three-month timing comparison. All attack targets
+and vaccination outcomes refer to day 360.
 
-See [`sensitivity/README.md`](sensitivity/README.md) for the check of common uptake
-rates of 30%, 50%, 60%, 80%, and 90% among adult cohorts. Code, fitted results,
-summary percentages and age-specific doses are kept there separately from the
-main optimisation results. This check supplies the uptake footnotes in Section 6.
+`R/scenario_calibration.R` contains the shared calibration helpers.
+`setup/base_case_calibration.csv` records the rounded base case and its achieved
+attack rate and peak. Changing the default requires updating the constants in
+`setup/parametrisation.R`, recalibrating the sensitivities, and rerunning the
+commands above. Sensitivity caches are checked against the case settings and
+model source; use `refit <- TRUE` after other relevant code changes.
 
-## Numerical optimisation
+## Review
 
-Multiple starts are part of `optimise.R`, rather than a separate check script.
-The five starts were chosen after comparing 12 representative scenarios. The
-archived `sensitivity/optimisation_results.rds`, `optimisation_starts.csv`, and
-`optimisation_summary.csv` retain the evidence for that choice; see
-[`sensitivity/README.md`](sensitivity/README.md).
-
-The lower-bound start found solutions reducing deaths by up to 2.4% relative to
-previous single-start fits. The main results have not yet been regenerated with
-five starts. Run `source("optimise.R")`, then the paper-output commands above.
-Multiple starts do not certify a global optimum.
+`review_nov2026/complete_review.html` contains the author's notes, the manuscript
+diffs, and a directly rendered sensitivity table. Run
+`python3 review_nov2026/build_complete_review.py` to rebuild it after updating
+both the manuscript and the generated figures. The comparison baseline is
+pinned to commit `907b3f8`, so committing later edits does not reset the review.

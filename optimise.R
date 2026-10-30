@@ -1,4 +1,5 @@
 source("project_setup.R")
+set.seed(202611)
 
 dr_df <- tibble::enframe(dr_foos, name = "dose_name", value = "dose_response")
 age_n_starts <- 5L
@@ -15,9 +16,9 @@ cases_dynamic <- expand_grid(q_per_day = c(10, 5, 3, 2, 1.5, 1.25, 1, 0.9, 0.8,
                              homogen_mixing = F,
                              static = F,
                              pdeath = c("ifr_hic"), 
-                             scenario = c("pars_le_slow", "pars_le_fast"),
+                             scenario = "base",
                              recurring = list(c(0.8,0.2,0.5,1)),
-                             iterations = 1000) %>% 
+                             iterations = 5000) %>%
   mutate(q = 1/q_per_day) %>% 
   # Single-start fits use this draw; dynamic age-varying fits use five starts.
   mutate(initial_value = runif(nrow(.), 0.1, 0.9)) %>% 
@@ -33,7 +34,7 @@ cases_static <- expand_grid(q = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1
                             homogen_mixing = F,
                             static = T,
                             pdeath = c("ifr_hic"),
-                            scenario = c("pars_le_slow", "pars_le_fast"),
+                            scenario = "base",
                             recurring = list(c(0.8,0.2,0.5,1)),
                             iterations = 1000) %>%
   mutate(initial_value = q / 7) %>% # Initial value set as 1/7 of total vaccine supply
@@ -100,7 +101,8 @@ df_results <- list(
     by = c("scenario")
   ) %>% 
   mutate(static = ifelse(static, "Static case", "Dynamic case"),
-         scenario = ifelse(scenario == "pars_le_slow", "slow-growth (R0 = 1.1)", "fast-growth (R0 = 2)")) %>% 
+         scenario = "Base case") %>%
   rename(key = solution, value = result_objective) 
 
+attr(df_results, "parameters") <- pars_base
 saveRDS(df_results, file = "results/nlopt_results.rds")

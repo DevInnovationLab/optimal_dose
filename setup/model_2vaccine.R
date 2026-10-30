@@ -47,23 +47,32 @@ odin_ode_2vaccines_v2 <- odin::odin({
   # va1[] <- va1[i] * (1 - midva1[i] / 0.8) + invva1[i] * (midva1[i] / 0.8)
   # va2[] <- va2[i] * (1 - midva2[i] / 0.8) + invva2[i] * (midva2[i] / 0.8)
   
+  # Eligible recipients; the floor stops vaccination at susceptible depletion.
+  eligible_s[] <- max(S[i], 0)
+  eligible_r[] <- vrf*max(R[i], 0)
+  eligible_total[] <- max(eligible_s[i] + eligible_r[i], 1e-6)
+  share_s[] <- eligible_s[i]/eligible_total[i]
+  share_r[] <- eligible_r[i]/eligible_total[i]
+
   # ODE equations are here:
-  deriv(S[])      <- -(beta[i] + constantrisk)*S[i] + phi[i]*R[i] - 
-    (va1[i]*delta1[i] + va2[i]*delta2[i])*S[i]/(S[i]+R[i]*vrf) 
-  deriv(E[])      <-  (beta[i] + constantrisk)*(S[i]+N1[i]+N2[i]) - gamma1[i]*E[i]
-  deriv(I[])      <-  gamma1[i]*E[i] - gamma2[i]*I[i]
-  deriv(R[])      <-  (1-pdeath[i])*gamma2[i]*I[i] - phi[i]*R[i] - 
-    mtv*R[i]*vrf*(va1[i]*delta1[i] + va2[i]*delta2[i])/(S[i]+R[i]*vrf)
-  deriv(D[])      <-  pdeath[i]*gamma2[i]*I[i]
-  deriv(V1[])     <-  va1[i]*delta1[i]*(e1[i]*S[i] + R[i]*vrf*mtv)/(S[i]+R[i]*vrf) - kappa1[i]*V1[i]
-  deriv(N1[])     <-  va1[i]*delta1[i]*(1-e1[i])*S[i]/(S[i]+R[i]*vrf) + kappa1[i]*V1[i]  - (beta[i] + constantrisk)*N1[i]
-  deriv(V2[])     <-  va2[i]*delta2[i]*(e2[i]*S[i]+R[i]*vrf*mtv)/(S[i]+R[i]*vrf) - kappa2[i]*V2[i]
-  deriv(N2[])     <-  va2[i]*delta2[i]*(1-e2[i])*S[i]/(S[i]+R[i]*vrf) + kappa2[i]*V2[i]  - (beta[i] + constantrisk)*N2[i]
-  deriv(cumV1[])  <-  va1[i]*delta1[i]
-  deriv(cumV2[])  <-  va2[i]*delta2[i]
-  deriv(cumV[])   <-  va1[i]*delta1[i] + va2[i]*delta2[i]
-  deriv(cumI[])   <-  gamma1[i]*E[i]
-  
+  deriv(S[]) <- -(beta[i] + constantrisk)*S[i] + phi[i]*R[i] -
+    (va1[i]*delta1[i] + va2[i]*delta2[i])*share_s[i]
+  deriv(E[]) <- (beta[i] + constantrisk)*(S[i]+N1[i]+N2[i]) - gamma1[i]*E[i]
+  deriv(I[]) <- gamma1[i]*E[i] - gamma2[i]*I[i]
+  deriv(R[]) <- (1-pdeath[i])*gamma2[i]*I[i] - phi[i]*R[i] -
+    mtv*(va1[i]*delta1[i] + va2[i]*delta2[i])*share_r[i]
+  deriv(D[]) <- pdeath[i]*gamma2[i]*I[i]
+  deriv(V1[]) <- va1[i]*delta1[i]*(e1[i]*share_s[i] + mtv*share_r[i]) - kappa1[i]*V1[i]
+  deriv(N1[]) <- va1[i]*delta1[i]*(1-e1[i])*share_s[i] + kappa1[i]*V1[i] -
+    (beta[i] + constantrisk)*N1[i]
+  deriv(V2[]) <- va2[i]*delta2[i]*(e2[i]*share_s[i] + mtv*share_r[i]) - kappa2[i]*V2[i]
+  deriv(N2[]) <- va2[i]*delta2[i]*(1-e2[i])*share_s[i] + kappa2[i]*V2[i] -
+    (beta[i] + constantrisk)*N2[i]
+  deriv(cumV1[]) <- va1[i]*delta1[i]*(share_s[i] + share_r[i])
+  deriv(cumV2[]) <- va2[i]*delta2[i]*(share_s[i] + share_r[i])
+  deriv(cumV[]) <- (va1[i]*delta1[i] + va2[i]*delta2[i])*(share_s[i] + share_r[i])
+  deriv(cumI[]) <- gamma1[i]*E[i]
+
   # PARAMETERS: general
   Ngroups        <- user()
   Nc             <- user()
@@ -107,6 +116,11 @@ odin_ode_2vaccines_v2 <- odin::odin({
   dim(vstop)        <- Ngroups
   dim(va1)          <- Ngroups
   dim(va2)          <- Ngroups
+  dim(eligible_s) <- Ngroups
+  dim(eligible_r) <- Ngroups
+  dim(eligible_total) <- Ngroups
+  dim(share_s) <- Ngroups
+  dim(share_r) <- Ngroups
   # dim(invva1)       <- Ngroups
   # dim(invva2)       <- Ngroups
   # dim(midva1)       <- Ngroups

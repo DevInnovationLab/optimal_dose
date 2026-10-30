@@ -24,7 +24,7 @@ q_seq <- c(0.1, 0.25, 0.5, 0.75, 1) #just try two quantities at first
 # - homogen_mixing: TRUE or FALSE
 # - static: TRUE or FALSE for static problem
 # - pdeath: mortality risk vector, default to high-income country case
-# - scenario: cases decreasing, slowly increasing, rapidly increasing, etc
+# - scenario: "base" for the main calibration
 # - recurring: list with vectors vaccine hesitancy parameter for each year of the campaign
 # - n_starts: 1--5 starts for dynamic age-varying fits; defaults to 1
 # - n_x = number of parameters to optimise
@@ -37,7 +37,7 @@ opt_general <-
            homogen_mixing = F, 
            static = T,
            pdeath = "ifr_hic",
-           scenario = "pars_le_slow",
+           scenario = "base",
            recurring = c(0.8,0.2,0.5,1),
            n_x = 7,
            unroll_x = function(x, sub=1) c(sub,sub,x[1],x[2],x[3],x[4],x[5],x[6],x[7]),

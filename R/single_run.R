@@ -11,7 +11,7 @@ check_compartment_mass <- function(y, tolerance = 1e-6) {
   invisible(TRUE)
 }
 
-sr <- function(pars, f = "2v_v2") { 
+sr <- function(pars, f = "2v_v2", ...) {
   gnames <- 1:pars$Ngroups
   times <- 1:(pars$Ndays)
   pars$Ndays <- NULL
@@ -29,7 +29,7 @@ sr <- function(pars, f = "2v_v2") {
     mod <- odin_ode_2vaccines_v2$new(user = pars)
     cnames <- c("S", "E", "I", "R", "D", "P1", "N1", "P2", "N2", "cumV1", "cumV2", "cumV", "cumI")
   }
-  y <- array(mod$run(times)[,-1], 
+  y <- array(mod$run(times, ...)[,-1],
              dim = c(max(times), pars$Ngroups, pars$Nc), 
              dimnames = list(times, gnames, cnames)) %>%
     aperm(c(1, 3, 2))

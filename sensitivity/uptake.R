@@ -1,4 +1,4 @@
-# Check uptake sensitivity for the fast-growing epidemic, sigmoid dose response,
+# Check uptake sensitivity for the base-case epidemic, sigmoid dose response,
 # and daily supply of 0.1% of the population in full-dose equivalents.
 # Save fits separately from the main results; set refit to TRUE to rerun them.
 
@@ -16,7 +16,7 @@ refit <- FALSE
 # through to apap_2v(). Keep the paper's other single-season parameters fixed.
 deaths_at_dose <- function(dose, uptake) {
   dose <- c(1, 1, rep(dose, length.out = 7))
-  pars <- apap_2v(pars_le_fast, len = 1000,
+  pars <- apap_2v(pars_base, len = 1000,
                   fractional_dose = dose, vhes = uptake)
   pars$e1 <- phi_sigmoid(dose)
   y <- sr(pars)
@@ -24,19 +24,20 @@ deaths_at_dose <- function(dose, uptake) {
 }
 
 # Fit and save -----
-no_vaccine <- sr(pars_le_fast)
+no_vaccine <- sr(pars_base)
 no_vaccine_deaths <- sum(no_vaccine[Ndays, "D", ] * pop)
 fits <- if (!refit && file.exists("sensitivity/uptake_results.rds")) {
   readRDS("sensitivity/uptake_results.rds")
 } else {
   list()
 }
+fits <- Filter(function(fit) identical(fit$parameters, pars_base), fits)
 
 for (uptake in uptake_values) {
   key <- as.character(uptake)
   if (key %in% names(fits)) next
   message("Fitting uptake = ", uptake)
-  pars <- apap_2v(pars_le_fast, len = 1000, vhes = uptake)
+  pars <- apap_2v(pars_base, len = 1000, vhes = uptake)
   stopifnot(all(pars$vstop[3:9] == uptake))
 
   objective <- function(dose) deaths_at_dose(dose, uptake)
@@ -58,7 +59,8 @@ for (uptake in uptake_values) {
   stopifnot(best_age$objective <= uniform$objective + 1e-8)
 
   fits[[key]] <- list(
-    uptake = uptake, no_vaccine_deaths = no_vaccine_deaths,
+    uptake = uptake, parameters = pars_base,
+    no_vaccine_deaths = no_vaccine_deaths,
     full_deaths = full_deaths, uniform = uniform, dose_grid = dose_grid,
     age_fits = age_fits, best_age = best_age,
     full_dose_start_days = pars$ta1, uptake_targets = pars$vstop)

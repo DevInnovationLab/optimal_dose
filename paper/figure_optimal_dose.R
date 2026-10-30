@@ -34,18 +34,17 @@ df_optimal_dose <- df_results %>%
   unnest(result_solution)
 write_csv(df_optimal_dose, "paper/figures/age_solutions_coverage.csv")
 
-plot_age_solutions_dr <- function(scenario_name) {
+plot_age_solutions_dr <- function() {
   df_optimal_dose %>%
     filter(q_per_day %in% q_plot) %>%
-    filter(scenario == scenario_name) %>%
     # frac_vac sums P1 + N1 + P2 + N2 at peak total infectious prevalence.
     # Keep cohorts with more than 5% vaccinated at that peak.
     filter(frac_vac > .05) %>%
     mutate(
       dose_name = factor(
         dose_name,
-        levels = c("concave", "sigmoid"),
-        labels = c("Concave dose response", "Sigmoid dose response")
+        levels = c("sigmoid", "concave"),
+        labels = c("Sigmoid dose response", "Concave dose response")
       ),
       q_per_day = factor(q_per_day, levels = q_plot, labels = q_labels)
     ) %>%
@@ -68,16 +67,10 @@ plot_age_solutions_dr <- function(scenario_name) {
     guides(color = guide_legend(nrow = 1))
 }
 
-plot_age_solutions_dr("fast-growth (R0 = 2)")
-ggsave("paper/figures/age_solutions_dr.pdf", width = fig_width, height = fig_height,
-       unit = "cm")
+plot_age_solutions_dr()
+ggsave("paper/figures/age_solutions_dr.pdf", width = fig_width,
+       height = fig_height, unit = "cm")
 
-plot_age_solutions_dr("slow-growth (R0 = 1.1)")
-ggsave("paper/figures/age_solutions_dr_slow.pdf", width = fig_width, height = fig_height,
-       unit = "cm")
-
-# Keep the manuscript's figure inputs in step with the generated plots.
 dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy(c("paper/figures/age_solutions_dr.pdf",
-            "paper/figures/age_solutions_dr_slow.pdf"),
-          "overleaf/figures", overwrite = TRUE))
+stopifnot(file.copy("paper/figures/age_solutions_dr.pdf",
+                    "overleaf/figures", overwrite = TRUE))

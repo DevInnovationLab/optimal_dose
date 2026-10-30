@@ -59,15 +59,11 @@ plot_example_model <- function(scenario) {
     guides(color = guide_legend(nrow = 1))
 }
 
-ggsave("paper/figures/example_model.pdf", plot = plot_example_model("pars_le_fast"),
+ggsave("paper/figures/example_model.pdf", plot = plot_example_model("base"),
        width = 16.5, height = 7.5, unit = "cm")
-ggsave("paper/figures/example_model_slow.pdf", plot = plot_example_model("pars_le_slow"),
-       width = 16.5, height = 7.5, unit = "cm")
-
-# Keep the two single-outbreak illustrations used by the manuscript current.
+# Keep the manuscript's single-outbreak illustration current.
 dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy(c("paper/figures/example_model.pdf",
-                      "paper/figures/example_model_slow.pdf"),
+stopifnot(file.copy("paper/figures/example_model.pdf",
                     "overleaf/figures", overwrite = TRUE))
 
 # Long-term simulation ("recurring")
@@ -75,7 +71,7 @@ stopifnot(file.copy(c("paper/figures/example_model.pdf",
 speed_x <- c(10, 1000)
 y <- lapply(speed_x, function(speed)
   model_fd_dynamic(
-    "pars_le_fast", 
+    "base",
     length_campaign = speed, 
     fd = rep(0.5, Ngroups),
     phi_x = phi_covid,

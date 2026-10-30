@@ -39,7 +39,7 @@ obj_full <- function(q = 1,
                      homogen_mixing = FALSE,
                      static = TRUE, 
                      pdeath = "ifr_hic", 
-                     scenario = "pars_le_fast", 
+                     scenario = "base",
                      recurring = c(0.8, 0.2, 0.5, 1)) {
   
   
@@ -134,7 +134,7 @@ obj_full <- function(q = 1,
 obj_no_vac_v2 <- function(objective = "D", 
                           homogen_mixing = FALSE, 
                           pdeath = "ifr_hic", 
-                          scenario = "pars_le_fast", 
+                          scenario = "base",
                           recurring = c(0.8, 0.2, 0.5, 1)) {
   
   # Set up parameters for the single run of the epidemic

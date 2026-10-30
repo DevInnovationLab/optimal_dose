@@ -32,29 +32,28 @@ hic_pop <- pbc_spread[countries["High-income countries"],] %>% as.numeric()
 lic_pop <- pbc_spread[countries["Low-income countries"],] %>% as.numeric()
 pop <- hic_pop / sum(hic_pop) # Fractions of total population by age groups
 
-# Proportion of natrual immunity by age groups
-pre_immunity <- c(.5, .5, rep(.2, 7))
+# No pre-existing natural immunity in any age group
+pre_immunity <- rep(0, 9)
 pre_immunity_prop <- sum(pre_immunity * pop)
 
-# Proportion of initial infection, same across all age groups
-infected0 <- c("fast" = 1e-03,
-               "slow" = 5e-03,
-               "decreasing" = 1e-02)
+# Base-case transmission and initial exposure; see base_case_calibration.csv.
+base_r0 <- 1.5
+initial_exposed <- 0.0053
 
 # Function for generating initial compartment values
 # - Nc: number of compartments
 # - Ngroups: number of age groups
 # - pre_immunity
-# - ii: essentially infected0 in its actual applications
+# - ii: exposed fraction among initially nonimmune individuals
 # - S/E/I/R: order of these four compartments in the output matrix
 y0_gen <- function(Nc, Ngroups, 
                    pre_immunity = rep(0, Ngroups),
-                   ii = 5e-03, 
+                   ii = initial_exposed,
                    S = 1, E = 2, I = 3, R = 4){
   y0_default <- matrix(0, Nc, Ngroups)
   y0_default[S,] <- 1 - pre_immunity
-  y0_default[E,] <- (y0_default[1,]*ii)/2
-  y0_default[I,] <- (y0_default[1,]*ii)/2 # Exposed == Infected initially
+  y0_default[E,] <- y0_default[S,]*ii
+  y0_default[I,] <- 0 # Seed the epidemic through exposed individuals only
   y0_default[S,] <- y0_default[S,] - y0_default[E,] - y0_default[I,]
   y0_default[R,] <- pre_immunity
   y0_default
@@ -101,14 +100,13 @@ r0 <- function(r) r / (5 * ev_pi)
 # ------------------------------------------------------------------------------
 # 3. Two-vaccine model parameters
 # ------------------------------------------------------------------------------
-# This first one is the foundation upon which later ones simply modify
-# Basically only the initial infected and the q (viral reproduction) are modified. 
-pars_le_slow <- lst(
+# Base-case parameters; sensitivity alternatives are calibrated separately.
+pars_base <- lst(
   Nc = 13, 
   Ngroups, 
   Ndays,
-  y0 = y0_gen(13, 9, pre_immunity, infected0[["slow"]]),
-  q = rep(r0(1.1), Ngroups), # R0 == 1.1, as noted in PNAS appendix
+  y0 = y0_gen(13, 9, pre_immunity, initial_exposed),
+  q = rep(r0(base_r0), Ngroups),
   contacts = default_cm,
   gamma1 = rep(.2, Ngroups),
   gamma2 = rep(.2, Ngroups),
@@ -131,57 +129,13 @@ pars_le_slow <- lst(
   constantrisk = 0
 )
 
-pars_le_fast <- list_modify(pars_le_slow,
-                            y0 = y0_gen(13, 9, pre_immunity, infected0[["fast"]]),
-                            q = rep(r0(2), Ngroups))
-pars_le_cr <- list_modify(pars_le_slow,
-                          y0 = y0_gen(13, 9, pre_immunity, .1/30.5),
-                          q = rep(0, Ngroups),
-                          constantrisk = .01/30.5)
-pars_le_linear <- list_modify(pars_le_slow,
-                              y0 = y0_gen(13, 9, pre_immunity, infected0[["decreasing"]]),
-                              q = rep(r0(.99), Ngroups))
-
-set0 <- c(rep(1,4), 0, rep(1,7), 0)
-pars_le_late <- list_modify(pars_le_fast, 
-                            y0 = (sr(pars_le_fast)["120", ,])*set0)
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-
-
-
-# ------------------------------------------------------------------------------
-# 4. Selection function of parameters: grab_2v_parms
-# ------------------------------------------------------------------------------
-scenario_par_nms_2v <- c("pars_linear", "pars_le_slow", "pars_le_fast")#, "pars_le_late", "pars_le_cr")
-scenario_nms_2v <- c("Slow-decrease epidemic", "Slow-growth epidemic", "Fast-growth epidemic")#, "Declining risk", "Constant risk")
-scenario_list_2v <- lst(
-  # "Constant risk of infection" = pars_le_cr,
-  "Slow decrease (R = 0.99)" = pars_le_linear,
-  "Slow growth (R = 1.1)" = pars_le_slow,
-  "Fast growth (R = 2)" = pars_le_fast,
-  # "Declining risk (R0 = 3, after peak)" = pars_le_late
-) %>%
-  setNames(scenario_nms_2v)
-
-
-# Grab parameter sets (fast, slow, late, constant risk)
-grab_2v_parms <- function(model){
-  if(model == "pars_linear")  pars <- pars_le_linear
-  if(model == "pars_le_cr")   pars <- pars_le_cr
-  if(model == "pars_le_slow") pars <- pars_le_slow
-  if(model == "pars_le_fast") pars <- pars_le_fast
-  if(model == "pars_le_late") pars <- pars_le_late
-  pars
+# Select the single baseline; alternatives are calibrated in sensitivity/analysis.R.
+grab_2v_parms <- function(model = "base") {
+  stopifnot(model == "base")
+  pars_base
 }
+
 # ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-
-
-
-
 # ------------------------------------------------------------------------------
 # 5. Adjustment function of parameters: apap_2v
 #-------------------------------------------------------------------------------
@@ -229,8 +183,12 @@ apap_2v <- function(pars, len,
                     switch=Inf, 
                     delay = 10, 
                     vhes = .8, vsupply = default_supply_ceiling,
-                    group_seq=default_group_seq) {
-  allocation_vector <- vac_top_p(vsupply/vhes, pop)
+                    group_seq=default_group_seq, pop_sizes = pop) {
+  prop_young <- sum(pop_sizes[1:2])
+  prop_old <- sum(pop_sizes[7:9])
+  prop_all <- c(rep(prop_young, 2),
+                rep(1 - prop_young - prop_old, 4), rep(prop_old, 3))
+  allocation_vector <- vac_top_p(vsupply/vhes, pop_sizes)
   d1 <- avail_by_age/len/prop_all
   
   if(length(delay)==1){
@@ -252,8 +210,8 @@ apap_2v <- function(pars, len,
       t1[1:6] <- expand_from + (vhes - (expand_from - delay)*v)/(expansion_factor*v)
     }
   } else {
-    d1 <- avail_by_age/len/pop/fractional_dose
-    time_to_vaccinate_k <- len*pop*vhes*(allocation_vector+0.00001)*fractional_dose
+    d1 <- avail_by_age/len/pop_sizes/fractional_dose
+    time_to_vaccinate_k <- len*pop_sizes*vhes*(allocation_vector+0.00001)*fractional_dose
     t1 <- delay + c(rev(cumsum(rev(time_to_vaccinate_k)))[-1],0)
     
     if ((expand_from>delay[length(delay)])&(expand_from!=Inf)){
@@ -262,12 +220,12 @@ apap_2v <- function(pars, len,
       t1.expand[t1.expand>min(t1.expand[t1.expand>0])] <- 1
       switch_index <- which(!t1.expand %in% c(0,1))
       t1.expand[switch_index] <- t1.expand[switch_index]/(time_to_vaccinate_k)[switch_index+1]
-      pop.expand <- t1.expand*c((pop*vhes*allocation_vector)[-1],0.0001)
-      t1.delta <- pop.expand*len*(1-1/expansion_factor)
+      pop_sizes.expand <- t1.expand*c((pop_sizes*vhes*allocation_vector)[-1],0.0001)
+      t1.delta <- pop_sizes.expand*len*(1-1/expansion_factor)
       t1 <- t1 - rev(cumsum(rev(t1.delta)))
     }  
     if ((expand_from<=delay[length(delay)])){
-      t1 <- delay + c(rev(cumsum(rev((len/expansion_factor)*pop*vhes*(allocation_vector+0.00001))))[2:length(pop)],0)
+      t1 <- delay + c(rev(cumsum(rev((len/expansion_factor)*pop_sizes*vhes*(allocation_vector+0.00001))))[2:length(pop_sizes)],0)
     }
   }
   

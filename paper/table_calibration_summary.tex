@@ -1,0 +1,28 @@
+\begin{table}[!h]
+\centering
+\caption{\label{tab:tab:results}Optimal Dosing and Averted Deaths}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{ } & \multicolumn{3}{c}{ } \\
+
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{3}{c}{\textbf{Pct. of full dose}} & \multicolumn{3}{c}{\textbf{Pct. deaths without vaccine averted}} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+Capacity & full_pct & uniform_pct & agevary_pct & full_avert & uniform_avert & agevary_avert\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Concave Dose Response}}\\
+10.00\% & 100 & 98 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 95 & 95 & 95\\
+1.00\% & 100 & 73 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 88 & 90 & 90\\
+0.10\% & 100 & 35 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 32 & 45 & 46\\
+0.01\% & 100 & 7 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 4 & 11 & 11\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Sigmoid Dose Response}}\\
+10.00\% & 100 & 91 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 95 & 95 & 95\\
+1.00\% & 100 & 70 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 88 & 91 & 91\\
+0.10\% & 100 & 51 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 32 & 44 & 44\\
+0.01\% & 100 & 42 & \mc{1}{c}{Fig.~\\ref{fig:age_solutions_both}} & 4 & 7 & 7\\
+\bottomrule
+\end{tabular}
+\end{table}

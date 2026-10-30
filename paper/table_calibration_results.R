@@ -23,36 +23,22 @@ calibration_results <- df_results %>%
             relationship = "one-to-one") %>%
   select(-n_doses) %>%
   arrange(scenario, dose_name, q_per_day)
-stopifnot(nrow(calibration_results) == 16, !anyNA(calibration_results))
+stopifnot(nrow(calibration_results) == 8, !anyNA(calibration_results))
 write_csv(calibration_results, "paper/tables/calibration_results.csv")
 
 # Save rows in the Overleaf folder so it remains a standalone manuscript.
 dir.create("overleaf/tables", showWarnings = FALSE)
-for (epidemic in c("fast", "slow")) {
-  scenario_name <- if (epidemic == "fast") {
-    "fast-growth (R0 = 2)"
-  } else {
-    "slow-growth (R0 = 1.1)"
-  }
-  figure_label <- if (epidemic == "fast") {
-    "fig:age_solutions_both"
-  } else {
-    "fig:slow_age_solutions"
-  }
-  rows <- character()
-  for (dose_response in c("sigmoid", "concave")) {
-    values <- calibration_results %>%
-      filter(scenario == scenario_name, dose_name == dose_response)
-    heading <- if (dose_response == "sigmoid") "Sigmoid" else "Concave"
-    rows <- c(rows, "\\midrule",
-      paste0("\\mc{7}{c}{\\bf ", heading, " Dose Response} \\\\[2ex]"),
-      sprintf(
-        r"(%.2g\%% & 100\%% & %d\%% & \mc{1}{c}{Fig.~\ref{%s}} & %d\%% & %d\%% & %d\%% \\)",
-        100 * values$q_per_day, round(100 * values$uniform_dose),
-        figure_label, round(values$full_dose), round(values$frac_uniform),
-        round(values$frac_age)))
-  }
-  writeLines(c(paste0("\\newcommand{\\calibration", epidemic, "rows}{%"),
-               rows, "}"),
-             paste0("overleaf/tables/calibration_", epidemic, "_rows.tex"))
+rows <- character()
+for (dose_response in c("sigmoid", "concave")) {
+  values <- calibration_results %>% filter(dose_name == dose_response)
+  heading <- if (dose_response == "sigmoid") "Sigmoid" else "Concave"
+  rows <- c(rows, "\\midrule",
+    paste0("\\mc{7}{c}{\\bf ", heading, " Dose Response} \\\\[2ex]"),
+    sprintf(
+      r"(%.2g\%% & 100\%% & %d\%% & \mc{1}{c}{Fig.~\ref{fig:age_solutions_both}} & %d\%% & %d\%% & %d\%% \\)",
+      100 * values$q_per_day, round(100 * values$uniform_dose),
+      round(values$full_dose), round(values$frac_uniform),
+      round(values$frac_age)))
 }
+writeLines(c("\\newcommand{\\calibrationrows}{%", rows, "}"),
+           "overleaf/tables/calibration_rows.tex")

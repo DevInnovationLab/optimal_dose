@@ -51,28 +51,12 @@ df_obj_tab
 
 
 
-# concave case
-latex_table <- df_obj_tab[1:8,] %>% 
-  ungroup() %>% 
-  select(-static, -scenario, -dose_name) %>% 
-  knitr::kable(format = "latex", booktabs = TRUE) %>% 
-  add_header_above(c(" ", "Deaths per 10,000" = 3)) %>% 
-  pack_rows("Fast-growing epidemic, R0 = 2", 1, 4) %>% 
-  pack_rows("Slow-growing epidemic, R0 = 1.1", 5,8)
-
-writeLines(latex_table, "paper/table_concave.tex")
-
-# sigmoid case
-latex_table <- df_obj_tab[9:16,] %>% 
-  ungroup() %>% 
-  select(-static, -scenario, -dose_name) %>% 
-  knitr::kable(format = "latex", booktabs = TRUE) %>% 
-  add_header_above(c(" ", "Deaths per 10,000" = 3)) %>% 
-  pack_rows("Fast-growing epidemic, R0 = 2", 1, 4) %>% 
-  pack_rows("Slow-growing epidemic, R0 = 1.1", 5,8)
-
-writeLines(latex_table, "paper/table_sigmoid.tex")
-
-
-
-
+# Save the base-case tables for both dose-response shapes.
+for (dose_response in c("concave", "sigmoid")) {
+  latex_table <- df_obj_tab %>%
+    filter(dose_name == dose_response) %>%
+    select(-static, -scenario, -dose_name) %>%
+    knitr::kable(format = "latex", booktabs = TRUE) %>%
+    add_header_above(c(" " = 1, "Deaths per 10,000" = 3, " " = 1))
+  writeLines(latex_table, paste0("paper/table_", dose_response, ".tex"))
+}

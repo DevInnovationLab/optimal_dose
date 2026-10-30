@@ -2,6 +2,7 @@
 # Save the manuscript figures and comparisons of the two denominators.
 
 library(ggplot2)
+library(geomtextpath)
 library(dplyr)
 library(readr)
 library(knitr)
@@ -10,6 +11,10 @@ library(scales)
 library(patchwork)
 
 theme_set(theme_minimal(base_size = 11))
+
+# Match Figure 8; its 11 pt labels render at 9.1 pt after LaTeX scaling.
+curve_colours <- c(sigmoid = "#D7301F", concave = "#2C7FB8")
+label_colours <- c(sigmoid = "#B70000", concave = "#0080C0")
 
 df_results <- readRDS("results/nlopt_results.rds") %>%
   filter(static == "Dynamic case")
@@ -26,10 +31,8 @@ df_obj_plot <- df_results %>%
   )
 stopifnot(!anyNA(df_obj_plot$full_dose_deaths))
 
-plot_improvement <- function(fast_growth, y_var, plot_title, y_label,
-                             concave_y, sigmoid_y) {
+plot_improvement <- function(y_var, plot_title, y_label) {
   df_obj_plot %>% 
-    filter((scenario == "fast-growth (R0 = 2)") == fast_growth) %>% 
     filter(key != "full_dose") %>%
     mutate(dose_name = factor(dose_name, levels = c("sigmoid", "concave"))) %>% 
     ggplot(aes(x = 1 / q,
@@ -43,9 +46,23 @@ plot_improvement <- function(fast_growth, y_var, plot_title, y_label,
       name = "Vaccine supply\n(% population supplied per day, log scale)"
     ) +
     labs(title = plot_title, y = y_label) +
-    annotate("text", x = 0.0005, y = concave_y, label = "Concave", color = "blue", hjust = 0) +
-    annotate("text", x = 0.02, y = sigmoid_y, label = "Sigmoid", color = "red", hjust = 0) +
-    scale_color_manual(values = c(sigmoid = "red", concave = "blue")) +
+    geom_textpath(
+      data = ~ filter(.x, key == "frac_age", dose_name == "concave") %>%
+        arrange(1 / q), aes(x = 1 / q, y = .data[[y_var]], label = "Concave"),
+      inherit.aes = FALSE,
+      color = label_colours["concave"], family = "Helvetica",
+      size = 9.1 / .pt, linetype = "blank", straight = TRUE,
+      offset = unit(2, "pt"), hjust = .22
+    ) +
+    geom_textpath(
+      data = ~ filter(.x, key == "frac_age", dose_name == "sigmoid") %>%
+        arrange(1 / q), aes(x = 1 / q, y = .data[[y_var]], label = "Sigmoid"),
+      inherit.aes = FALSE,
+      color = label_colours["sigmoid"], family = "Helvetica",
+      size = 9.1 / .pt, linetype = "blank", straight = TRUE,
+      offset = unit(2, "pt"), hjust = .75
+    ) +
+    scale_color_manual(values = curve_colours) +
     scale_linetype_manual(values = c(frac_age = "dashed", frac_uniform = "solid")) +
     theme(
       legend.position = "none",
@@ -54,58 +71,41 @@ plot_improvement <- function(fast_growth, y_var, plot_title, y_label,
     )
 }
 
-for (filt in c(TRUE, FALSE)) {
-  pp_no_vaccine_plot <- plot_improvement(
-    fast_growth = filt,
-    y_var = "improvement_pp_no_vaccine_deaths",
-    plot_title = "Relative to no-vaccine deaths: [D(1) - D(x*)] / D(0)",
-    y_label = "Percentage points of\nno-vaccine deaths",
-    concave_y = ifelse(filt, 25, 30),
-    sigmoid_y = 12
-  )
-  pct_full_dose_plot <- plot_improvement(
-    fast_growth = filt,
-    y_var = "improvement_pct_full_dose_deaths",
-    plot_title = "Relative to full-dose deaths: [D(1) - D(x*)] / D(1)",
-    y_label = "Percent reduction in\nfull-dose deaths",
-    concave_y = ifelse(filt, 35, 45),
-    sigmoid_y = 18
-  )
 
-  # Keep the manuscript figures on the full-dose denominator.
-  manuscript_plot <- plot_improvement(
-    fast_growth = filt,
-    y_var = "improvement_pct_full_dose_deaths",
-    plot_title = NULL,
-    y_label = "Reduction in deaths\nrelative to full doses (%)",
-    concave_y = ifelse(filt, 25, 30), sigmoid_y = 12
-  )
-  ggsave(
-    filename = if (filt) "paper/figures/improvement.pdf" else
-      "paper/figures/improvement_slow.pdf",
-    plot = manuscript_plot, width = 12, height = 8, units = "cm"
-  )
+pp_no_vaccine_plot <- plot_improvement(
+  y_var = "improvement_pp_no_vaccine_deaths",
+  plot_title = "Relative to no-vaccine deaths: [D(1) - D(x*)] / D(0)",
+  y_label = "Percentage points of\nno-vaccine deaths"
+)
+pct_full_dose_plot <- plot_improvement(
+  y_var = "improvement_pct_full_dose_deaths",
+  plot_title = "Relative to full-dose deaths: [D(1) - D(x*)] / D(1)",
+  y_label = "Percent reduction in\nfull-dose deaths"
+)
 
-  if (filt) {
-    pp_name <- "paper/figures/improvement_pp_no_vaccine_deaths.pdf"
-    pct_name <- "paper/figures/improvement_pct_full_dose_deaths.pdf"
-    comparison_name <- "paper/figures/improvement_denominator_comparison.pdf"
-  } else {
-    pp_name <- "paper/figures/improvement_slow_pp_no_vaccine_deaths.pdf"
-    pct_name <- "paper/figures/improvement_slow_pct_full_dose_deaths.pdf"
-    comparison_name <- "paper/figures/improvement_slow_denominator_comparison.pdf"
-  }
+# Keep the manuscript figures on the full-dose denominator.
+manuscript_plot <- plot_improvement(
+  y_var = "improvement_pct_full_dose_deaths",
+  plot_title = NULL,
+  y_label = "Reduction in deaths\nrelative to full doses (%)"
+)
+ggsave(
+  filename = "paper/figures/improvement.pdf",
+  plot = manuscript_plot, width = 12, height = 8, units = "cm"
+)
 
-  ggsave(filename = pp_name, plot = pp_no_vaccine_plot,
-         width = 12, height = 8, units = "cm")
-  ggsave(filename = pct_name, plot = pct_full_dose_plot,
-         width = 12, height = 8, units = "cm")
-  ggsave(filename = comparison_name,
-         plot = pp_no_vaccine_plot + pct_full_dose_plot,
-         width = 26, height = 8, units = "cm")
-}
+pp_name <- "paper/figures/improvement_pp_no_vaccine_deaths.pdf"
+pct_name <- "paper/figures/improvement_pct_full_dose_deaths.pdf"
+comparison_name <- "paper/figures/improvement_denominator_comparison.pdf"
+
+ggsave(filename = pp_name, plot = pp_no_vaccine_plot,
+       width = 12, height = 8, units = "cm")
+ggsave(filename = pct_name, plot = pct_full_dose_plot,
+       width = 12, height = 8, units = "cm")
+ggsave(filename = comparison_name,
+       plot = pp_no_vaccine_plot + pct_full_dose_plot,
+       width = 26, height = 8, units = "cm")
 
 dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy(c("paper/figures/improvement.pdf",
-            "paper/figures/improvement_slow.pdf"),
+stopifnot(file.copy("paper/figures/improvement.pdf",
           "overleaf/figures", overwrite = TRUE))

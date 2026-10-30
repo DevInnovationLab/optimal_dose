@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # Dynamic objective function
 # ------------------------------------------------------------------------------
-# - scenario: character string such as "pars_le_fast", "pars_le_slow", etc. see grab_2v_parms()
+# - scenario: "base" for the main calibration. see grab_2v_parms()
 # - length_campaign: length of the vaccination campaign in days, which regulates the supply constraint
 # - fd: dose fraction
 # - phi_x: dose response function
@@ -101,7 +101,7 @@ model_fd_dynamic <- function(scenario,
 # ------------------------------------------------------------------------------
 # Static objective function
 # ------------------------------------------------------------------------------
-# - scenario: model scenario such as "pars_le_fast", "pars_le_slow", etc.
+# - scenario: "base" for the main calibration.
 # - fd: dose fraction
 # - phi_x: dose response function
 # - rm: whether the raw output from single_run will be returned
