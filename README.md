@@ -2,8 +2,6 @@
 
 Kremer, Michael, Christopher M. Snyder, and Witold Więcek. “Optimal Dose Stretching Under Vaccine Supply Constraints.” Working paper, November 2026.
 
-The paper studies optimal fractional dosing when vaccine supplies are limited. If the dose–response function is concave, fractional doses are optimal when supplies cannot cover the population at full doses. With an S-shaped response, further tightening of extremely scarce supply can sometimes favour more concentrated doses. In a dynamic model calibrated to Covid-19 that allows transmission and mortality to vary by age, fractional dosing can reduce mortality by up to 30% relative to full dosing.
-
 ## Set up R
 
 Open `optimal_dose.Rproj` in RStudio or set your R working directory to the repository root. Install the packages below. You will also need a C toolchain for R to compile the epidemic model.
