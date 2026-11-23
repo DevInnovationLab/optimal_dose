@@ -61,10 +61,6 @@ plot_example_model <- function(scenario) {
 
 ggsave("paper/figures/example_model.pdf", plot = plot_example_model("base"),
        width = 16.5, height = 7.5, unit = "cm")
-# Keep the manuscript's single-outbreak illustration current.
-dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy("paper/figures/example_model.pdf",
-                    "overleaf/figures", overwrite = TRUE))
 
 # Long-term simulation ("recurring")
 # speed_x <- c(10, 33, 100, 365, 1000)

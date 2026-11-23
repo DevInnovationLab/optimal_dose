@@ -38,9 +38,7 @@ only when case settings, parameters, population weights, solver settings and
 model source match.
 Set `refit <- TRUE` after other relevant code changes.
 
-`overleaf/tables/sensitivity_rows.tex` contains generated reference rows,
-copied inline into the manuscript for readable diffs. The review HTML renders
-the results as a normal HTML table as well.
+`paper/tables/sensitivity_rows.tex` contains the generated LaTeX table rows.
 
 In the recovered-exclusion case, vaccination stops at susceptible depletion;
 unused supply is not reassigned before the next cohort's scheduled start.

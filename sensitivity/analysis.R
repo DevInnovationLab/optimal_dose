@@ -146,6 +146,6 @@ for (group_name in unique(appendix$group)) {
     100 * data$full_averted, 100 * data$uniform_averted,
     100 * data$reduction_vs_full))
 }
-writeLines(rows, "overleaf/tables/sensitivity_rows.tex")
+writeLines(rows, "paper/tables/sensitivity_rows.tex")
 print(summary %>% select(id, r0_value, seed, attack_360, peak_months, uniform_dose,
   full_averted, uniform_averted, reduction_vs_full), n = Inf, width = Inf)

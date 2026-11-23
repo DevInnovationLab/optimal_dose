@@ -105,7 +105,3 @@ ggsave(filename = pct_name, plot = pct_full_dose_plot,
 ggsave(filename = comparison_name,
        plot = pp_no_vaccine_plot + pct_full_dose_plot,
        width = 26, height = 8, units = "cm")
-
-dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy("paper/figures/improvement.pdf",
-          "overleaf/figures", overwrite = TRUE))

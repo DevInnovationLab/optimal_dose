@@ -26,8 +26,6 @@ calibration_results <- df_results %>%
 stopifnot(nrow(calibration_results) == 8, !anyNA(calibration_results))
 write_csv(calibration_results, "paper/tables/calibration_results.csv")
 
-# Save rows in the Overleaf folder so it remains a standalone manuscript.
-dir.create("overleaf/tables", showWarnings = FALSE)
 rows <- character()
 for (dose_response in c("sigmoid", "concave")) {
   values <- calibration_results %>% filter(dose_name == dose_response)
@@ -41,4 +39,4 @@ for (dose_response in c("sigmoid", "concave")) {
       round(values$frac_age)))
 }
 writeLines(c("\\newcommand{\\calibrationrows}{%", rows, "}"),
-           "overleaf/tables/calibration_rows.tex")
+           "paper/tables/calibration_rows.tex")

@@ -70,7 +70,3 @@ plot_age_solutions_dr <- function() {
 plot_age_solutions_dr()
 ggsave("paper/figures/age_solutions_dr.pdf", width = fig_width,
        height = fig_height, unit = "cm")
-
-dir.create("overleaf/figures", showWarnings = FALSE)
-stopifnot(file.copy("paper/figures/age_solutions_dr.pdf",
-                    "overleaf/figures", overwrite = TRUE))
