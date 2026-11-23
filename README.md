@@ -1,79 +1,57 @@
-# Optimal dose stretching
+# Replication package for Optimal Dose Stretching Under Vaccine Supply Constraints
 
-Run R scripts from the RStudio project root. The manuscript is
-[`overleaf/optimal_stretching24.tex`](overleaf/optimal_stretching24.tex).
+Kremer, Michael, Christopher M. Snyder, and Witold Więcek. “Optimal Dose Stretching Under Vaccine Supply Constraints.” Working paper, November 2026.
 
-The single base case uses R0 = 1.5, with 0.53% of each cohort initially exposed,
-99.47% susceptible, and nobody initially infectious or immune. Without
-vaccination, about 49.8% are infected by day 360 and the epidemic peaks near
-three months. These are illustrative choices. Other attack rates and peak
-trajectories are calibrated in the sensitivity analysis, rather than stored as
-separate fast- and slow-growth defaults.
+The paper studies optimal fractional dosing when vaccine supplies are limited. If the dose–response function is concave, fractional doses are optimal when supplies cannot cover the population at full doses. With an S-shaped response, further tightening of extremely scarce supply can sometimes favour more concentrated doses. In a dynamic model calibrated to Covid-19 that allows transmission and mortality to vary by age, fractional dosing can reduce mortality by up to 30% relative to full dosing.
 
-## Main results and paper outputs
+[Working paper PDF](overleaf/optimal_stretching24.pdf) · [LaTeX source](overleaf/optimal_stretching24.tex)
 
-`optimise.R` fits both dose-response shapes over the dynamic supply grid and
-the retained static cases, saving `results/nlopt_results.rds`. The result has a
-single `Base case` scenario and records its parameters as an attribute.
-Dynamic age-varying policies use five starts (the uniform optimum, 25%, 75%,
-1%, and 100%), with up to 5,000 evaluations per start. Uniform and static fits
-use one start. Start diagnostics are retained in `result_start_diagnostics`.
-The random seed is fixed for reproducibility. Multiple starts do not certify
-a global optimum.
+## Set up R
 
-Verify the rounded initial seed with `source("setup/calibrate_base_case.R")`,
-then run `source("optimise.R")`. Regenerate the outputs with:
+Open `optimal_dose.Rproj` in RStudio or set your R working directory to the repository root. Install the packages below. You will also need a C toolchain for R to compile the epidemic model.
 
 ```r
+install.packages(c(
+  "abind", "assertthat", "furrr", "geomtextpath", "ggpubr", "kableExtra",
+  "knitr", "latex2exp", "nloptr", "odin", "patchwork", "scales", "shades",
+  "tidyverse"
+))
+```
+
+The model inputs are included in `setup/`. The base case uses a reproduction number of 1.5 and an initial exposed share of 0.53%. Without vaccination, 49.8% of the population is infected by day 360, with the epidemic peaking at about three months.
+
+## Reproduce the results
+
+The repository includes the main optimisation results in `results/nlopt_results.rds`. For a full rerun, run the first two lines below to check the base-case calibration and recompute the optimal uniform and age-specific doses. To regenerate the figures and tables from the saved results, start at `paper/table_calibration_results.R`. The sensitivity scripts can reuse saved fits. Set `refit <- TRUE` in both before running them if you want to recompute all sensitivity fits.
+
+```r
+source("setup/calibrate_base_case.R")
+source("optimise.R")
+
 source("paper/table_calibration_results.R")
 source("paper/figure_objective_v2.R")
 source("paper/figure_optimal_dose.R")
 source("paper/figure_example.R")
 source("paper/figure_dose_response.R")
-source("figures.R") # supplementary base-case death tables
+source("figures.R")
 
 source("sensitivity/uptake.R")
 source("sensitivity/analysis.R")
 ```
 
-The calibration-table script writes `paper/tables/calibration_results.csv`
-and reference rows in `overleaf/tables/calibration_rows.tex`. The sensitivity
-script writes `overleaf/tables/sensitivity_rows.tex`. Copy these rows into the
-corresponding inline tables in `optimal_stretching24.tex` so numerical changes
-remain visible in manuscript diffs. Both tables have been updated for the
-current base case.
+The main optimisation uses five starting values for age-specific doses in the dynamic model and saves diagnostics for each start. Details of the scenarios and output files are in the [sensitivity README](sensitivity/README.md).
 
-The objective, age-dose and epidemic-illustration scripts write PDFs under
-`paper/figures/` and copy the main inputs to `overleaf/figures/`. They generate
-only base-case figures. `paper/figure_example.R` also generates the retained
-multi-season illustration. The age-dose script saves
-`paper/figures/age_solutions_coverage.csv`; cohorts are plotted only when
-`frac_vac > .05`. This quantity sums vaccinated compartments at the overall
-infection peak, rather than counting cumulative administrations.
+## Rebuild the paper
 
-The dose-response figure is also regenerated, but the manuscript uses the
-separately edited `dose_response_edited.pdf`. The theoretical figures and model
-diagram are separate assets. Finally, compile `overleaf/optimal_stretching24.tex`.
+The scripts write figures and tables under `paper/` and copy the main generated figures to `overleaf/figures/`. The manuscript uses the edited dose–response figure and the theoretical figures already in that directory.
 
-## Sensitivity analyses
+If the table results change, copy the generated rows from `overleaf/tables/calibration_rows.tex` and `overleaf/tables/sensitivity_rows.tex` into the corresponding tables in the manuscript. Compile `optimal_stretching24.tex` from the `overleaf/` directory.
 
-See [`sensitivity/README.md`](sensitivity/README.md). The systematic analysis
-calibrates R0 and E(0) jointly to compare attack rates of 30% and 70% at a
-three-month peak, and 50% attack rates with peaks at two, four and six months.
-The base case supplies the three-month timing comparison. All attack targets
-and vaccination outcomes refer to day 360.
+## Licence
 
-`R/scenario_calibration.R` contains the shared calibration helpers.
-`setup/base_case_calibration.csv` records the rounded base case and its achieved
-attack rate and peak. Changing the default requires updating the constants in
-`setup/parametrisation.R`, recalibrating the sensitivities, and rerunning the
-commands above. Sensitivity caches are checked against the case settings and
-model source; use `refit <- TRUE` after other relevant code changes.
+Copyright © 2026 Michael Kremer, Christopher M. Snyder, Witold Więcek, and contributors.
 
-## Review
+- The original replication code is available under the [BSD 3-Clause licence](LICENSE).
+- The original replication documentation and analysis outputs are available under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). Please use the citation above when crediting the work.
 
-`review_nov2026/complete_review.html` contains the author's notes, the manuscript
-diffs, and a directly rendered sensitivity table. Run
-`python3 review_nov2026/build_complete_review.py` to rebuild it after updating
-both the manuscript and the generated figures. The comparison baseline is
-pinned to commit `907b3f8`, so committing later edits does not reset the review.
+The working paper (PDF and source) is outside the scope of these licences. Third-party materials, including externally sourced model inputs, remain subject to their original terms.
